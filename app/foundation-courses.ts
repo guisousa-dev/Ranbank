@@ -1,6 +1,9 @@
 // Fundação RanBank: categorias, cursos e trilha.
 // A página /fundacao (no site do banco) e o catálogo /fundacao/cursos usam esta mesma lista.
 // Para mudar um curso, um nome ou uma descrição, edite só este arquivo.
+// As aulas de cada curso seguem o padrão de foundation-lessons.ts.
+
+import { lessonsOf } from "./foundation-lessons";
 
 /** Endereço do site da Fundação. Se ele ganhar um domínio próprio, troque aqui. */
 export const FOUNDATION_SITE_URL = "/fundacao/cursos";
@@ -45,7 +48,7 @@ export type Course = {
 export const COURSES: Course[] = [
   { id: "educacao-financeira", title: "Educação financeira pessoal", category: "vida", tags: ["Dinheiro", "Planejamento", "Dia a dia"],
     hook: "Descubra para onde vai o seu dinheiro e faça ele durar até o fim do mês.",
-    learn: ["Montar um orçamento simples com o que entra e o que sai", "Separar gastos fixos, variáveis e o que é desejo", "Criar uma reserva para emergências, mesmo guardando pouco", "Usar Pix, cartão e crédito sem cair em dívida", "Reconhecer golpes e promessas de dinheiro fácil"],
+    learn: ["Montar um orçamento simples com o que entra e o que sai", "Separar gastos fixos, variáveis e o que é desejo", "Criar uma reserva para emergências, mesmo guardando pouco", "Usar cartão e crédito sem cair em dívida", "Reconhecer golpes e promessas de dinheiro fácil"],
     description: "Como organizar o dinheiro do mês, separar o que é gasto do que é sonho e começar a guardar, mesmo ganhando pouco." },
   { id: "gestao-tempo", title: "Gestão de tempo", category: "vida", tags: ["Planejamento", "Rotina", "Estudos"],
     hook: "Dê conta de estudo, trabalho e ainda sobre tempo para você.",
@@ -61,7 +64,7 @@ export const COURSES: Course[] = [
     learn: ["Reconhecer as principais peças de um computador", "Entender o que cada peça faz e como elas conversam", "Instalar e configurar um sistema operacional", "Organizar arquivos, programas e atualizações", "Resolver problemas comuns e manter o computador saudável"],
    
     description: "Das peças do computador ao sistema que faz tudo funcionar: entender, cuidar e resolver problemas comuns.",
-    modules: [{ title: "Hardware básico" }, { title: "Sistema operacional" }],
+    // Os módulos (Hardware e Software) e as aulas ficam em foundation-content/hardware-so.ts.
   },
   { id: "impressora-3d", title: "Impressora 3D", category: "tecnologia", tags: ["Tecnologia", "Criação", "Mão na massa"],
     hook: "Tire uma ideia da cabeça e segure ela na mão.",
@@ -74,8 +77,7 @@ export const COURSES: Course[] = [
   { id: "domino", title: "Dominó", category: "jogos", tags: ["Estratégia", "Raciocínio", "Diversão"],
     hook: "Na mesa, quem conta as pedras sai na frente.",
     learn: ["Regras do dominó e das variações mais jogadas", "Contar pedras e prever o jogo do adversário", "Jogar em dupla com estratégia", "Saber a hora de fechar ou segurar o jogo"],
-    description: "Regras, contagem de pedras e as jogadas que fazem diferença na mesa." },
-  { id: "jogos", title: "Jogos", category: "jogos", tags: ["Estratégia", "Diversão", "Criação", "Equipe"],
+    description: "Regras, contagem de pedras e as jogadas que fazem diferença na mesa." },  { id: "jogos", title: "Jogos", category: "jogos", tags: ["Estratégia", "Diversão", "Criação", "Equipe"],
     hook: "Jogar também é treinar a cabeça.",
     learn: ["Entender o que torna um jogo divertido", "Pensar em estratégia antes de cada jogada", "Aprender com a derrota e ajustar o plano", "Jogar em equipe e respeitar as regras"],
     description: "O que torna um jogo divertido e como pensar em estratégia jogando." },
@@ -90,8 +92,7 @@ export const COURSES: Course[] = [
   { id: "autodesenvolvimento", title: "Autodesenvolvimento", category: "expressao", tags: ["Autoconhecimento", "Planejamento", "Rotina"],
     hook: "Conheça seus pontos fortes e faça um plano para crescer.",
     learn: ["Identificar seus pontos fortes e o que quer melhorar", "Definir metas possíveis, com prazo", "Criar hábitos pequenos que se mantêm", "Lidar com erros sem desistir", "Montar um plano para os próximos meses"],
-    description: "Conhecer seus pontos fortes, definir metas possíveis e criar hábitos que ajudam a chegar lá." },
-  { id: "literatura", title: "Literatura", category: "expressao", tags: ["Leitura", "Escrita", "Criação"],
+    description: "Conhecer seus pontos fortes, definir metas possíveis e criar hábitos que ajudam a chegar lá." },  { id: "literatura", title: "Literatura", category: "expressao", tags: ["Leitura", "Escrita", "Criação"],
     hook: "Leia com gosto e comece a escrever as suas histórias.",
     learn: ["Escolher livros que combinam com você", "Entender melhor o que lê e conversar sobre isso", "Reconhecer estilos e gêneros literários", "Escrever um conto curto do início ao fim"],
     description: "Ler com gosto, entender melhor o que se lê e começar a escrever as próprias histórias." },
@@ -130,8 +131,15 @@ export const hasLongWord = (title: string, limit = 15) => title.split(" ").some(
 export const categoryOf = (id: CategoryId) => CATEGORIES.find((category) => category.id === id) ?? CATEGORIES[0];
 export const courseById = (id: string) => COURSES.find((course) => course.id === id);
 
-/** Partes do curso: as definidas, ou uma parte única com o nome do curso. */
-export const partsOf = (course: Course) => course.modules ?? [{ title: "Aula de apresentação" }];
+/** O curso já tem aulas no padrão da Fundação? */
+export const hasLessons = (course: Course) => lessonsOf(course.id).length > 0;
+
+/** Partes do curso: as aulas (quando já existem), as partes previstas, ou uma parte única. */
+export const partsOf = (course: Course): Array<{ title: string }> => {
+  const lessons = lessonsOf(course.id);
+  if (lessons.length) return lessons.map(({ lesson }) => ({ title: lesson.title }));
+  return course.modules ?? [{ title: "Aula de apresentação" }];
+};
 
 /** Assuntos em comum entre dois cursos. */
 export const sharedTags = (a: Course, b: Course) => a.tags.filter((tag) => b.tags.includes(tag));
