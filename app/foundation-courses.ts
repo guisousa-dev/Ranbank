@@ -108,19 +108,17 @@ export const STARTER_PATH = ["educacao-financeira", "gestao-tempo", "autodesenvo
 /**
  * Fotos dos cursos: Unsplash (licença gratuita, permite uso sem pagar).
  * Ficam em public/images/fundacao/<id do curso>.webp, em 960 × 540.
+ * Educação financeira, Impressora 3D e Literatura usam imagens do material do próprio curso (sem crédito).
  */
 export const PHOTO_CREDITS: Record<string, { by: string; url: string }> = {
-  "educacao-financeira": { by: "Towfiqu barbhuiya", url: "https://unsplash.com/photos/joqWSI9u_XM" },
   "gestao-tempo": { by: "Estée Janssens", url: "https://unsplash.com/photos/aQfhbxailCs" },
   "primeiros-socorros": { by: "Kristine Wook", url: "https://unsplash.com/photos/ZyxNWi3JCto" },
   "hardware-so": { by: "Alexandre Debiève", url: "https://unsplash.com/photos/FO7JIlwjOtU" },
-  "impressora-3d": { by: "Osman Talha Dikyar", url: "https://unsplash.com/photos/NMCABEhN0RE" },
   "xadrez": { by: "Randy Fath", url: "https://unsplash.com/photos/G1yhU1Ej-9A" },
   "domino": { by: "Ryan Quintal", url: "https://unsplash.com/photos/Ecp0vf3f_aw" },
   "jogos": { by: "Nik Korba", url: "https://unsplash.com/photos/3WceTBlUoMs" },
   "futebol": { by: "Wesley Tingey", url: "https://unsplash.com/photos/dKCKiC0BQtU" },
   "autodesenvolvimento": { by: "Cathryn Lavery", url: "https://unsplash.com/photos/fMD_Cru6OTk" },
-  "literatura": { by: "Kimberly Farmer", url: "https://unsplash.com/photos/lUaaKCUANVI" },
   "maquiagem": { by: "Rosa Rafael", url: "https://unsplash.com/photos/pxax5WuM7eY" },
 };
 export const courseImage = (course: Course) => `/images/fundacao/${course.id}.webp`;
