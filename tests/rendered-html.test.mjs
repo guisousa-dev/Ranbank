@@ -366,6 +366,42 @@ test("links the bank's Foundation page to the Foundation course catalog", async 
   assert.match(catalog, /Projeto educacional e demonstrativo/);
 });
 
+test("Foundation lessons follow one standard and open over the catalog", async () => {
+  const lessons = await readFile(new URL("../app/foundation-lessons.ts", import.meta.url), "utf8");
+  const catalog = await readFile(new URL("../app/FoundationCatalog.tsx", import.meta.url), "utf8");
+  // Só quatro tipos de quadro, em todos os cursos.
+  assert.match(lessons, /export type BoxKind = "exemplo" \| "pratica" \| "atencao" \| "chave";/);
+  // Cursos com aulas e quantas aulas cada um tem. Toda aula tem objetivos, atividade e resumo em 3 pontos.
+  const expected = { "educacao-financeira": 8, "gestao-tempo": 4, "autodesenvolvimento": 3, "hardware-so": 4 };
+  let allContent = "";
+  for (const [id, total] of Object.entries(expected)) {
+    assert.match(lessons, new RegExp(`"${id}": [A-Z_]+`), id);
+    const content = await readFile(new URL(`../app/foundation-content/${id}.ts`, import.meta.url), "utf8");
+    const count = (pattern) => (content.match(pattern) ?? []).length;
+    assert.equal(count(/^\s+id: "/gm), total, `${id} tem ${total} aulas`);
+    for (const field of [/goals: \[/g, /activity: \{/g, /recap: \[/g]) assert.equal(count(field), total, `${id}: ${field}`);
+    allContent += content;
+  }
+  // Imagens das aulas: toda imagem existe em public/ e tem descrição (alt) para leitor de tela.
+  const images = [...allContent.matchAll(/\{ image: "([^"]+)", alt: "((?:[^"\\]|\\.)*)" \}/g)];
+  assert.ok(images.length >= 20, "as aulas têm imagens");
+  for (const [, src, alt] of images) {
+    await readFile(new URL(`../public${src}`, import.meta.url));
+    assert.ok(alt.length > 30, `${src} tem descrição`);
+  }
+  // Curso que junta duas partes: a parte sem material aparece como em preparação.
+  assert.match(allContent, /\{ title: "Hardware básico", lessons: \[\] \}/);
+  assert.match(catalog, /Esta parte do curso ainda está em preparação\./);
+  // Modo aula: por cima da home, com endereço próprio, voltar do navegador, resposta escondida e vídeo com legenda.
+  assert.match(catalog, /function LessonView\(/);
+  assert.match(catalog, /aria-labelledby="fc-lesson-title"/);
+  assert.match(catalog, /addEventListener\("popstate"/);
+  assert.match(catalog, /<summary>Ver resposta<\/summary>/);
+  assert.match(catalog, /youtube-nocookie\.com\/embed\/\$\{lesson\.video\.youtubeId\}\?cc_load_policy=1/);
+  // Sem créditos de autoria nas aulas.
+  for (const word of ["autoria", "Responsável pela elaboração", "Elaborado por"]) assert.ok(!allContent.includes(word) && !lessons.includes(word), word);
+});
+
 test("shows the app from the inside with four calm, interactive screens", async () => {
   const publicSite = await readFile(new URL("../app/PublicSiteGate.tsx", import.meta.url), "utf8");
   const calm = await readFile(new URL("../app/CalmBank.tsx", import.meta.url), "utf8");

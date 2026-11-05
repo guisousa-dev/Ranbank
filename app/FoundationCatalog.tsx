@@ -4,19 +4,23 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
-import { CATEGORIES, COURSES, PHOTO_CREDITS, STARTER_PATH, categoryOf, courseById, courseImage, hasLongWord, partsOf, sharedTags, similarCourses } from "./foundation-courses";
+import { CATEGORIES, COURSES, PHOTO_CREDITS, STARTER_PATH, categoryOf, courseById, courseImage, hasLessons, hasLongWord, partsOf, sharedTags, similarCourses } from "./foundation-courses";
 import type { CategoryId, Course } from "./foundation-courses";
+import { BOX_LABEL, COURSE_CONTENT, lessonMinutes, lessonsOf } from "./foundation-lessons";
+import type { Block } from "./foundation-lessons";
 import { CategoryGlyph, PlayGlyph } from "./FoundationIcons";
 import { Mark } from "./FoundationBadge";
 
 /*
  * Site da Fundação RanBank: catálogo de cursos, no jeito de um app de streaming.
- * Passar o mouse mostra uma prévia; clicar abre o modal com tudo; "Assistir" abre o player de prévia.
+ * Passar o mouse mostra uma prévia; clicar abre o modal com tudo; "Assistir" abre a aula
+ * (modo aula, por cima da home) ou, nos cursos que ainda não têm aulas, o player de prévia.
  * Login: a Fundação está no mesmo site do banco, então usa a mesma sessão (mesmo nome, CPF e senha).
  * O que cada pessoa assiste, guarda e curte fica salvo neste navegador, separado por conta (localStorage).
  */
 
-type Progress = { part: number; pct: number; updatedAt: string; done?: boolean };
+/** Progresso de um curso. Nos cursos com aulas, `doneLessons` guarda quais aulas a pessoa concluiu (podem ser fora de ordem). */
+type Progress = { part: number; pct: number; updatedAt: string; done?: boolean; doneLessons?: number[] };
 type Saved = { list: string[]; liked: string[]; progress: Record<string, Progress> };
 const STORAGE_KEY = "fundacao-ranbank";
 const EMPTY: Saved = { list: [], liked: [], progress: {} };
@@ -69,13 +73,32 @@ async function readAccount(): Promise<Account | null> {
 function coursePct(course: Course, progress?: Progress) {
   if (!progress) return 0;
   if (progress.done) return 100;
+  if (hasLessons(course)) return Math.round(((progress.doneLessons?.length ?? 0) / partsOf(course).length) * 100);
   return Math.round(((progress.part + progress.pct / 100) / partsOf(course).length) * 100);
 }
+
+/** A parte (ou aula) já foi feita? */
+function partDone(course: Course, progress: Progress | undefined, index: number) {
+  if (!progress) return false;
+  if (progress.done) return true;
+  return hasLessons(course) ? Boolean(progress.doneLessons?.includes(index)) : index < progress.part;
+}
+
+/** Marca no histórico do navegador de que a aula está aberta (fcEntry: a pessoa chegou direto pelo link da aula). */
+type LessonHistory = { fcAula?: boolean; fcEntry?: boolean };
+const lessonUrl = (course: Course, index: number) => `${window.location.pathname}?curso=${course.id}&aula=${index + 1}`;
 
 const cardStyle = (course: Course) => {
   const category = categoryOf(course.category);
   return { "--fc-bg": category.bg, "--fc-accent": category.accent } as CSSProperties;
 };
+
+/** "8 aulas", "2 partes" ou "Parte única". */
+function partsLabel(course: Course) {
+  const count = partsOf(course).length;
+  if (hasLessons(course)) return count === 1 ? "1 aula" : `${count} aulas`;
+  return count > 1 ? `${count} partes` : "Parte única";
+}
 
 const normalize = (text: string) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 const longTitle = (course: Course) => (hasLongWord(course.title) ? "is-long" : "");
@@ -173,7 +196,6 @@ function HoverPreview({ state, actions, lastWatched, onEnter, onLeave }: { state
   const inList = actions.saved.list.includes(course.id);
   const liked = actions.saved.liked.includes(course.id);
   const common = lastWatched && lastWatched.id !== course.id ? sharedTags(lastWatched, course) : [];
-  const parts = partsOf(course);
   return (
     <div className="fc-preview" role="group" aria-label={`Prévia: ${course.title}`} style={{ ...cardStyle(course), left: state.left, top: state.top, width: state.width }} onMouseEnter={onEnter} onMouseLeave={onLeave}>
       <button type="button" className="fc-preview-art" onClick={() => actions.play(course)} aria-label={`${pct ? "Continuar" : "Assistir"} ${course.title}`}>
@@ -193,7 +215,7 @@ function HoverPreview({ state, actions, lastWatched, onEnter, onLeave }: { state
         <p className="fc-preview-hook">{course.hook}</p>
         {common.length > 0 && lastWatched && <p className="fc-preview-match">Tem a ver com {lastWatched.title}: {common.join(", ").toLowerCase()}</p>}
         <p className="fc-preview-meta">
-          <span>{parts.length > 1 ? `${parts.length} partes` : "Parte única"}</span>
+          <span>{partsLabel(course)}</span>
           {pct > 0 && <span className="is-green">{progress?.done ? "Concluído" : `${pct}% assistido`}</span>}
         </p>
         <ul className="fc-tags">{course.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>
@@ -213,6 +235,7 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
   const inList = actions.saved.list.includes(course.id);
   const liked = actions.saved.liked.includes(course.id);
   const parts = partsOf(course);
+  const lessons = lessonsOf(course.id);
   const similar = similarCourses(course, [], 6);
 
   // Foco no botão de fechar ao abrir; Esc fecha. Ao trocar de curso, volta para o topo.
@@ -228,7 +251,7 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
 
   const partState = (index: number) => {
     if (!progress) return { pct: 0, label: "" };
-    if (progress.done || index < progress.part) return { pct: 100, label: "Vista" };
+    if (partDone(course, progress, index)) return { pct: 100, label: "Vista" };
     if (index === progress.part) return { pct: progress.pct, label: progress.pct ? `${progress.pct}%` : "" };
     return { pct: 0, label: "" };
   };
@@ -255,7 +278,7 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
           <div className="fc-dialog-main">
             <p className="fc-dialog-meta">
               {pct > 0 && <span className="is-green">{progress?.done ? "Concluído" : `${pct}% assistido`}</span>}
-              <span>{parts.length > 1 ? `${parts.length} partes` : "Parte única"}</span>
+              <span>{partsLabel(course)}</span>
               <span>Para iniciantes</span>
             </p>
             <p className="fc-dialog-text">{course.description}</p>
@@ -271,24 +294,57 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
           </aside>
         </div>
 
-        <div className="fc-dialog-section">
-          <h3>Partes do curso</h3>
-          <ol className="fc-parts">
-            {parts.map((part, index) => {
-              const state = partState(index);
-              return (
-                <li key={part.title}>
-                  <button type="button" onClick={() => actions.play(course, index)} aria-label={`Assistir parte ${index + 1}: ${part.title}`}>
-                    <b aria-hidden="true">{index + 1}</b>
-                    <span className="fc-part-copy"><strong>{part.title}</strong>{state.pct > 0 && <span className="fc-part-bar" aria-hidden="true"><i style={{ width: `${state.pct}%` }} /></span>}</span>
-                    <span className="fc-part-state">{state.label || <PlayGlyph size={16} />}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-          <p className="fc-dialog-note">Prévia: as aulas estão sendo gravadas. O player já salva o seu progresso neste navegador.</p>
-        </div>
+        {lessons.length > 0 ? (
+          <div className="fc-dialog-section">
+            <h3>Aulas</h3>
+            {COURSE_CONTENT[course.id].modules.map((module, moduleIndex) => (
+              <div className="fc-module" key={module.title}>
+                <h4>Módulo {moduleIndex + 1}: {module.title}</h4>
+                {module.lessons.length === 0 && <p className="fc-module-soon">Esta parte do curso ainda está em preparação.</p>}
+                <ol className="fc-parts">
+                  {lessons.map((item, index) => {
+                    if (item.moduleIndex !== moduleIndex) return null;
+                    const state = partState(index);
+                    return (
+                      <li key={item.lesson.id}>
+                        <button type="button" onClick={() => actions.play(course, index)} aria-label={`Abrir aula ${index + 1}: ${item.lesson.title}. ${lessonMinutes(item.lesson)} minutos${state.label ? `. ${state.label}` : ""}`}>
+                          <b aria-hidden="true">{index + 1}</b>
+                          <span className="fc-part-copy">
+                            <strong>{item.lesson.title}</strong>
+                            <small>{item.lesson.summary}</small>
+                            {state.pct > 0 && state.pct < 100 && <span className="fc-part-bar" aria-hidden="true"><i style={{ width: `${state.pct}%` }} /></span>}
+                          </span>
+                          <span className="fc-part-time" aria-hidden="true">{item.lesson.video ? "Vídeo e texto" : "Texto"} · {lessonMinutes(item.lesson)} min</span>
+                          <span className="fc-part-state" aria-hidden="true">{state.label === "Vista" ? "Feita" : state.label || <PlayGlyph size={16} />}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+            ))}
+            <p className="fc-dialog-note">O seu progresso fica salvo neste navegador. Cada aula tem texto, atividade e resumo; as que tiverem vídeo trazem legenda.</p>
+          </div>
+        ) : (
+          <div className="fc-dialog-section">
+            <h3>Partes do curso</h3>
+            <ol className="fc-parts">
+              {parts.map((part, index) => {
+                const state = partState(index);
+                return (
+                  <li key={part.title}>
+                    <button type="button" onClick={() => actions.play(course, index)} aria-label={`Assistir parte ${index + 1}: ${part.title}`}>
+                      <b aria-hidden="true">{index + 1}</b>
+                      <span className="fc-part-copy"><strong>{part.title}</strong>{state.pct > 0 && <span className="fc-part-bar" aria-hidden="true"><i style={{ width: `${state.pct}%` }} /></span>}</span>
+                      <span className="fc-part-state">{state.label || <PlayGlyph size={16} />}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+            <p className="fc-dialog-note">Prévia: as aulas estão sendo gravadas. O player já salva o seu progresso neste navegador.</p>
+          </div>
+        )}
 
         {similar.length > 0 && (
           <div className="fc-dialog-section">
@@ -314,6 +370,220 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
           </div>
         )}
       </section>
+    </div>
+  );
+}
+
+/* Modo aula: a aula abre por cima da home, como um episódio ----------- */
+
+function LessonBlock({ block }: { block: Block }) {
+  if (typeof block === "string") return <p>{block}</p>;
+  if ("list" in block) {
+    const items = block.list.map((item) => <li key={item}>{item}</li>);
+    return block.ordered ? <ol>{items}</ol> : <ul>{items}</ul>;
+  }
+  if ("box" in block) {
+    return (
+      <aside className={`fc-box is-${block.box}`} aria-label={BOX_LABEL[block.box]}>
+        <strong>{BOX_LABEL[block.box]}</strong>
+        <p>{block.text}</p>
+      </aside>
+    );
+  }
+  if ("image" in block) {
+    return (
+      <figure className="fc-lesson-figure">
+        <img src={block.image} alt={block.alt} loading="lazy" decoding="async" />
+      </figure>
+    );
+  }
+  const { caption, head, rows } = block.table;
+  return (
+    <div className="fc-table">
+      <table>
+        <caption>{caption}</caption>
+        <thead><tr>{head.map((cell) => <th key={cell} scope="col">{cell}</th>)}</tr></thead>
+        <tbody>{rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, index) => index === 0 ? <th key={index} scope="row">{cell}</th> : <td key={index}>{cell}</td>)}</tr>)}</tbody>
+      </table>
+    </div>
+  );
+}
+
+function LessonView({ course, start, progress, onSave, onNavigate, onClose, onOpen }: {
+  course: Course; start: number; progress?: Progress;
+  onSave: (progress: Progress) => void; onNavigate: (index: number) => void; onClose: () => void; onOpen: (course: Course) => void;
+}) {
+  const content = COURSE_CONTENT[course.id];
+  const lessons = lessonsOf(course.id);
+  const [index, setIndex] = useState(Math.min(start, lessons.length - 1));
+  const [finished, setFinished] = useState(false);
+  const [listOpen, setListOpen] = useState(false);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
+  const latest = useRef({ progress, onSave, onNavigate, onClose });
+  useEffect(() => { latest.current = { progress, onSave, onNavigate, onClose }; });
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") latest.current.onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Ao abrir uma aula: volta para o topo, leva o foco ao título e marca onde a pessoa está.
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 });
+    titleRef.current?.focus();
+    const current = latest.current.progress;
+    // "Continue assistindo" volta para a última aula aberta.
+    if (!current?.done && current?.part !== index) latest.current.onSave({ ...current, part: index, pct: 0, updatedAt: new Date().toISOString() });
+    latest.current.onNavigate(index);
+  }, [index]);
+
+  // Quanto da aula atual já foi lido (pela rolagem), de 10 em 10%.
+  const onScroll = () => {
+    const main = mainRef.current;
+    const current = latest.current.progress;
+    if (!main || !current || current.done || current.part !== index) return;
+    const pct = Math.min(90, Math.floor((main.scrollTop / Math.max(1, main.scrollHeight - main.clientHeight)) * 10) * 10);
+    if (pct > current.pct) latest.current.onSave({ ...current, part: index, pct, updatedAt: new Date().toISOString() });
+  };
+
+  const go = (next: number) => { setListOpen(false); setFinished(false); setIndex(next); };
+  const isDone = (lessonIndex: number) => partDone(course, progress, lessonIndex);
+  const missing = lessons.map((_, lessonIndex) => lessonIndex).filter((lessonIndex) => lessonIndex !== index && !isDone(lessonIndex));
+  const isLast = index === lessons.length - 1;
+  // Concluir: marca a aula como feita e segue. Com todas feitas, o curso termina.
+  const complete = () => {
+    const current = latest.current.progress;
+    const doneLessons = [...new Set([...(current?.doneLessons ?? []), index])].sort((a, b) => a - b);
+    const now = new Date().toISOString();
+    if (current?.done || missing.length === 0) {
+      onSave({ part: index, pct: 100, updatedAt: now, done: true, doneLessons });
+      setFinished(true);
+      return;
+    }
+    const next = isLast ? missing[0] : index + 1;
+    onSave({ part: next, pct: 0, updatedAt: now, doneLessons });
+    go(next);
+  };
+
+  const { lesson, module, moduleIndex } = lessons[index];
+  const next = similarCourses(course, [], 3);
+
+  return (
+    <div className="fc-lesson" role="dialog" aria-modal="true" aria-labelledby="fc-lesson-title" style={cardStyle(course)}>
+      <div className="fc-player-top fc-lesson-top">
+        <button type="button" className="fc-player-back" onClick={onClose}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
+          Voltar
+        </button>
+        <span><strong>{course.title}</strong><small>Aula {index + 1} de {lessons.length}</small></span>
+        <button type="button" className="fc-lesson-toggle" aria-expanded={listOpen} aria-controls="fc-lesson-list" onClick={() => setListOpen(!listOpen)}>Aulas</button>
+      </div>
+
+      <div className="fc-lesson-body">
+        <nav id="fc-lesson-list" className={`fc-lesson-list ${listOpen ? "is-open" : ""}`} aria-label="Aulas do curso">
+          {content.modules.map((item, itemIndex) => (
+            <div key={item.title}>
+              <p>Módulo {itemIndex + 1}: {item.title}</p>
+              {item.lessons.length === 0 && <small className="fc-module-soon">Em preparação</small>}
+              <ol>
+                {lessons.map((entry, lessonIndex) => entry.moduleIndex === itemIndex && (
+                  <li key={entry.lesson.id}>
+                    <button type="button" aria-current={lessonIndex === index ? "step" : undefined} onClick={() => go(lessonIndex)}>
+                      <span className={`fc-lesson-dot ${isDone(lessonIndex) ? "is-done" : ""}`} aria-hidden="true">{isDone(lessonIndex) ? "✓" : lessonIndex + 1}</span>
+                      <span>{entry.lesson.title}{isDone(lessonIndex) && <span className="fc-sr"> (feita)</span>}</span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </nav>
+
+        <div className="fc-lesson-main" ref={mainRef} onScroll={onScroll}>
+          {finished ? (
+            <div className="fc-player-end">
+              <span className="fc-player-check" aria-hidden="true">✓</span>
+              <h2 id="fc-lesson-title" ref={titleRef} tabIndex={-1}>Você concluiu {course.title}!</h2>
+              {content.closing && <p>{content.closing}</p>}
+              <p>Porque você fez este curso, talvez goste de:</p>
+              <div className="fc-player-next">
+                {next.map((other) => (
+                  <button type="button" key={other.id} style={cardStyle(other)} onClick={() => { onClose(); onOpen(other); }}>
+                    <CoursePhoto course={other} />
+                    <CategoryTag course={other} />
+                    <strong>{other.title}</strong>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <article className="fc-lesson-article">
+              <p className="fc-lesson-eyebrow">Módulo {moduleIndex + 1} · {module.title}</p>
+              <h2 id="fc-lesson-title" ref={titleRef} tabIndex={-1}>{lesson.title}</h2>
+              <p className="fc-lesson-meta">Aula {index + 1} de {lessons.length} · cerca de {lessonMinutes(lesson)} minutos</p>
+
+              <section className="fc-lesson-goals" aria-labelledby="fc-goals">
+                <h3 id="fc-goals">Nesta aula você vai</h3>
+                <ul>{lesson.goals.map((goal) => <li key={goal}>{goal}</li>)}</ul>
+              </section>
+
+              {lesson.video && (
+                <figure className="fc-lesson-video">
+                  <iframe
+                    src={`https://www.youtube-nocookie.com/embed/${lesson.video.youtubeId}?cc_load_policy=1&rel=0`}
+                    title={`Vídeo da aula: ${lesson.title}`} loading="lazy"
+                    allow="encrypted-media; picture-in-picture; fullscreen" referrerPolicy="strict-origin-when-cross-origin"
+                  />
+                  <figcaption>Vídeo com legenda ({lesson.video.minutes} min). O mesmo conteúdo está em texto logo abaixo.</figcaption>
+                </figure>
+              )}
+
+              {lesson.sections.map((section, sectionIndex) => (
+                <section key={section.title} className="fc-lesson-section">
+                  <h3>{sectionIndex + 1}. {section.title}</h3>
+                  {section.body.map((block, blockIndex) => <LessonBlock key={blockIndex} block={block} />)}
+                </section>
+              ))}
+
+              <section className="fc-lesson-activity" aria-labelledby="fc-activity">
+                <p className="fc-lesson-eyebrow">Atividade</p>
+                <h3 id="fc-activity">{lesson.activity.title}</h3>
+                <ol>{lesson.activity.steps.map((step) => <li key={step}>{step}</li>)}</ol>
+                {lesson.activity.note && <p>{lesson.activity.note}</p>}
+                {lesson.activity.answer && (
+                  <details>
+                    <summary>Ver resposta</summary>
+                    <p>{lesson.activity.answer}</p>
+                  </details>
+                )}
+              </section>
+
+              <section className="fc-lesson-recap" aria-labelledby="fc-recap">
+                <h3 id="fc-recap">Resumo da aula</h3>
+                <ul>{lesson.recap.map((item) => <li key={item}>{item}</li>)}</ul>
+              </section>
+
+              {lesson.files && lesson.files.length > 0 && (
+                <section className="fc-lesson-files" aria-labelledby="fc-files">
+                  <h3 id="fc-files">Material para baixar</h3>
+                  <ul>{lesson.files.map((file) => <li key={file.href}><a href={file.href} download>{file.label} <span>({file.size})</span></a></li>)}</ul>
+                </section>
+              )}
+
+              {content.note && <p className="fc-lesson-note">{content.note}</p>}
+
+              <div className="fc-lesson-nav">
+                {index > 0 && <button type="button" className="fc-btn fc-btn-soft" onClick={() => go(index - 1)}>Aula anterior</button>}
+                <button type="button" className="fc-btn fc-btn-light" onClick={complete}>
+                  {progress?.done || missing.length === 0 ? "Concluir o curso" : isLast ? `Concluir e ir para a aula ${missing[0] + 1}` : "Concluir e ir para a próxima"}
+                </button>
+              </div>
+            </article>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -524,9 +794,18 @@ export default function FoundationCatalog() {
     let active = true;
     const timer = window.setTimeout(() => {
       setSaved(readSaved());
-      const linked = courseById(new URLSearchParams(window.location.search).get("curso") ?? "");
-      if (linked) setOpen(linked);
+      const params = new URLSearchParams(window.location.search);
+      const linked = courseById(params.get("curso") ?? "");
+      const lesson = Number(params.get("aula"));
+      // Link direto para uma aula (?curso=...&aula=2) abre a aula; só o curso abre o modal.
+      if (linked && hasLessons(linked) && lesson >= 1 && lesson <= partsOf(linked).length) {
+        window.history.replaceState({ ...window.history.state, fcAula: true, fcEntry: true }, "", window.location.href);
+        setPlaying({ course: linked, part: lesson - 1, pct: 0 });
+      } else if (linked) setOpen(linked);
     }, 0);
+    // Voltar do navegador fecha a aula, em vez de sair da Fundação.
+    const onPop = () => { if (!(window.history.state as LessonHistory | null)?.fcAula) setPlaying(null); };
+    window.addEventListener("popstate", onPop);
     // Se a pessoa já entrou no banco, a Fundação usa a mesma conta.
     void readAccount().then((found) => {
       if (!active) return;
@@ -543,7 +822,7 @@ export default function FoundationCatalog() {
     });
     const hide = () => setPreview(null);
     window.addEventListener("scroll", hide, { passive: true });
-    return () => { active = false; window.clearTimeout(timer); window.removeEventListener("scroll", hide); window.clearTimeout(hoverTimer.current); window.clearTimeout(leaveTimer.current); };
+    return () => { active = false; window.clearTimeout(timer); window.removeEventListener("scroll", hide); window.removeEventListener("popstate", onPop); window.clearTimeout(hoverTimer.current); window.clearTimeout(leaveTimer.current); };
   }, []);
   useEffect(() => { if (searching) searchRef.current?.focus(); }, [searching]);
 
@@ -562,8 +841,11 @@ export default function FoundationCatalog() {
     play: (course, part) => {
       const progress = saved.progress[course.id];
       const resume = part === undefined && progress && !progress.done;
+      const start = Math.min(part ?? (resume ? progress.part : 0), partsOf(course).length - 1);
       setPreview(null); setOpen(null);
-      setPlaying({ course, part: part ?? (resume ? progress.part : 0), pct: resume && progress.pct < 100 ? progress.pct : 0 });
+      // A aula ganha um endereço próprio; assim o "voltar" do navegador fecha a aula.
+      if (hasLessons(course)) window.history.pushState({ ...window.history.state, fcAula: true }, "", lessonUrl(course, start));
+      setPlaying({ course, part: start, pct: resume && progress.pct < 100 ? progress.pct : 0 });
     },
     open: (course) => { setPreview(null); setOpen(course); },
     toggleList: toggle("list"),
@@ -594,6 +876,16 @@ export default function FoundationCatalog() {
     },
   };
   const hidePreview = () => { window.clearTimeout(hoverTimer.current); setPreview(null); };
+
+  const saveProgress = (course: Course) => (progress: Progress) => update((current) => ({ ...current, progress: { ...current.progress, [course.id]: progress } }));
+  const closeLesson = (course: Course) => {
+    const state = window.history.state as LessonHistory | null;
+    if (state?.fcAula && !state.fcEntry) { window.history.back(); return; }
+    // Chegou direto pelo link da aula: não há para onde voltar, então mostra o curso.
+    window.history.replaceState({ ...state, fcAula: false, fcEntry: false }, "", `${window.location.pathname}?curso=${course.id}`);
+    setPlaying(null);
+    setOpen(course);
+  };
 
   const starter = STARTER_PATH.map((id) => courseById(id)).filter((course): course is Course => Boolean(course));
   const featured = starter[featuredIndex] ?? starter[0];
@@ -697,7 +989,7 @@ export default function FoundationCatalog() {
               ? watching.map(({ course, progress }) => (
                 <div className="fc-continue" key={course.id}>
                   <CourseCard course={course} handlers={handlers} pct={coursePct(course, progress)} />
-                  <span><strong>{course.title}</strong><small>Parte {progress.part + 1} de {partsOf(course).length} · {coursePct(course, progress)}% assistido</small></span>
+                  <span><strong>{course.title}</strong><small>{hasLessons(course) ? "Aula" : "Parte"} {progress.part + 1} de {partsOf(course).length} · {coursePct(course, progress)}% {hasLessons(course) ? "feito" : "assistido"}</small></span>
                 </div>
               ))
               : <p className="fc-empty"><span>Aperte <b>Assistir</b> em qualquer curso e ele aparece aqui, do ponto em que você parou.</span></p>}
@@ -764,15 +1056,24 @@ export default function FoundationCatalog() {
       {preview && <HoverPreview state={preview} actions={actions} lastWatched={latest?.course} onEnter={() => window.clearTimeout(leaveTimer.current)} onLeave={handlers.onHoverEnd} />}
       {open && <CourseDialog course={open} actions={actions} onClose={() => setOpen(null)} />}
       {profileOpen && account && <ProfileDialog account={account} saved={saved} onOpen={(course) => { setProfileOpen(false); actions.open(course); }} onLogout={() => { void logout(); }} onClose={() => setProfileOpen(false)} />}
-      {playing && (
+      {playing && (hasLessons(playing.course) ? (
+        <LessonView
+          key={playing.course.id}
+          course={playing.course} start={playing.part} progress={saved.progress[playing.course.id]}
+          onSave={saveProgress(playing.course)}
+          onNavigate={(index) => window.history.replaceState(window.history.state, "", lessonUrl(playing.course, index))}
+          onClose={() => closeLesson(playing.course)}
+          onOpen={actions.open}
+        />
+      ) : (
         <Player
           key={`${playing.course.id}-${playing.part}`}
           course={playing.course} start={playing.part} initialPct={playing.pct}
-          onSave={(progress) => update((current) => ({ ...current, progress: { ...current.progress, [playing.course.id]: progress } }))}
+          onSave={saveProgress(playing.course)}
           onClose={() => setPlaying(null)}
           onOpen={actions.open}
         />
-      )}
+      ))}
     </div>
   );
 }
