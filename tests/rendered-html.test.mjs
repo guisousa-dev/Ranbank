@@ -368,7 +368,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   // Só quatro tipos de quadro, em todos os cursos.
   assert.match(lessons, /export type BoxKind = "exemplo" \| "pratica" \| "atencao" \| "chave";/);
   // Cursos com aulas e quantas aulas cada um tem. Toda aula tem objetivos, atividade e resumo em 3 pontos.
-  const expected = { "educacao-financeira": 8, "gestao-tempo": 4, "autodesenvolvimento": 3, "hardware-so": 4 };
+  const expected = { "educacao-financeira": 8, "gestao-tempo": 4, "autodesenvolvimento": 3, "hardware-so": 4, "impressora-3d": 6 };
   let allContent = "";
   for (const [id, total] of Object.entries(expected)) {
     assert.match(lessons, new RegExp(`"${id}": [A-Z_]+`), id);
@@ -388,6 +388,11 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   // Curso que junta duas partes: a parte sem material aparece como em preparação.
   assert.match(allContent, /\{ title: "Hardware básico", lessons: \[\] \}/);
   assert.match(catalog, /Esta parte do curso ainda está em preparação\./);
+  // Ferramenta interativa: a calculadora de custo da impressão 3D aparece dentro da aula e não envia nada.
+  assert.match(allContent, /\{ tool: "custo-impressao-3d" \}/);
+  assert.match(catalog, /function PrintCostCalculator\(/);
+  const calculator = catalog.slice(catalog.indexOf("function PrintCostCalculator("), catalog.indexOf("function LessonBlock("));
+  assert.ok(!calculator.includes("fetch("), "a calculadora não envia nada");
   // Modo aula: por cima da home, com endereço próprio, voltar do navegador, resposta escondida e vídeo com legenda.
   assert.match(catalog, /function LessonView\(/);
   assert.match(catalog, /aria-labelledby="fc-lesson-title"/);

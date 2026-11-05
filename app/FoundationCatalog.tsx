@@ -376,8 +376,63 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
 
 /* Modo aula: a aula abre por cima da home, como um episódio ----------- */
 
+const brl = (cents: number) => (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+/** Lê um número digitado com vírgula ou ponto. Campo vazio ou inválido vale zero. */
+const toNumber = (text: string) => {
+  const value = Number(text.replace(/\s/g, "").replace(",", "."));
+  return Number.isFinite(value) && value > 0 ? value : 0;
+};
+
+const PRINT_COST_FIELDS = [
+  { id: "grams", label: "Peso da peça", unit: "g", start: "50" },
+  { id: "spool", label: "Preço do quilo do filamento", unit: "R$", start: "100" },
+  { id: "hours", label: "Tempo de impressão", unit: "horas", start: "3" },
+  { id: "watts", label: "Potência da impressora", unit: "W", start: "150" },
+  { id: "kwh", label: "Preço do kWh", unit: "R$", start: "1,00" },
+  { id: "wear", label: "Desgaste por hora", unit: "R$", start: "0,25" },
+  { id: "margin", label: "Margem", unit: "%", start: "50" },
+] as const;
+type PrintCostField = (typeof PRINT_COST_FIELDS)[number]["id"];
+
+/** Calculadora de custo da aula de impressão 3D. Tudo é calculado aqui, em centavos; nada é enviado. */
+function PrintCostCalculator() {
+  const [values, setValues] = useState<Record<PrintCostField, string>>(
+    () => Object.fromEntries(PRINT_COST_FIELDS.map((field) => [field.id, field.start])) as Record<PrintCostField, string>,
+  );
+  const n = (id: PrintCostField) => toNumber(values[id]);
+  const material = Math.round((n("grams") / 1000) * n("spool") * 100);
+  const energy = Math.round((n("watts") / 1000) * n("hours") * n("kwh") * 100);
+  const wear = Math.round(n("hours") * n("wear") * 100);
+  const cost = material + energy + wear;
+  const price = Math.round(cost * (1 + n("margin") / 100));
+  const rows: Array<[string, number]> = [["Material", material], ["Energia", energy], ["Desgaste", wear]];
+  return (
+    <section className="fc-tool" aria-labelledby="fc-tool-cost">
+      <h4 id="fc-tool-cost">Calculadora de custo da peça</h4>
+      <div className="fc-tool-fields">
+        {PRINT_COST_FIELDS.map((field) => (
+          <label key={field.id}>
+            <span>{field.label}</span>
+            <span className="fc-tool-input">
+              {field.unit === "R$" && <small>R$</small>}
+              <input type="text" inputMode="decimal" value={values[field.id]} onChange={(event) => setValues((current) => ({ ...current, [field.id]: event.target.value }))} />
+              {field.unit !== "R$" && <small>{field.unit}</small>}
+            </span>
+          </label>
+        ))}
+      </div>
+      <dl className="fc-tool-result" aria-live="polite">
+        {rows.map(([label, cents]) => <div key={label}><dt>{label}</dt><dd>{brl(cents)}</dd></div>)}
+        <div className="is-total"><dt>Custo da peça</dt><dd>{brl(cost)}</dd></div>
+        <div className="is-price"><dt>Preço com margem</dt><dd>{brl(price)}</dd></div>
+      </dl>
+    </section>
+  );
+}
+
 function LessonBlock({ block }: { block: Block }) {
   if (typeof block === "string") return <p>{block}</p>;
+  if ("tool" in block) return <PrintCostCalculator />;
   if ("list" in block) {
     const items = block.list.map((item) => <li key={item}>{item}</li>);
     return block.ordered ? <ol>{items}</ol> : <ul>{items}</ul>;
