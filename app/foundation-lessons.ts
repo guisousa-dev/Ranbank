@@ -19,12 +19,17 @@ export type BoxKind = "exemplo" | "pratica" | "atencao" | "chave";
 
 export const BOX_LABEL: Record<BoxKind, string> = { exemplo: "Exemplo", pratica: "Na prática", atencao: "Atenção", chave: "Ponto-chave" };
 
-/** Um pedaço do texto da aula: parágrafo, lista, quadro de destaque ou tabela. */
+/**
+ * Um pedaço do texto da aula: parágrafo, lista, quadro de destaque, tabela ou imagem.
+ * Imagem: fica em public/images/fundacao/aulas/<id do curso>/. O `alt` descreve o que a imagem mostra
+ * (e repete o texto escrito nela), para quem usa leitor de tela. Nunca mostrar nome de quem fez o curso.
+ */
 export type Block =
   | string
   | { list: string[]; ordered?: boolean }
   | { box: BoxKind; text: string }
-  | { table: { caption: string; head: string[]; rows: string[][] } };
+  | { table: { caption: string; head: string[]; rows: string[][] } }
+  | { image: string; alt: string };
 
 export type Lesson = {
   /** Nome curto e sem acento, usado no endereço da aula. */
@@ -80,6 +85,7 @@ const blockText = (block: Block): string => {
   if (typeof block === "string") return block;
   if ("list" in block) return block.list.join(" ");
   if ("box" in block) return block.text;
+  if ("image" in block) return "";
   return [block.table.caption, ...block.table.head, ...block.table.rows.flat()].join(" ");
 };
 

@@ -19,6 +19,7 @@ export const EDUCACAO_FINANCEIRA: CourseContent = {
             {
               title: "O que é dinheiro?",
               body: [
+                { image: "/images/fundacao/aulas/educacao-financeira/cade-meu-dinheiro.webp", alt: "Imagem de abertura do curso \"Cadê meu dinheiro?\": uma mulher sorrindo numa mesa com cofrinho, notas de dinheiro, celular e notebook. Texto: aprenda a organizar seu dinheiro, economizar e fazer escolhas financeiras mais conscientes. Organizar, economizar, planejar. Temas: orçamento, economia, crédito e dívidas, reserva de emergência, investimentos e seu plano financeiro." },
                 "O dinheiro é um meio de troca. Com ele, compramos produtos, pagamos serviços e guardamos recursos para usar depois.",
                 "Como o dinheiro é limitado, toda escolha tem um custo: o que você gasta em uma coisa não pode gastar em outra.",
               ],

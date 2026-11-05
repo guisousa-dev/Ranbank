@@ -382,6 +382,13 @@ test("Foundation lessons follow one standard and open over the catalog", async (
     for (const field of [/goals: \[/g, /activity: \{/g, /recap: \[/g]) assert.equal(count(field), total, `${id}: ${field}`);
     allContent += content;
   }
+  // Imagens das aulas: toda imagem existe em public/ e tem descrição (alt) para leitor de tela.
+  const images = [...allContent.matchAll(/\{ image: "([^"]+)", alt: "((?:[^"\\]|\\.)*)" \}/g)];
+  assert.ok(images.length >= 20, "as aulas têm imagens");
+  for (const [, src, alt] of images) {
+    await readFile(new URL(`../public${src}`, import.meta.url));
+    assert.ok(alt.length > 30, `${src} tem descrição`);
+  }
   // Curso que junta duas partes: a parte sem material aparece como em preparação.
   assert.match(allContent, /\{ title: "Hardware básico", lessons: \[\] \}/);
   assert.match(catalog, /Esta parte do curso ainda está em preparação\./);
