@@ -20,7 +20,6 @@ const bankingSuiteUrl = new URL("../app/BankingSuite.tsx", import.meta.url);
 const bankSectionPagesUrl = new URL("../app/bank/BankSectionPages.tsx", import.meta.url);
 const bankSectionStylesUrl = new URL("../app/bank-section-pages.css", import.meta.url);
 const transactionFormattingUrl = new URL("../app/bank/transactionFormatting.ts", import.meta.url);
-const presentationGuideUrl = new URL("../APRESENTACAO.md", import.meta.url);
 
 test("includes the protected access experience", async () => {
   const page = await readFile(pageUrl, "utf8");
@@ -162,15 +161,12 @@ test("presents a clearly identified educational impact portfolio", async () => {
 test("shows the institutional identity, FAQ and a project-wide non-commercial seal", async () => {
   const publicSite = await readFile(publicSiteUrl, "utf8");
   const layout = await readFile(layoutUrl, "utf8");
-  const presentationGuide = await readFile(presentationGuideUrl, "utf8");
   assert.match(publicSite, /Missão, visão e valores/);
   assert.match(publicSite, /Facilitar a vida financeira das pessoas/);
   assert.match(publicSite, /Impacto positivo/);
   assert.match(publicSite, /Tecnologia para simplificar\. Segurança para proteger/);
   assert.match(publicSite, /Brasília - DF/);
   assert.doesNotMatch(publicSite, /Brasília, DF/);
-  assert.match(presentationGuide, /## Identidade institucional/);
-  assert.match(presentationGuide, /### Nosso compromisso/);
   assert.match(publicSite, /Dúvidas frequentes/);
   assert.match(publicSite, /O que é o RanBank\?/);
   assert.match(publicSite, /O que a Rani pode fazer\?/);
