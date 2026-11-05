@@ -666,3 +666,6 @@ body:has(.fc) .rb-noncommercial-seal { display: none; }
 }
 .fc-module-soon { display: block; margin: 8px 0 0; padding: 10px 14px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); font-size: 14px; color: #a9aeb9; }
 .fc-lesson-list .fc-module-soon { margin: 0 8px 4px; padding: 6px 10px; font-size: 13px; }
+/* Imagem dentro da aula */
+.fc-lesson-figure { margin: 16px 0 20px; }
+.fc-lesson-figure img { display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); background: #1b1d22; }

@@ -390,6 +390,13 @@ function LessonBlock({ block }: { block: Block }) {
       </aside>
     );
   }
+  if ("image" in block) {
+    return (
+      <figure className="fc-lesson-figure">
+        <img src={block.image} alt={block.alt} loading="lazy" decoding="async" />
+      </figure>
+    );
+  }
   const { caption, head, rows } = block.table;
   return (
     <div className="fc-table">
