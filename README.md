@@ -2,6 +2,12 @@
 
 Aplicação acadêmica que combina uma interface bancária com módulos interativos sobre segurança digital, IA, Big Data, IoT, nuvem, automação, sustentabilidade, RA/VR, robótica, autenticação, Open Finance e auditoria encadeada.
 
+## Links
+
+- Site: https://www.ranbank-future-lab.workers.dev
+- Fundação (cursos): https://www.ranbank-future-lab.workers.dev/fundacao/cursos
+- Repositório: https://github.com/guisousa-dev/Ranbank
+
 ## Recursos principais
 
 - Conta demo criada pelo próprio usuário, login multiusuário por CPF ou conta, sessão persistente e PIN transacional separado.
@@ -190,7 +196,3 @@ API e limite a escala máxima; depois, volte a instância mínima para zero para
 O procedimento completo, incluindo migração dos dados, teste de carga e rollback para o
 Render, está em `DEPLOY_CLOUD_GRATUITO.md`. O plano gratuito pode cobrir uso leve, mas manter
 uma instância ativa no Cloud Run pode gerar uma pequena cobrança.
-
-## Apresentação
-
-Use o botão **Iniciar apresentação guiada** no Future Lab ou consulte `APRESENTACAO.md` para o roteiro de 8 a 10 minutos.
