@@ -350,10 +350,13 @@ test("links the bank's Foundation page to the Foundation course catalog", async 
   assert.match(catalog, /function HoverPreview\(/);
   assert.match(catalog, /O que você vai aprender até o final do curso/);
   assert.match(catalog, /function Player\(/);
-  // Mesma conta do banco: usa a sessão do site, tem perfil, sair da conta e volta para a Fundação depois do login.
-  assert.match(catalog, /\/api\/auth\/session/);
+  // Conta própria da Fundação: login com Google, perfil, sair da conta e vínculo opcional com o banco.
+  assert.match(catalog, /\/api\/fundacao\/sessao/);
+  assert.match(catalog, /\/api\/fundacao\/entrar\?volta=/);
   assert.match(catalog, /function ProfileDialog\(/);
-  for (const text of ["Cursos concluídos", "Sair da conta", "Voltar ao RanBank", "/banco?volta=/fundacao/cursos"]) assert.ok(catalog.includes(text), text);
+  for (const text of ["Entrar com Google", "Cursos concluídos", "Sair da conta", "Voltar ao RanBank", "Vincular minha conta RanBank", "/api/fundacao/vincular"]) assert.ok(catalog.includes(text), text);
+  const foundationApi = await readFile(new URL("../app/api/[...path]/fundacao.ts", import.meta.url), "utf8");
+  for (const piece of ["code_challenge_method", "auth/google/callback", "email_verified", "HttpOnly", "function safeReturn("]) assert.ok(foundationApi.includes(piece), piece);
   const bankPage = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   assert.match(bankPage, /get\("volta"\)/);
   assert.match(bankPage, /back\.startsWith\("\/fundacao\/"\)/);

@@ -664,9 +664,12 @@ export function PrivacyPublicPage() {
     { title: "Movimentações", text: "Valores, destinatários e horários.", use: "Para fazer e comprovar cada operação." },
     { title: "Segurança", text: "Sessões e aparelhos conectados.", use: "Para perceber acessos estranhos." },
     { title: "Preferências", text: "Sua escolha sobre cookies, guardada no aparelho.", use: "Para respeitar a sua decisão." },
+    { title: "Conta da Fundação", text: "Ao entrar com o Google: nome, e-mail e foto. A sua senha do Google nunca chega até nós.", use: "Para você entrar na Fundação de qualquer aparelho." },
+    { title: "Cursos", text: "Aulas feitas, lista, curtidas, desafios e certificados. Se você vincular o banco, também o número da conta.", use: "Para guardar o seu progresso e emitir o certificado." },
   ];
   const cookies = [
     ["Sessão", "Necessário", "Mantém você conectado. É protegido e não pode ser lido por outros programas da página."],
+    ["Sessão da Fundação", "Necessário", "Mantém você conectado na Fundação por até 30 dias, ou até você sair da conta."],
     ["Consentimento", "Necessário", "Lembra o que você escolheu sobre cookies."],
     ["Preferências", "Opcional", "Guarda ajustes de uso neste aparelho."],
     ["Publicidade", "Não usamos", "O RanBank não usa cookies de propaganda."],

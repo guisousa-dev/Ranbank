@@ -861,3 +861,46 @@ body:has(.fc) .rb-noncommercial-seal { display: none; }
   .fq-paper, .fq-paper * { visibility: visible !important; }
   .fq-paper { position: fixed; left: 0; top: 0; z-index: 9999; width: 297mm; height: 210mm; margin: 0; aspect-ratio: auto; border-radius: 0; box-shadow: none; }
 }
+
+/* ------------------------------------------------------------------ */
+/* Conta da Fundação: entrar com Google, foto, vínculo com o banco     */
+/* ------------------------------------------------------------------ */
+
+.fc-account-avatar, .fc-profile-avatar { overflow: hidden; }
+.fc-account-avatar img, .fc-profile-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+button.fc-account { cursor: pointer; }
+
+.fc-login { position: relative; width: min(460px, 100%); margin-top: 8vh; padding: 36px 32px 28px; display: grid; align-content: start; justify-items: center; gap: 14px; text-align: center; }
+.fc-login .fc-mark { --h: 34px; }
+.fc-login h2 { font-size: 26px; line-height: 1.15; letter-spacing: -0.02em; }
+.fc-login p { font-size: 16px; line-height: 1.5; color: #c9ccd4; }
+.fc-login small { font-size: 13px; line-height: 1.5; color: #9aa0ab; }
+.fc-google { display: inline-flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 52px; margin-top: 6px; border-radius: 999px; background: #fff; color: #1f1f1f !important; font-size: 16px; font-weight: 600; text-decoration: none; }
+.fc-google:hover { background: #eef0f4; }
+.fc-google:focus-visible { outline: 2px solid #8fb1ff; outline-offset: 3px; }
+
+.fc-bank-link { margin-top: 26px; padding: 16px 18px; border-radius: 14px; background: #1f2127; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+.fc-bank-link > div:first-child { flex: 1 1 260px; display: grid; gap: 2px; min-width: 0; }
+.fc-bank-link strong { font-size: 16px; }
+.fc-bank-link span { font-size: 14px; line-height: 1.45; color: #a9aeb9; }
+.fc-bank-link.is-linked { border: 1px solid rgba(61, 220, 132, 0.4); }
+.fc-bank-link.is-linked strong { color: #3ddc84; }
+.fc-bank-link .fc-btn { min-height: 44px; padding: 0 20px; font-size: 15px; }
+.fc-bank-link .fc-btn:disabled { opacity: .6; }
+.fc-bank-form { flex: 1 1 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.fc-bank-form label { display: grid; gap: 6px; font-size: 14px; color: #c9ccd4; }
+.fc-bank-form input { min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.18); background: rgba(0, 0, 0, 0.3); color: #fff; font: inherit; font-size: 16px; }
+.fc-bank-form input:focus { outline: none; border-color: #8fb1ff; }
+.fc-bank-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; }
+.fc-bank-error { flex: 1 1 100%; margin: 0; font-size: 14px; color: #ff8a8a; }
+
+.fc-notice { position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom, 0px)); z-index: 130; transform: translateX(-50%); width: min(560px, calc(100% - 32px)); display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 18px; border-radius: 14px; background: #1f2127; border: 1px solid rgba(255, 255, 255, 0.14); box-shadow: 0 18px 50px rgba(0, 0, 0, .5); font-size: 15px; line-height: 1.4; color: #f4f5f7; }
+.fc-notice span { flex: 1; }
+.fc-notice button { flex: none; width: 36px; height: 36px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.1); color: #fff; font-size: 20px; line-height: 1; }
+
+@media (max-width: 760px) {
+  .fc-login { margin-top: 0; padding: 56px 20px 28px; }
+  .fc-bank-form { grid-template-columns: minmax(0, 1fr); }
+  .fc-bank-link .fc-btn { flex: 1 1 100%; }
+}
+.fc a.fc-btn-light { color: #0c0e12; }

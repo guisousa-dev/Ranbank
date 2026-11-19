@@ -16,8 +16,9 @@ import { Mark } from "./FoundationBadge";
  * Site da Fundação RanBank: catálogo de cursos, no jeito de um app de streaming.
  * Passar o mouse mostra uma prévia; clicar abre o modal com tudo; "Assistir" abre a aula
  * (modo aula, por cima da home) ou, nos cursos que ainda não têm aulas, o player de prévia.
- * Login: a Fundação está no mesmo site do banco, então usa a mesma sessão (mesmo nome, CPF e senha).
- * O que cada pessoa assiste, guarda e curte fica salvo neste navegador, separado por conta (localStorage).
+ * Conta: a Fundação tem conta própria, com login do Google. Quem quiser pode vincular a conta do banco.
+ * Sem conta, o que a pessoa assiste, guarda e curte fica só neste navegador (localStorage).
+ * Com conta, fica salvo no servidor (e uma cópia neste navegador), e aparece em qualquer aparelho.
  */
 
 /**
@@ -29,16 +30,29 @@ type Saved = { list: string[]; liked: string[]; progress: Record<string, Progres
 const STORAGE_KEY = "fundacao-ranbank";
 const EMPTY: Saved = { list: [], liked: [], progress: {} };
 
-type Account = { name: string; number: string; email?: string; document?: string };
+/** Conta da Fundação (login com Google). `bank` é a conta do RanBank vinculada, se houver. */
+type Account = { name: string; email: string; picture: string | null; bank: { name: string; number: string } | null };
 /** Cada conta tem o seu histórico; quem não entrou usa o histórico "sem conta". */
-const keyFor = (account?: Account | null) => (account ? `${STORAGE_KEY}:${account.number}` : STORAGE_KEY);
+const keyFor = (account?: Account | null) => (account ? `${STORAGE_KEY}:google:${account.email}` : STORAGE_KEY);
+/** Contas do banco guardavam o histórico assim, antes da conta da Fundação. */
+const legacyBankKey = (number: string) => `${STORAGE_KEY}:${number}`;
+const SYNC_DELAY_MS = 800;
 const hasData = (saved: Saved) => saved.list.length + saved.liked.length + Object.keys(saved.progress).length > 0;
 
 function readSaved(key = STORAGE_KEY): Saved {
   try {
     const raw = window.localStorage.getItem(key);
-    if (!raw) return EMPTY;
-    const data = JSON.parse(raw) as Partial<Saved> & { started?: Record<string, string> };
+    return raw ? toSaved(JSON.parse(raw)) : EMPTY;
+  } catch {
+    return EMPTY;
+  }
+}
+
+/** Confere o formato do que veio do navegador ou do servidor. */
+function toSaved(value: unknown): Saved {
+  try {
+    if (!value || typeof value !== "object") return EMPTY;
+    const data = value as Partial<Saved> & { started?: Record<string, string> };
     const progress: Record<string, Progress> = data.progress && typeof data.progress === "object" ? { ...data.progress } : {};
     // A versão anterior guardava só a data em que o curso foi começado.
     for (const [id, date] of Object.entries(data.started ?? {})) if (!progress[id]) progress[id] = { part: 0, pct: 5, updatedAt: date };
@@ -52,26 +66,53 @@ function writeSaved(key: string, saved: Saved) {
   try { window.localStorage.setItem(key, JSON.stringify(saved)); } catch { /* sem armazenamento: segue sem salvar */ }
 }
 
-/** Quem está logado no banco (mesma sessão do site). */
+/** Quem está logado na Fundação (login com Google). */
 async function readAccount(): Promise<Account | null> {
   try {
-    const session = await fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" });
-    if (!session.ok) return null;
-    const data = await session.json() as { customerName?: string; accountNumber?: string };
-    if (!data.customerName || !data.accountNumber) return null;
-    const account: Account = { name: data.customerName, number: data.accountNumber };
-    // Dados extras para o perfil; se não vierem, o perfil mostra só nome e conta.
-    const details = await fetch("/api/dashboard", { credentials: "same-origin", cache: "no-store" }).catch(() => null);
-    if (details?.ok) {
-      const extra = await details.json() as { email?: string; maskedDocument?: string };
-      account.email = extra.email;
-      account.document = extra.maskedDocument;
-    }
-    return account;
+    const response = await fetch("/api/fundacao/sessao", { credentials: "same-origin", cache: "no-store" });
+    if (!response.ok) return null;
+    const data = await response.json() as Partial<Account>;
+    return data.email && data.name ? { name: data.name, email: data.email, picture: data.picture ?? null, bank: data.bank ?? null } : null;
   } catch {
     return null;
   }
 }
+
+/** Progresso salvo na conta. `null` quando não deu para ler (sem internet, servidor fora). */
+async function readServerSaved(): Promise<Saved | null> {
+  try {
+    const response = await fetch("/api/fundacao/progresso", { credentials: "same-origin", cache: "no-store" });
+    if (!response.ok) return null;
+    const body = await response.json() as { data?: unknown };
+    return toSaved(body.data);
+  } catch {
+    return null;
+  }
+}
+
+function writeServerSaved(saved: Saved, keepalive = false) {
+  return fetch("/api/fundacao/progresso", {
+    method: "PUT", credentials: "same-origin", keepalive,
+    headers: { "content-type": "application/json" }, body: JSON.stringify(saved),
+  }).then((response) => response.ok).catch(() => false);
+}
+
+/** Endereço para entrar com Google e voltar para a mesma página. */
+const googleLoginUrl = () => {
+  const here = new URL(window.location.href);
+  here.searchParams.delete("login");
+  return `/api/fundacao/entrar?volta=${encodeURIComponent(`${here.pathname}${here.search}`)}`;
+};
+
+/** Recado depois de voltar do Google (?login=...). */
+const LOGIN_MESSAGES: Record<string, string> = {
+  ok: "Pronto! Você entrou na sua conta da Fundação. O seu progresso agora fica salvo nela.",
+  cancelado: "O login com Google foi cancelado.",
+  expirado: "O login demorou demais e expirou. Tente entrar de novo.",
+  email: "Esse e-mail do Google ainda não foi confirmado. Confirme o e-mail e tente de novo.",
+  indisponivel: "O login com Google ainda não está disponível neste endereço.",
+  erro: "Não deu para entrar com o Google agora. Tente de novo em instantes.",
+};
 
 /** Quanto do curso inteiro foi assistido, de 0 a 100. */
 function coursePct(course: Course, progress?: Progress) {
@@ -789,7 +830,107 @@ function Player({ course, start, initialPct, onSave, onClose, onOpen }: { course
 
 /* Perfil da conta --------------------------------------------------- */
 
-function ProfileDialog({ account, saved, onOpen, onLogout, onClose }: { account: Account; saved: Saved; onOpen: (course: Course) => void; onLogout: () => void; onClose: () => void }) {
+/** Foto do Google ou, sem foto, o ícone de pessoa. */
+function Avatar({ account, size }: { account: Account; size: number }) {
+  const [broken, setBroken] = useState(false);
+  if (!account.picture || broken) return <PersonGlyph size={Math.round(size * 0.5)} />;
+  return <img src={account.picture} alt="" width={size} height={size} referrerPolicy="no-referrer" onError={() => setBroken(true)} />;
+}
+
+/** Vincular a conta do banco: a pessoa confirma com CPF (ou conta, ou e-mail) e a senha de acesso. */
+function BankLink({ account, onChange }: { account: Account; onChange: (account: Account) => void }) {
+  const [open, setOpen] = useState(false);
+  const [identification, setIdentification] = useState("");
+  const [pin, setPin] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const send = async (method: "POST" | "DELETE") => {
+    setBusy(true); setMessage("");
+    try {
+      const response = await fetch("/api/fundacao/vincular", {
+        method, credentials: "same-origin", headers: { "content-type": "application/json" },
+        body: method === "POST" ? JSON.stringify({ identification, pin }) : undefined,
+      });
+      const data = await response.json().catch(() => ({})) as Partial<Account> & { message?: string };
+      if (!response.ok) { setMessage(data.message ?? "Não deu para concluir agora. Tente de novo."); return; }
+      onChange({ ...account, bank: data.bank ?? null });
+      setOpen(false); setIdentification(""); setPin("");
+    } catch {
+      setMessage("Sem conexão com o servidor. Tente de novo.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (account.bank) {
+    return (
+      <div className="fc-bank-link is-linked">
+        <div>
+          <strong>Conta RanBank vinculada</strong>
+          <span>{account.bank.name} · Conta {account.bank.number}</span>
+        </div>
+        <button type="button" className="fc-btn fc-btn-soft" disabled={busy} onClick={() => { void send("DELETE"); }}>Desvincular</button>
+        {message && <p className="fc-bank-error" role="alert">{message}</p>}
+      </div>
+    );
+  }
+  return (
+    <div className="fc-bank-link">
+      <div>
+        <strong>Tem conta no RanBank?</strong>
+        <span>Vincule para ligar a Fundação ao seu banco. É opcional: os cursos funcionam sem isso.</span>
+      </div>
+      {!open ? (
+        <button type="button" className="fc-btn fc-btn-soft" onClick={() => setOpen(true)}>Vincular minha conta RanBank</button>
+      ) : (
+        <form className="fc-bank-form" onSubmit={(event) => { event.preventDefault(); void send("POST"); }}>
+          <label>CPF, conta ou e-mail do banco
+            <input id="fc-bank-id" value={identification} onChange={(event) => setIdentification(event.target.value)} autoComplete="username" required />
+          </label>
+          <label>Senha de acesso (4 dígitos)
+            <input id="fc-bank-pin" value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 4))} type="password" inputMode="numeric" autoComplete="current-password" pattern="\d{4}" required />
+          </label>
+          <div className="fc-bank-actions">
+            <button type="submit" className="fc-btn fc-btn-light" disabled={busy}>{busy ? "Conferindo..." : "Vincular"}</button>
+            <button type="button" className="fc-btn fc-btn-soft" onClick={() => { setOpen(false); setMessage(""); }}>Cancelar</button>
+          </div>
+        </form>
+      )}
+      {message && <p className="fc-bank-error" role="alert">{message}</p>}
+    </div>
+  );
+}
+
+/** Para quem ainda não entrou: o que muda com a conta e o botão do Google. */
+function LoginDialog({ onClose }: { onClose: () => void }) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const closeLatest = useRef(onClose);
+  useEffect(() => { closeLatest.current = onClose; });
+  useEffect(() => {
+    closeRef.current?.focus();
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") closeLatest.current(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+  return (
+    <div className="fc-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <section className="fc-dialog fc-login" role="dialog" aria-modal="true" aria-labelledby="fc-login-title">
+        <button type="button" ref={closeRef} className="fc-dialog-close" onClick={onClose} aria-label="Fechar">×</button>
+        <Mark />
+        <h2 id="fc-login-title">Entre na Fundação RanBank</h2>
+        <p>Com a conta, o seu progresso, a sua lista e os certificados ficam salvos e aparecem em qualquer aparelho.</p>
+        <a className="fc-google" href={googleLoginUrl()}>
+          <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" /><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" /><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z" /><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" /></svg>
+          Entrar com Google
+        </a>
+        <small>Usamos só o seu nome, e-mail e foto do Google. Quem tem conta no RanBank pode vincular depois, no perfil.</small>
+      </section>
+    </div>
+  );
+}
+
+function ProfileDialog({ account, saved, onOpen, onLogout, onAccountChange, onClose }: { account: Account; saved: Saved; onOpen: (course: Course) => void; onLogout: () => void; onAccountChange: (account: Account) => void; onClose: () => void }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const closeLatest = useRef(onClose);
   useEffect(() => { closeLatest.current = onClose; });
@@ -826,15 +967,11 @@ function ProfileDialog({ account, saved, onOpen, onLogout, onClose }: { account:
     <div className="fc-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <section className="fc-dialog fc-profile" role="dialog" aria-modal="true" aria-labelledby="fc-profile-title">
         <header className="fc-profile-head">
-          <span className="fc-profile-avatar" aria-hidden="true"><PersonGlyph size={34} /></span>
+          <span className="fc-profile-avatar" aria-hidden="true"><Avatar account={account} size={72} /></span>
           <div>
-            <small>Sua conta RanBank</small>
+            <small>Sua conta da Fundação</small>
             <h2 id="fc-profile-title">{account.name}</h2>
-            <p>
-              <span>Conta {account.number}</span>
-              {account.document && <span>CPF {account.document}</span>}
-              {account.email && <span>{account.email}</span>}
-            </p>
+            <p><span>{account.email}</span></p>
           </div>
           <button type="button" ref={closeRef} className="fc-dialog-close" onClick={onClose} aria-label="Fechar perfil">×</button>
         </header>
@@ -850,9 +987,10 @@ function ProfileDialog({ account, saved, onOpen, onLogout, onClose }: { account:
           {group("Cursos concluídos", "Quando você terminar um curso, ele aparece aqui.", done.map((course) => mini(course, "Concluído")))}
           {group("Continue assistindo", "Nenhum curso em andamento.", watching.map(({ course, progress }) => mini(course, `${coursePct(course, progress)}% assistido`)))}
           {group("Minha lista", "Use o + nos cursos para guardar o que quer ver depois.", list.map((course) => mini(course, categoryOf(course.category).name)))}
-          <p className="fc-profile-note">É a mesma conta do banco: mesmo nome, CPF e senha. Por enquanto, o seu progresso fica salvo neste navegador.</p>
+          <BankLink account={account} onChange={onAccountChange} />
+          <p className="fc-profile-note">Você entrou com o Google. O seu progresso fica salvo na sua conta da Fundação e aparece em qualquer aparelho em que você entrar.</p>
           <div className="fc-profile-actions">
-            <Link className="fc-btn fc-btn-light" href="/banco">Voltar ao RanBank</Link>
+            {account.bank && <Link className="fc-btn fc-btn-light" href="/banco">Ir para o RanBank</Link>}
             <button type="button" className="fc-btn fc-btn-soft" onClick={onLogout}>Sair da conta</button>
           </div>
         </div>
@@ -875,7 +1013,13 @@ export default function FoundationCatalog() {
   const [confirmReset, setConfirmReset] = useState(false);
   const [account, setAccount] = useState<Account | null | undefined>(undefined); // undefined = ainda conferindo
   const [profileOpen, setProfileOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [notice, setNotice] = useState("");
   const storageKey = useRef(STORAGE_KEY);
+  // Com conta, cada mudança vai para o servidor um instante depois (várias mudanças seguidas viram um envio só).
+  const syncOn = useRef(false);
+  const pendingSync = useRef<Saved | null>(null);
+  const syncTimer = useRef<number | undefined>(undefined);
   const rootRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const hoverTimer = useRef<number | undefined>(undefined);
@@ -900,29 +1044,80 @@ export default function FoundationCatalog() {
     // Voltar do navegador fecha a aula, em vez de sair da Fundação.
     const onPop = () => { if (!(window.history.state as LessonHistory | null)?.fcAula) setPlaying(null); };
     window.addEventListener("popstate", onPop);
-    // Se a pessoa já entrou no banco, a Fundação usa a mesma conta.
-    void readAccount().then((found) => {
+    // Recado de quem acabou de voltar do Google (?login=ok, cancelado...).
+    const loginResult = new URLSearchParams(window.location.search).get("login");
+    if (loginResult) {
+      const clean = new URL(window.location.href);
+      clean.searchParams.delete("login");
+      window.history.replaceState(window.history.state, "", `${clean.pathname}${clean.search}`);
+    }
+    // Conta da Fundação: o progresso vem do servidor.
+    void readAccount().then(async (found) => {
       if (!active) return;
       setAccount(found);
+      if (loginResult && (loginResult !== "ok" || found)) setNotice(LOGIN_MESSAGES[loginResult] ?? "");
       if (!found) return;
       const key = keyFor(found);
-      let mine = readSaved(key);
-      const anonymous = readSaved(STORAGE_KEY);
-      // Primeira vez com a conta: o que foi feito antes de entrar passa a ser dela (e sai do navegador "sem conta",
-      // para quem usar o computador depois não ver o histórico).
-      if (!hasData(mine) && hasData(anonymous)) { mine = anonymous; writeSaved(key, mine); writeSaved(STORAGE_KEY, { list: [], liked: [], progress: {} }); }
+      const server = await readServerSaved();
+      if (!active) return;
+      let mine = server ?? readSaved(key);
+      // Primeira vez com a conta: o que foi feito antes de entrar passa a ser dela. Vale o histórico "sem conta"
+      // deste navegador e o de quando a Fundação usava a conta do banco. Depois, o "sem conta" é apagado,
+      // para quem usar o computador depois não ver o histórico.
+      if (server && !hasData(server)) {
+        const candidates = [readSaved(key), readSaved(STORAGE_KEY), found.bank ? readSaved(legacyBankKey(found.bank.number)) : EMPTY];
+        const local = candidates.find(hasData);
+        if (local) {
+          mine = local;
+          void writeServerSaved(local);
+          writeSaved(STORAGE_KEY, EMPTY);
+        }
+      }
       storageKey.current = key;
+      syncOn.current = server !== null;
+      writeSaved(key, mine);
       setSaved(mine);
     });
+    // Ao sair da página, manda o que ainda não foi enviado.
+    const flush = () => {
+      if (!pendingSync.current) return;
+      window.clearTimeout(syncTimer.current);
+      void writeServerSaved(pendingSync.current, true);
+      pendingSync.current = null;
+    };
+    const onHidden = () => { if (document.visibilityState === "hidden") flush(); };
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onHidden);
     const hide = () => setPreview(null);
     window.addEventListener("scroll", hide, { passive: true });
-    return () => { active = false; window.clearTimeout(timer); window.removeEventListener("scroll", hide); window.removeEventListener("popstate", onPop); window.clearTimeout(hoverTimer.current); window.clearTimeout(leaveTimer.current); };
+    return () => { active = false; flush(); window.removeEventListener("pagehide", flush); document.removeEventListener("visibilitychange", onHidden); window.clearTimeout(timer); window.removeEventListener("scroll", hide); window.removeEventListener("popstate", onPop); window.clearTimeout(hoverTimer.current); window.clearTimeout(leaveTimer.current); };
   }, []);
   useEffect(() => { if (searching) searchRef.current?.focus(); }, [searching]);
 
-  const update = (change: (current: Saved) => Saved) => setSaved((current) => { const next = change(current); writeSaved(storageKey.current, next); return next; });
+  const scheduleSync = (next: Saved) => {
+    if (!syncOn.current) return;
+    pendingSync.current = next;
+    window.clearTimeout(syncTimer.current);
+    syncTimer.current = window.setTimeout(() => {
+      const data = pendingSync.current;
+      pendingSync.current = null;
+      if (data) void writeServerSaved(data);
+    }, SYNC_DELAY_MS);
+  };
+  const update = (change: (current: Saved) => Saved) => setSaved((current) => {
+    const next = change(current);
+    writeSaved(storageKey.current, next);
+    scheduleSync(next);
+    return next;
+  });
   const logout = async () => {
-    await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" }).catch(() => undefined);
+    // Antes de sair, termina de salvar o que estava pendente.
+    window.clearTimeout(syncTimer.current);
+    if (pendingSync.current) { await writeServerSaved(pendingSync.current); pendingSync.current = null; }
+    await fetch("/api/fundacao/sair", { method: "POST", credentials: "same-origin" }).catch(() => undefined);
+    // O histórico da conta sai deste navegador; fica só no servidor.
+    try { window.localStorage.removeItem(storageKey.current); } catch { /* sem armazenamento */ }
+    syncOn.current = false;
     setProfileOpen(false);
     setAccount(null);
     storageKey.current = STORAGE_KEY;
@@ -1040,8 +1235,8 @@ export default function FoundationCatalog() {
             </button>
             <Link href="/banco" className="fc-back">Voltar ao RanBank</Link>
             {account
-              ? <button type="button" className="fc-account" onClick={() => setProfileOpen(true)} aria-label={`Abrir o perfil de ${account.name}`}><span className="fc-account-avatar"><PersonGlyph size={18} /></span><span className="fc-account-name">{account.name.split(" ")[0]}</span></button>
-              : account === null && <Link className="fc-account is-login" href="/banco?volta=/fundacao/cursos"><PersonGlyph size={18} /> Entrar</Link>}
+              ? <button type="button" className="fc-account" onClick={() => setProfileOpen(true)} aria-label={`Abrir o perfil de ${account.name}`}><span className="fc-account-avatar"><Avatar account={account} size={36} /></span><span className="fc-account-name">{account.name.split(" ")[0]}</span></button>
+              : account === null && <button type="button" className="fc-account is-login" onClick={() => setLoginOpen(true)}><PersonGlyph size={18} /> Entrar</button>}
           </div>
         </header>
 
@@ -1149,7 +1344,14 @@ export default function FoundationCatalog() {
 
       {preview && <HoverPreview state={preview} actions={actions} lastWatched={latest?.course} onEnter={() => window.clearTimeout(leaveTimer.current)} onLeave={handlers.onHoverEnd} />}
       {open && <CourseDialog course={open} actions={actions} onClose={() => setOpen(null)} />}
-      {profileOpen && account && <ProfileDialog account={account} saved={saved} onOpen={(course) => { setProfileOpen(false); actions.open(course); }} onLogout={() => { void logout(); }} onClose={() => setProfileOpen(false)} />}
+      {profileOpen && account && <ProfileDialog account={account} saved={saved} onOpen={(course) => { setProfileOpen(false); actions.open(course); }} onLogout={() => { void logout(); }} onAccountChange={setAccount} onClose={() => setProfileOpen(false)} />}
+      {loginOpen && !account && <LoginDialog onClose={() => setLoginOpen(false)} />}
+      {notice && (
+        <div className="fc-notice" role="status">
+          <span>{notice}</span>
+          <button type="button" onClick={() => setNotice("")} aria-label="Fechar aviso">×</button>
+        </div>
+      )}
       {playing && (hasLessons(playing.course) ? (
         <LessonView
           key={playing.course.id}

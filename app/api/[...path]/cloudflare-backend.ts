@@ -1,10 +1,11 @@
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 import { compare, hash } from "bcryptjs";
+import { handleFoundationApi } from "./fundacao";
 
-type Sql = NeonQueryFunction<false, false>;
+export type Sql = NeonQueryFunction<false, false>;
 // Neon rows are runtime data with a schema validated by the existing Flyway migrations.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Row = Record<string, any>;
+export type Row = Record<string, any>;
 
 const COOKIE = "RANBANK_SESSION_V2";
 const SESSION_SECONDS = 30 * 60;
@@ -148,19 +149,29 @@ async function recoverPin(sql: Sql, request: Request) {
   return json({ message: "Senha redefinida. Entre de novo com a nova senha." });
 }
 
-async function login(sql: Sql, request: Request) {
-  const data = await body(request);
-  const identification = String(data.identification ?? "").trim();
-  const pin = String(data.pin ?? "");
-  if (!identification || !/^\d{4}$/.test(pin)) return error("Informe seu CPF, conta ou e-mail e a senha de quatro dígitos.", 400);
+/** Confere CPF/conta/e-mail e a senha de acesso. Usado no login do banco e para vincular a conta da Fundação. */
+export async function checkBankCredentials(sql: Sql, identificationValue: unknown, pinValue: unknown): Promise<{ account: Row } | { message: string; status: number }> {
+  const identification = String(identificationValue ?? "").trim();
+  const pin = String(pinValue ?? "");
+  if (!identification || !/^\d{4}$/.test(pin)) return { message: "Informe seu CPF, conta ou e-mail e a senha de quatro dígitos.", status: 400 };
   const normalized = digits(identification);
   const rows = await sql.query(
     `SELECT * FROM bank_accounts WHERE deleted_at IS NULL AND
      (document_id=$1 OR account_number_normalized=$1 OR LOWER(email)=LOWER($2)) LIMIT 1`, [normalized, identification]);
   const account = rows[0] as Row | undefined;
   if (!account || !account.active || !account.access_pin_hash || !(await compare(pin, account.access_pin_hash))) {
-    return error(account && !account.active ? "Esta conta está desativada. Procure o administrador." : "CPF, conta ou senha incorretos.", account && !account.active ? 403 : 401);
+    return account && !account.active
+      ? { message: "Esta conta está desativada. Procure o administrador.", status: 403 }
+      : { message: "CPF, conta ou senha incorretos.", status: 401 };
   }
+  return { account };
+}
+
+async function login(sql: Sql, request: Request) {
+  const data = await body(request);
+  const checked = await checkBankCredentials(sql, data.identification, data.pin);
+  if (!("account" in checked)) return error(checked.message, checked.status);
+  const { account } = checked;
   const raw = token();
   const hash = await sha256(raw);
   await sql.query(`DELETE FROM bank_sessions WHERE account_id=$1 OR expires_at<=CURRENT_TIMESTAMP`, [account.id]);
@@ -413,6 +424,7 @@ export async function handleCloudflareApi(request: Request, pathSegments: string
     if (request.method === "GET" && path === "health") {
       await sql`SELECT 1`; return json({ status: "UP" }, 200, { "x-ranbank-runtime": "cloudflare" });
     }
+    const foundation = await handleFoundationApi(sql, request, path, checkBankCredentials); if (foundation) return foundation;
     if (request.method === "POST" && path === "auth/login") return login(sql, request);
     if (request.method === "POST" && path === "auth/recover-pin") return recoverPin(sql, request);
     if (request.method === "POST" && path === "demo-accounts") return createDemoAccount(sql, request);
