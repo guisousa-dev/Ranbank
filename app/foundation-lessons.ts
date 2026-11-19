@@ -69,7 +69,35 @@ export type CourseContent = {
   note?: string;
   /** Mensagem da tela de conclusão. */
   closing?: string;
+  /** Perguntas do desafio final. O curso que tem desafio dá certificado a quem passa. */
+  quiz?: QuizQuestion[];
 };
+
+/**
+ * Pergunta do desafio final. `module` é o índice do módulo (0, 1, 2...), que vira a fatia
+ * do carretel. A primeira opção é sempre a certa: a ordem é embaralhada na hora de mostrar.
+ */
+export type QuizQuestion = {
+  module: number;
+  question: string;
+  options: [string, string, string, string];
+  /** Explicação que aparece depois da resposta, certa ou errada. */
+  why: string;
+  /** Onde o assunto está, ex.: "Aula 4 · Suportes e a regra dos 45°". */
+  ref: string;
+};
+
+/** Resultado do desafio final, guardado junto com o progresso do curso. */
+export type QuizResult = {
+  /** Maior número de acertos numa partida. */
+  best: number;
+  tries: number;
+  /** Preenchido na primeira aprovação; o código do certificado não muda depois. */
+  passed?: { at: string; hits: number; code: string; name?: string };
+};
+
+/** Regras do desafio final: quantas perguntas, quantos acertos para passar e segundos por pergunta. */
+export const QUIZ_RULES = { total: 10, pass: 7, seconds: 20 } as const;
 
 /** Cursos que já têm aulas. A chave é o id do curso em foundation-courses.ts. */
 export const COURSE_CONTENT: Record<string, CourseContent> = {

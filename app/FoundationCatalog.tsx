@@ -6,8 +6,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { CATEGORIES, COURSES, PHOTO_CREDITS, STARTER_PATH, categoryOf, courseById, courseImage, hasLessons, hasLongWord, partsOf, sharedTags, similarCourses } from "./foundation-courses";
 import type { CategoryId, Course } from "./foundation-courses";
-import { BOX_LABEL, COURSE_CONTENT, lessonMinutes, lessonsOf } from "./foundation-lessons";
-import type { Block } from "./foundation-lessons";
+import { BOX_LABEL, COURSE_CONTENT, QUIZ_RULES, lessonMinutes, lessonsOf } from "./foundation-lessons";
+import type { Block, QuizResult } from "./foundation-lessons";
+import { FinalChallenge } from "./FoundationQuiz";
 import { CategoryGlyph, PlayGlyph } from "./FoundationIcons";
 import { Mark } from "./FoundationBadge";
 
@@ -19,8 +20,11 @@ import { Mark } from "./FoundationBadge";
  * O que cada pessoa assiste, guarda e curte fica salvo neste navegador, separado por conta (localStorage).
  */
 
-/** Progresso de um curso. Nos cursos com aulas, `doneLessons` guarda quais aulas a pessoa concluiu (podem ser fora de ordem). */
-type Progress = { part: number; pct: number; updatedAt: string; done?: boolean; doneLessons?: number[] };
+/**
+ * Progresso de um curso. Nos cursos com aulas, `doneLessons` guarda quais aulas a pessoa concluiu (podem ser fora de ordem).
+ * `quiz` guarda o desafio final: recorde, partidas e, depois de aprovado, os dados do certificado.
+ */
+type Progress = { part: number; pct: number; updatedAt: string; done?: boolean; doneLessons?: number[]; quiz?: QuizResult };
 type Saved = { list: string[]; liked: string[]; progress: Record<string, Progress> };
 const STORAGE_KEY = "fundacao-ranbank";
 const EMPTY: Saved = { list: [], liked: [], progress: {} };
@@ -464,8 +468,8 @@ function LessonBlock({ block }: { block: Block }) {
   );
 }
 
-function LessonView({ course, start, progress, onSave, onNavigate, onClose, onOpen }: {
-  course: Course; start: number; progress?: Progress;
+function LessonView({ course, start, progress, studentName, onSave, onNavigate, onClose, onOpen }: {
+  course: Course; start: number; progress?: Progress; studentName?: string;
   onSave: (progress: Progress) => void; onNavigate: (index: number) => void; onClose: () => void; onOpen: (course: Course) => void;
 }) {
   const content = COURSE_CONTENT[course.id];
@@ -473,6 +477,7 @@ function LessonView({ course, start, progress, onSave, onNavigate, onClose, onOp
   const [index, setIndex] = useState(Math.min(start, lessons.length - 1));
   const [finished, setFinished] = useState(false);
   const [listOpen, setListOpen] = useState(false);
+  const [challenge, setChallenge] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const latest = useRef({ progress, onSave, onNavigate, onClose });
@@ -503,7 +508,7 @@ function LessonView({ course, start, progress, onSave, onNavigate, onClose, onOp
     if (pct > current.pct) latest.current.onSave({ ...current, part: index, pct, updatedAt: new Date().toISOString() });
   };
 
-  const go = (next: number) => { setListOpen(false); setFinished(false); setIndex(next); };
+  const go = (next: number) => { setListOpen(false); setFinished(false); setChallenge(false); setIndex(next); };
   const isDone = (lessonIndex: number) => partDone(course, progress, lessonIndex);
   const missing = lessons.map((_, lessonIndex) => lessonIndex).filter((lessonIndex) => lessonIndex !== index && !isDone(lessonIndex));
   const isLast = index === lessons.length - 1;
@@ -513,17 +518,25 @@ function LessonView({ course, start, progress, onSave, onNavigate, onClose, onOp
     const doneLessons = [...new Set([...(current?.doneLessons ?? []), index])].sort((a, b) => a - b);
     const now = new Date().toISOString();
     if (current?.done || missing.length === 0) {
-      onSave({ part: index, pct: 100, updatedAt: now, done: true, doneLessons });
+      onSave({ ...current, part: index, pct: 100, updatedAt: now, done: true, doneLessons });
       setFinished(true);
       return;
     }
     const next = isLast ? missing[0] : index + 1;
-    onSave({ part: next, pct: 0, updatedAt: now, doneLessons });
+    onSave({ ...current, part: next, pct: 0, updatedAt: now, doneLessons });
     go(next);
   };
 
   const { lesson, module, moduleIndex } = lessons[index];
   const next = similarCourses(course, [], 3);
+  // Desafio final: só nos cursos que têm perguntas, e liberado depois de todas as aulas.
+  const quiz = content.quiz;
+  const allDone = lessons.every((_, lessonIndex) => isDone(lessonIndex));
+  const openChallenge = () => { setListOpen(false); setFinished(false); setChallenge(true); mainRef.current?.scrollTo({ top: 0 }); };
+  const saveQuiz = (result: QuizResult) => {
+    const current = latest.current.progress;
+    onSave({ part: index, pct: 0, ...current, updatedAt: new Date().toISOString(), quiz: result });
+  };
 
   return (
     <div className="fc-lesson" role="dialog" aria-modal="true" aria-labelledby="fc-lesson-title" style={cardStyle(course)}>
@@ -532,7 +545,7 @@ function LessonView({ course, start, progress, onSave, onNavigate, onClose, onOp
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
           Voltar
         </button>
-        <span><strong>{course.title}</strong><small>Aula {index + 1} de {lessons.length}</small></span>
+        <span><strong>{course.title}</strong><small>{challenge ? "Desafio final" : `Aula ${index + 1} de ${lessons.length}`}</small></span>
         <button type="button" className="fc-lesson-toggle" aria-expanded={listOpen} aria-controls="fc-lesson-list" onClick={() => setListOpen(!listOpen)}>Aulas</button>
       </div>
 
@@ -545,7 +558,7 @@ function LessonView({ course, start, progress, onSave, onNavigate, onClose, onOp
               <ol>
                 {lessons.map((entry, lessonIndex) => entry.moduleIndex === itemIndex && (
                   <li key={entry.lesson.id}>
-                    <button type="button" aria-current={lessonIndex === index ? "step" : undefined} onClick={() => go(lessonIndex)}>
+                    <button type="button" aria-current={lessonIndex === index && !challenge ? "step" : undefined} onClick={() => go(lessonIndex)}>
                       <span className={`fc-lesson-dot ${isDone(lessonIndex) ? "is-done" : ""}`} aria-hidden="true">{isDone(lessonIndex) ? "✓" : lessonIndex + 1}</span>
                       <span>{entry.lesson.title}{isDone(lessonIndex) && <span className="fc-sr"> (feita)</span>}</span>
                     </button>
@@ -554,14 +567,40 @@ function LessonView({ course, start, progress, onSave, onNavigate, onClose, onOp
               </ol>
             </div>
           ))}
+          {quiz && (
+            <div className="fc-lesson-final">
+              <p>Fim do curso</p>
+              <button type="button" aria-current={challenge ? "step" : undefined} disabled={!allDone} onClick={openChallenge}>
+                <span className={`fc-lesson-dot is-final ${progress?.quiz?.passed ? "is-done" : ""}`} aria-hidden="true">{progress?.quiz?.passed ? "✓" : "★"}</span>
+                <span>Desafio final<small>{progress?.quiz?.passed ? "Certificado liberado" : allDone ? `Acerte ${QUIZ_RULES.pass} de ${QUIZ_RULES.total} e ganhe o certificado` : "Libera quando você concluir as aulas"}</small></span>
+              </button>
+            </div>
+          )}
         </nav>
 
         <div className="fc-lesson-main" ref={mainRef} onScroll={onScroll}>
-          {finished ? (
+          {challenge && quiz ? (
+            <FinalChallenge
+              course={course}
+              modules={content.modules.map((item) => item.title)}
+              questions={quiz}
+              lessonsCount={lessons.length}
+              result={progress?.quiz}
+              studentName={studentName}
+              onResult={saveQuiz}
+              onBack={() => go(0)}
+            />
+          ) : finished ? (
             <div className="fc-player-end">
               <span className="fc-player-check" aria-hidden="true">✓</span>
               <h2 id="fc-lesson-title" ref={titleRef} tabIndex={-1}>Você concluiu {course.title}!</h2>
               {content.closing && <p>{content.closing}</p>}
+              {quiz && (
+                <div className="fc-final-cta">
+                  <p>Falta só o desafio final: {QUIZ_RULES.total} perguntas sobre as aulas. Acerte {QUIZ_RULES.pass} e ganhe o certificado.</p>
+                  <button type="button" className="fc-btn fc-btn-light" onClick={openChallenge}>{progress?.quiz?.passed ? "Ver meu certificado" : "Fazer o desafio final"}</button>
+                </div>
+              )}
               <p>Porque você fez este curso, talvez goste de:</p>
               <div className="fc-player-next">
                 {next.map((other) => (
@@ -1115,6 +1154,7 @@ export default function FoundationCatalog() {
         <LessonView
           key={playing.course.id}
           course={playing.course} start={playing.part} progress={saved.progress[playing.course.id]}
+          studentName={account?.name}
           onSave={saveProgress(playing.course)}
           onNavigate={(index) => window.history.replaceState(window.history.state, "", lessonUrl(playing.course, index))}
           onClose={() => closeLesson(playing.course)}
