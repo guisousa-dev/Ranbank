@@ -9,5 +9,12 @@
   },
   "observability": {
     "enabled": true
-  }
+  },
+  // Domínio próprio. O endereço antigo (*.workers.dev) continua funcionando,
+  // para os links que já foram compartilhados não quebrarem.
+  "workers_dev": true,
+  "routes": [
+    { "pattern": "ranbank.com.br", "custom_domain": true },
+    { "pattern": "www.ranbank.com.br", "custom_domain": true }
+  ]
 }
