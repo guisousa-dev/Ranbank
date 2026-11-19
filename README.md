@@ -171,6 +171,18 @@ Como alternativa, o backend aceita `DATABASE_URL` no formato
 atual do Render e também é aceito pelo Neon. Para o Neon, prefira a URL agrupada
 (`-pooler`) da região de São Paulo.
 
+Conta da Fundação (login com Google), no Worker da Cloudflare:
+
+```text
+GOOGLE_CLIENT_ID=<ID do cliente OAuth, termina em .apps.googleusercontent.com>
+GOOGLE_CLIENT_SECRET=<chave secreta do cliente; cadastre como segredo, nunca no código>
+```
+
+As duas ficam em Workers & Pages > www > Settings > Variables and Secrets. No Google
+Cloud, o cliente OAuth precisa aceitar a volta em `https://ranbank.com.br/api/auth/google/callback`
+(e em `www.` e `http://localhost:3000`, se usar). As tabelas da Fundação (`foundation_users`
+e `foundation_sessions`) são criadas sozinhas no Neon no primeiro acesso.
+
 O backend contém um `Dockerfile` pronto para serviços compatíveis com contêineres Java.
 Na publicação recomendada, o frontend usa `/api` e encaminha as chamadas para a URL HTTPS
 do backend definida em `RANBANK_BACKEND_URL`.
