@@ -4,8 +4,9 @@ Aplicação acadêmica que combina uma interface bancária com módulos interati
 
 ## Links
 
-- Site: https://www.ranbank-future-lab.workers.dev
-- Fundação (cursos): https://www.ranbank-future-lab.workers.dev/fundacao/cursos
+- Site: https://ranbank.com.br
+- Fundação (cursos): https://ranbank.com.br/fundacao/cursos
+- Endereço antigo, que continua no ar: https://www.ranbank-future-lab.workers.dev
 - Repositório: https://github.com/guisousa-dev/Ranbank
 
 ## Recursos principais
