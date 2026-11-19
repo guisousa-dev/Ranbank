@@ -3,10 +3,12 @@
 // Segue o padrão de app/foundation-lessons.ts.
 
 import type { CourseContent } from "../foundation-lessons";
+import { DESAFIO_IMPRESSORA_3D } from "./impressora-3d-desafio";
 
 export const IMPRESSORA_3D: CourseContent = {
   note: "A impressora tem peças que passam de 200 °C e partes que se mexem sozinhas. Use sempre com alguém que conhece a máquina por perto, e nunca toque no bico ou na mesa enquanto estão quentes.",
   closing: "Agora você conhece o caminho completo: escolher o material, desenhar ou baixar o modelo, fatiar, imprimir, corrigir falhas e calcular o preço. A melhor forma de aprender é imprimir, errar e ajustar. Comece pequeno e vá aumentando o desafio.",
+  quiz: DESAFIO_IMPRESSORA_3D,
   modules: [
     {
       title: "A máquina e os materiais",

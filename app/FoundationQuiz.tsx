@@ -1,0 +1,532 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+import type { Course } from "./foundation-courses";
+import { QUIZ_RULES } from "./foundation-lessons";
+import type { QuizQuestion, QuizResult } from "./foundation-lessons";
+import { Mark } from "./FoundationBadge";
+
+/*
+ * Desafio final de um curso e o certificado de conclusão.
+ * A roleta é um carretel de filamento dividido pelos módulos do curso; o ponteiro é o bico da impressora.
+ * Cada partida sorteia QUIZ_RULES.total perguntas, equilibradas entre os módulos.
+ * Quem acerta QUIZ_RULES.pass ganha o certificado, que fica salvo junto com o progresso do curso.
+ * O certificado mostra só o nome de quem fez o curso, nunca o de quem preparou as aulas.
+ */
+
+const MODULE_COLORS = ["#8fb1ff", "#3ddc84", "#f5b83d", "#f2a7d8"];
+const LETTERS = "ABCD";
+const RING = 2 * Math.PI * 44; // circunferência do anel do resultado (r = 44)
+
+type Phase = "intro" | "spin" | "ask" | "result" | "cert";
+type Round = { question: QuizQuestion; order: number[] };
+type Answer = { question: QuizQuestion; ok: boolean; timeout: boolean };
+type Game = { seq: number[]; pools: QuizQuestion[][]; index: number; hits: number; streak: number; bestStreak: number; log: Answer[] };
+
+function shuffle<T>(items: T[]) {
+  const list = items.slice();
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+  return list;
+}
+
+/** Quantas perguntas de cada módulo: o mesmo tanto para todos e as que sobram para módulos sorteados. */
+function drawModules(questions: QuizQuestion[], moduleCount: number) {
+  const available = Array.from({ length: moduleCount }, (_, m) => questions.filter((q) => q.module === m).length);
+  const total = Math.min(QUIZ_RULES.total, questions.length);
+  const counts = available.map(() => 0);
+  const order = shuffle(available.map((_, m) => m));
+  let placed = 0;
+  while (placed < total) {
+    for (const m of order) {
+      if (placed < total && counts[m] < available[m]) { counts[m]++; placed++; }
+    }
+  }
+  return shuffle(counts.flatMap((count, m) => Array<number>(count).fill(m)));
+}
+
+function newCode(courseId: string) {
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const part = () => Array.from({ length: 4 }, () => abc[Math.floor(Math.random() * abc.length)]).join("");
+  const prefix = courseId.split("-").map((word) => word[0]).join("").toUpperCase().slice(0, 3);
+  return `FRB-${prefix}-${part()}-${part()}`;
+}
+
+/* Carretel ------------------------------------------------------------ */
+
+function polar(r: number, deg: number) {
+  const a = ((deg - 90) * Math.PI) / 180;
+  return [r * Math.cos(a), r * Math.sin(a)] as const;
+}
+function sector(r0: number, r1: number, a0: number, a1: number) {
+  const [x0, y0] = polar(r1, a0), [x1, y1] = polar(r1, a1), [x2, y2] = polar(r0, a1), [x3, y3] = polar(r0, a0);
+  const large = a1 - a0 > 180 ? 1 : 0;
+  return `M${x0} ${y0}A${r1} ${r1} 0 ${large} 1 ${x1} ${y1}L${x2} ${y2}A${r0} ${r0} 0 ${large} 0 ${x3} ${y3}Z`;
+}
+
+function Spool({ count, rotation, onStop }: { count: number; rotation: number; onStop?: () => void }) {
+  const step = 360 / count;
+  const rings = [];
+  for (let r = 44; r <= 86; r += 3.5) rings.push(r);
+  return (
+    <svg className="fq-spool" viewBox="-104 -122 208 228" aria-hidden="true">
+      <g className="fq-rotor" style={{ transform: `rotate(${rotation}deg)` }} onTransitionEnd={onStop}>
+        <circle r="98" fill="#1b1e26" stroke="rgba(255,255,255,.12)" strokeWidth="1.2" />
+        {Array.from({ length: count }, (_, m) => <path key={m} d={sector(40, 88, m * step, (m + 1) * step)} fill={MODULE_COLORS[m % MODULE_COLORS.length]} />)}
+        {rings.map((r) => <circle key={r} r={r} fill="none" stroke="rgba(0,0,0,.22)" strokeWidth=".8" />)}
+        {Array.from({ length: count }, (_, m) => {
+          const [x0, y0] = polar(40, m * step), [x1, y1] = polar(88, m * step);
+          return <line key={m} x1={x0} y1={y0} x2={x1} y2={y1} stroke="#0f1013" strokeWidth="2" />;
+        })}
+        {Array.from({ length: count }, (_, m) => {
+          const angle = m * step + step / 2;
+          const [x, y] = polar(64, angle);
+          return <text key={m} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontWeight="700" fontSize="15" fill="rgba(5,10,25,.78)" transform={`rotate(${angle} ${x} ${y})`}>{m + 1}</text>;
+        })}
+        <circle r="40" fill="#14161c" stroke="rgba(255,255,255,.14)" />
+        {[0, 1, 2].map((k) => { const [x, y] = polar(25, k * 120 + 60); return <circle key={k} cx={x} cy={y} r="6.5" fill="#0f1013" />; })}
+        <circle r="9" fill="#0f1013" stroke="rgba(255,255,255,.18)" />
+      </g>
+      <g transform="translate(0,-104)">
+        <rect x="-15" y="-18" width="30" height="13" rx="2.5" fill="#d9dde6" />
+        <rect x="-11" y="-5" width="22" height="6" fill="#aab1bf" />
+        <path d="M-9 1 H9 L3 13 H-3 Z" fill="#f4f5f7" />
+        <circle cx="0" cy="14.5" r="2" fill="#f5b83d" />
+      </g>
+    </svg>
+  );
+}
+
+/* Certificado --------------------------------------------------------- */
+
+function PrintedCube() {
+  // Cubo isométrico "impresso": cada linha é uma camada.
+  const a = 80, h = 46, H = 92, n = 18;
+  const layers = Array.from({ length: n - 1 }, (_, i) => (H / n) * (i + 1));
+  const infill = [];
+  for (let x = -a + 10; x < a; x += 10) infill.push(x);
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      <defs><clipPath id="fq-cube-top"><path d={`M0 ${-h / 2} L${a} 0 L0 ${h / 2} L${-a} 0Z`} /></clipPath></defs>
+      <path d={`M${-a} 0 L0 ${h / 2} L0 ${h / 2 + H} L${-a} ${H}Z`} fill="currentColor" fillOpacity=".16" />
+      <path d={`M${a} 0 L0 ${h / 2} L0 ${h / 2 + H} L${a} ${H}Z`} fill="currentColor" fillOpacity=".09" />
+      <path d={`M0 ${-h / 2} L${a} 0 L0 ${h / 2} L${-a} 0Z`} fill="currentColor" fillOpacity=".06" stroke="currentColor" strokeOpacity=".55" />
+      <g clipPath="url(#fq-cube-top)">
+        {infill.map((x) => <line key={x} x1={x} y1={-h / 2} x2={x + 20} y2={h / 2} stroke="currentColor" strokeOpacity=".16" strokeWidth=".6" />)}
+      </g>
+      {layers.map((y) => <polyline key={y} points={`${-a},${y} 0,${y + h / 2} ${a},${y}`} fill="none" stroke="currentColor" strokeOpacity=".35" strokeWidth=".7" />)}
+      <path d={`M${-a} 0 L0 ${h / 2} L${a} 0 M0 ${h / 2} L0 ${h / 2 + H} M${-a} 0 L${-a} ${H} L0 ${h / 2 + H} L${a} ${H} L${a} 0`} fill="none" stroke="currentColor" strokeOpacity=".6" />
+    </svg>
+  );
+}
+
+function Seal() {
+  return (
+    <svg viewBox="-60 -60 120 120" aria-hidden="true">
+      <defs><path id="fq-seal-ring" d="M0,-41 A41,41 0 1,1 -0.01,-41" /></defs>
+      <circle r="57" fill="#3ddc84" />
+      <circle r="51" fill="none" stroke="#06210f" strokeDasharray="2 3" />
+      <circle r="31" fill="#0c1735" />
+      <text fontSize="8.6" fontWeight="700" fill="#06210f" letterSpacing="1.2">
+        <textPath href="#fq-seal-ring" textLength="252" lengthAdjust="spacing">FUNDAÇÃO RANBANK · DESAFIO FINAL APROVADO ·</textPath>
+      </text>
+      <g fill="none" stroke="#8fb1ff" strokeWidth="1.6" strokeLinejoin="round">
+        <path d="M0 -15 L14 -7 L0 1 L-14 -7Z" />
+        <path d="M-14 -7 V9 L0 17 V1 M14 -7 V9 L0 17" />
+        <path d="M-14 -1 L0 7 L14 -1 M-14 4 L0 12 L14 4" strokeWidth=".9" opacity=".7" />
+      </g>
+    </svg>
+  );
+}
+
+function Certificate({ course, modules, lessonsCount, name, hits, date, code }: {
+  course: Course; modules: string[]; lessonsCount: number; name: string; hits: number; date: string; code: string;
+}) {
+  const when = new Date(date).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+  return (
+    <div className="fq-paper" role="img" aria-label={`Certificado de conclusão do curso ${course.title}${name ? `, em nome de ${name}` : ""}`}>
+      <div className="fq-p-cube"><PrintedCube /></div>
+      <div className="fq-p-seal"><Seal /></div>
+      <div className="fq-p-in">
+        <div className="fq-p-top">
+          <span className="fq-p-mark"><Mark /></span>
+          <b>Fundação RanBank</b>
+          <span className="fq-p-kind">Certificado de conclusão</span>
+        </div>
+        <div className="fq-p-body">
+          <div className="fq-p-lbl">Certificamos que</div>
+          <div className={`fq-p-name ${name ? "" : "is-empty"}`}>{name || "Seu nome aqui"}</div>
+          <div className="fq-p-lbl">concluiu o curso livre</div>
+          <div className={`fq-p-course ${course.title.length > 18 ? "is-long" : ""}`}>{course.title}</div>
+          <div className="fq-p-desc">
+            {lessonsCount} aulas em {modules.length} módulos: {modules.join(" · ")}. Aprovação no desafio final com <b>{hits} de {QUIZ_RULES.total}</b> acertos.
+          </div>
+        </div>
+        <div className="fq-p-foot">
+          <dl><dt>Concluído em</dt><dd>{when}</dd></dl>
+          <dl><dt>Carga</dt><dd>{lessonsCount} aulas</dd></dl>
+          <dl><dt>Código</dt><dd className="fq-p-code">{code}</dd></dl>
+          <p className="fq-p-note">Curso livre de um projeto educacional, sem valor de diploma.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Desafio ------------------------------------------------------------- */
+
+export function FinalChallenge({ course, modules, questions, lessonsCount, result, studentName, onResult, onBack }: {
+  course: Course;
+  /** Títulos dos módulos, na ordem. */
+  modules: string[];
+  questions: QuizQuestion[];
+  lessonsCount: number;
+  result?: QuizResult;
+  /** Nome da conta logada, para já vir preenchido no certificado. */
+  studentName?: string;
+  onResult: (result: QuizResult) => void;
+  onBack: () => void;
+}) {
+  const [phase, setPhase] = useState<Phase>(result?.passed ? "cert" : "intro");
+  const [timerOn, setTimerOn] = useState(true);
+  const [game, setGame] = useState<Game | null>(null);
+  const [round, setRound] = useState<Round | null>(null);
+  const [picked, setPicked] = useState<number | null | undefined>(undefined); // undefined: ainda não respondeu; null: o tempo acabou
+  const [rotation, setRotation] = useState(0);
+  const [spinning, setSpinning] = useState(false);
+  const [landed, setLanded] = useState<number | null>(null);
+  const [name, setName] = useState(result?.passed?.name ?? studentName ?? "");
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const actionRef = useRef<HTMLButtonElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
+  const barRef = useRef<HTMLSpanElement>(null);
+  const secondsRef = useRef<HTMLSpanElement>(null);
+  const timerBoxRef = useRef<HTMLDivElement>(null);
+  const stopTimer = useRef<number | undefined>(undefined);
+  const latest = useRef({ result, onResult });
+  useEffect(() => { latest.current = { result, onResult }; });
+
+  const total = game?.seq.length ?? Math.min(QUIZ_RULES.total, questions.length);
+  const color = (m: number) => MODULE_COLORS[m % MODULE_COLORS.length];
+
+  // Foco: em cada tela nova, vai para o título ou para o botão principal.
+  useEffect(() => {
+    if (phase === "spin" || phase === "ask") actionRef.current?.focus({ preventScroll: true });
+    else headingRef.current?.focus({ preventScroll: true });
+  }, [phase, round]);
+
+  // Depois de responder, o foco vai para "Girar de novo" (Enter segue o jogo).
+  useEffect(() => { if (picked !== undefined) nextRef.current?.focus({ preventScroll: true }); }, [picked]);
+
+  const start = () => {
+    const seq = drawModules(questions, modules.length);
+    const pools = modules.map((_, m) => shuffle(questions.filter((q) => q.module === m)));
+    setGame({ seq, pools, index: 0, hits: 0, streak: 0, bestStreak: 0, log: [] });
+    setRound(null);
+    setPicked(undefined);
+    setLanded(null);
+    spinRef.current = null;
+    setPhase("spin");
+  };
+
+  const spinRef = useRef<{ module: number; done: boolean } | null>(null);
+  const gameRef = useRef(game);
+  useEffect(() => { gameRef.current = game; });
+
+  const spin = () => {
+    if (!game || spinRef.current) return;
+    const m = game.seq[game.index];
+    const step = 360 / modules.length;
+    const point = m * step + step * 0.15 + Math.random() * step * 0.7; // ponto da fatia que vai parar sob o bico
+    const target = (((-point - rotation) % 360) + 360) % 360;
+    spinRef.current = { module: m, done: false };
+    setLanded(null);
+    setSpinning(true);
+    setRotation(rotation + 360 * 4 + target);
+    // Garantia caso a animação esteja desligada (ou o evento não chegue).
+    window.setTimeout(stopSpin, 3300);
+  };
+
+  function stopSpin() {
+    const current = spinRef.current;
+    if (!current || current.done) return;
+    current.done = true;
+    setSpinning(false);
+    setLanded(current.module);
+    window.setTimeout(() => { spinRef.current = null; ask(current.module); }, 700);
+  }
+
+  function ask(m: number) {
+    const current = gameRef.current;
+    if (!current) return;
+    const pools = current.pools.map((pool) => pool.slice());
+    const question = pools[m].shift();
+    if (!question) return;
+    setGame({ ...current, pools });
+    setRound({ question, order: shuffle([0, 1, 2, 3]) });
+    setPicked(undefined);
+    setPhase("ask");
+  }
+
+  const answer = (option: number | null) => {
+    if (!game || !round || picked !== undefined) return;
+    window.cancelAnimationFrame(stopTimer.current ?? 0);
+    const ok = option === 0;
+    const streak = ok ? game.streak + 1 : 0;
+    setPicked(option);
+    setGame({
+      ...game,
+      index: game.index + 1,
+      hits: game.hits + (ok ? 1 : 0),
+      streak,
+      bestStreak: Math.max(game.bestStreak, streak),
+      log: [...game.log, { question: round.question, ok, timeout: option === null }],
+    });
+  };
+  const answerRef = useRef(answer);
+  useEffect(() => { answerRef.current = answer; });
+
+  // Cronômetro: mexe direto na barra para não redesenhar a tela a cada quadro.
+  useEffect(() => {
+    if (phase !== "ask" || !timerOn || picked !== undefined) return;
+    const end = performance.now() + QUIZ_RULES.seconds * 1000;
+    const tick = (now: number) => {
+      const left = Math.max(0, end - now);
+      if (barRef.current) barRef.current.style.transform = `scaleX(${left / (QUIZ_RULES.seconds * 1000)})`;
+      if (secondsRef.current) secondsRef.current.textContent = String(Math.ceil(left / 1000));
+      timerBoxRef.current?.classList.toggle("is-low", left < 5000);
+      if (left <= 0) { answerRef.current(null); return; }
+      stopTimer.current = window.requestAnimationFrame(tick);
+    };
+    stopTimer.current = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(stopTimer.current ?? 0);
+  }, [phase, round, timerOn, picked]);
+
+  // Atalhos: 1 a 4 ou A a D para responder.
+  useEffect(() => {
+    if (phase !== "ask" || picked !== undefined || !round) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey || event.altKey || event.key.length !== 1) return;
+      const n = "1234".includes(event.key) ? Number(event.key) - 1 : LETTERS.indexOf(event.key.toUpperCase());
+      if (n >= 0 && n < 4) answerRef.current(round.order[n]);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [phase, picked, round]);
+
+  const finish = () => {
+    if (!game) return;
+    const previous = latest.current.result;
+    const pass = game.hits >= QUIZ_RULES.pass;
+    const at = new Date().toISOString();
+    const passed = previous?.passed
+      ? { ...previous.passed, hits: Math.max(previous.passed.hits, game.hits) }
+      : pass ? { at, hits: game.hits, code: newCode(course.id), name: name.trim() || undefined } : undefined;
+    latest.current.onResult({ best: Math.max(previous?.best ?? 0, game.hits), tries: (previous?.tries ?? 0) + 1, passed });
+    setPhase("result");
+  };
+
+  const next = () => {
+    if (!game) return;
+    if (game.index >= game.seq.length) finish();
+    else { setRound(null); setPicked(undefined); setLanded(null); setPhase("spin"); }
+  };
+
+  const saveName = (value: string) => {
+    setName(value);
+    const current = latest.current.result;
+    if (current?.passed) latest.current.onResult({ ...current, passed: { ...current.passed, name: value.trim() || undefined } });
+  };
+
+  /* Telas */
+
+  if (phase === "intro") {
+    return (
+      <div className="fq">
+        <div className="fq-intro">
+          <div className="fq-intro-copy">
+            <p className="fc-lesson-eyebrow">Desafio final</p>
+            <h2 ref={headingRef} tabIndex={-1}>Mostre o que você aprendeu</h2>
+            <p className="fq-lead">Gire o carretel para sortear o módulo e responda à pergunta que cair. São {total} perguntas tiradas das {lessonsCount} aulas. Acerte {QUIZ_RULES.pass} para ganhar o certificado.</p>
+            <ul className="fq-facts">
+              <li><b>{total}</b> perguntas</li>
+              <li><b>{QUIZ_RULES.pass}</b> acertos para passar</li>
+              <li><b>{QUIZ_RULES.seconds} s</b> por pergunta</li>
+            </ul>
+            <label className="fq-switch">
+              <input type="checkbox" checked={timerOn} onChange={(event) => setTimerOn(event.target.checked)} />
+              <i aria-hidden="true" />
+              Jogar com cronômetro
+            </label>
+            {result && result.tries > 0 && <p className="fq-record">Seu recorde: {result.best} de {QUIZ_RULES.total} em {result.tries} {result.tries === 1 ? "partida" : "partidas"}.</p>}
+            <div className="fq-actions">
+              <button type="button" className="fc-btn fc-btn-light" onClick={start}>Começar o desafio</button>
+              {result?.passed
+                ? <button type="button" className="fc-btn fc-btn-soft" onClick={() => setPhase("cert")}>Ver meu certificado</button>
+                : <button type="button" className="fc-btn fc-btn-soft" onClick={onBack}>Revisar as aulas</button>}
+            </div>
+          </div>
+          <div className="fq-intro-art">
+            <Spool count={modules.length} rotation={0} />
+            <ul className="fq-legend">
+              {modules.map((title, m) => <li key={title}><i style={{ background: color(m) }} />{m + 1}. {title}</li>)}
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if ((phase === "spin" || phase === "ask") && game) {
+    const answered = picked !== undefined;
+    const last = game.log[game.log.length - 1];
+    const roundModule = round?.question.module ?? 0;
+    return (
+      <div className="fq">
+        <div className="fq-hud">
+          <ol className="fq-layers" aria-label={`Pergunta ${Math.min(game.index + (answered ? 0 : 1), total)} de ${total}`}>
+            {game.seq.map((_, i) => {
+              const done = game.log[i];
+              return <li key={i} className={done ? (done.ok ? "is-ok" : "is-bad") : i === game.index ? "is-now" : ""} />;
+            })}
+          </ol>
+          <span className="fq-chip">Acertos <b>{game.hits}</b></span>
+          <span className={`fq-chip ${game.streak >= 3 ? "is-hot" : ""}`}>Sequência <b>{game.streak}</b></span>
+        </div>
+
+        {phase === "spin" ? (
+          <div className="fq-stage fq-spin">
+            <Spool count={modules.length} rotation={rotation} onStop={stopSpin} />
+            <div className="fq-drawn" aria-live="polite">
+              <small>Pergunta {game.index + 1} de {total}</small>
+              <strong>{landed === null ? (spinning ? "Girando..." : "Gire o carretel") : modules[landed]}</strong>
+            </div>
+            <button type="button" ref={actionRef} className="fc-btn fc-btn-light" onClick={spin} disabled={spinning || landed !== null}>Girar</button>
+          </div>
+        ) : round && (
+          <div className="fq-stage fq-ask">
+            <div className="fq-ask-head">
+              <span className="fq-mod" style={{ "--c": color(roundModule) } as CSSProperties}>{modules[roundModule]}</span>
+              <span className="fq-num">Pergunta {game.index + (answered ? 0 : 1)} de {total}</span>
+            </div>
+            <h2 ref={headingRef} tabIndex={-1}>{round.question.question}</h2>
+            {timerOn && (
+              <div className="fq-timer" ref={timerBoxRef}>
+                <span className="fq-timer-bar"><span ref={barRef} /></span>
+                <span ref={secondsRef} className="fq-timer-s">{QUIZ_RULES.seconds}</span>
+              </div>
+            )}
+            <ul className="fq-opts">
+              {round.order.map((option, n) => {
+                const state = !answered ? "" : option === 0 ? "is-ok" : option === picked ? "is-bad" : "is-fade";
+                return (
+                  <li key={option}>
+                    <button type="button" ref={n === 0 ? actionRef : undefined} className={`fq-opt ${state}`} disabled={answered} onClick={() => answer(option)}>
+                      <span className="fq-key">{LETTERS[n]}</span>
+                      <span>{round.question.options[option]}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+            {answered && last && (
+              <div className="fq-why" aria-live="polite">
+                <strong className={last.ok ? "is-ok" : "is-bad"}>
+                  {last.ok ? (game.streak >= 3 ? `Certo! ${game.streak} seguidas` : "Certo!") : last.timeout ? "O tempo acabou" : "Não foi dessa vez"}
+                </strong>
+                <p>{round.question.why}</p>
+                <small>{round.question.ref}</small>
+              </div>
+            )}
+            {answered && (
+              <div className="fq-ask-foot">
+                <button type="button" className="fc-btn fc-btn-light" ref={nextRef} onClick={next}>
+                  {game.index >= game.seq.length ? "Ver o resultado" : "Girar de novo"}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (phase === "result" && game) {
+    const pass = game.hits >= QUIZ_RULES.pass;
+    const missed = game.log.filter((entry) => !entry.ok);
+    return (
+      <div className="fq">
+        <div className="fq-result">
+          <div className="fq-score">
+            <div className="fq-ring">
+              <svg viewBox="0 0 100 100" aria-hidden="true">
+                <circle cx="50" cy="50" r="44" fill="none" stroke="#22252d" strokeWidth="8" />
+                <circle cx="50" cy="50" r="44" fill="none" stroke={pass ? "#3ddc84" : "#ff6b6b"} strokeWidth="8" strokeLinecap="round" strokeDasharray={RING} strokeDashoffset={RING * (1 - game.hits / total)} />
+              </svg>
+              <div><b>{game.hits}</b><small>de {total}</small></div>
+            </div>
+            <div>
+              <span className={`fq-pill ${pass ? "is-ok" : "is-bad"}`}>{pass ? "Aprovado no desafio" : `Faltaram ${QUIZ_RULES.pass - game.hits}`}</span>
+              <h2 ref={headingRef} tabIndex={-1}>{pass ? "Mandou bem!" : "Quase lá. Revise e tente de novo."}</h2>
+              <p className="fq-lead">
+                {pass
+                  ? `Você acertou ${game.hits} de ${total}, com ${game.bestStreak} ${game.bestStreak === 1 ? "acerto" : "acertos"} seguidos no melhor momento. O certificado está liberado.`
+                  : `Você acertou ${game.hits} de ${total}. Para passar são ${QUIZ_RULES.pass}. As aulas abaixo valem uma revisão.`}
+              </p>
+            </div>
+          </div>
+          <ul className="fq-bymod">
+            {modules.map((title, m) => {
+              const asked = game.log.filter((entry) => entry.question.module === m);
+              const right = asked.filter((entry) => entry.ok).length;
+              return (
+                <li key={title} style={{ "--c": color(m) } as CSSProperties}>
+                  {m + 1}. {title}<span>{right}/{asked.length}</span>
+                  <span className="fq-track"><i style={{ width: `${asked.length ? (right / asked.length) * 100 : 0}%` }} /></span>
+                </li>
+              );
+            })}
+          </ul>
+          {missed.length > 0 && (
+            <section className="fq-review" aria-labelledby="fq-review-title">
+              <h3 id="fq-review-title">Para revisar</h3>
+              <ul>{missed.map((entry) => <li key={entry.question.question}>{entry.question.question}<small>{entry.question.ref}</small></li>)}</ul>
+            </section>
+          )}
+          <div className="fq-actions">
+            {pass && <button type="button" className="fc-btn fc-btn-light" onClick={() => setPhase("cert")}>Ver o certificado</button>}
+            <button type="button" className={`fc-btn ${pass ? "fc-btn-soft" : "fc-btn-light"}`} onClick={start}>{pass ? "Jogar de novo" : "Tentar de novo"}</button>
+            {!pass && <button type="button" className="fc-btn fc-btn-soft" onClick={onBack}>Revisar as aulas</button>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const passed = result?.passed;
+  if (phase === "cert" && passed) {
+    return (
+      <div className="fq">
+        <div className="fq-cert-head">
+          <p className="fc-lesson-eyebrow">Certificado de conclusão</p>
+          <h2 ref={headingRef} tabIndex={-1}>Seu certificado está pronto</h2>
+          <label className="fq-field">
+            <span>Nome que vai aparecer no certificado</span>
+            <input type="text" maxLength={48} autoComplete="name" placeholder="Digite seu nome completo" value={name} onChange={(event) => saveName(event.target.value)} />
+          </label>
+        </div>
+        <Certificate course={course} modules={modules} lessonsCount={lessonsCount} name={name.trim()} hits={passed.hits} date={passed.at} code={passed.code} />
+        <div className="fq-actions">
+          <button type="button" className="fc-btn fc-btn-light" onClick={() => window.print()} disabled={!name.trim()}>Salvar em PDF</button>
+          <button type="button" className="fc-btn fc-btn-soft" onClick={() => setPhase("intro")}>Jogar de novo</button>
+        </div>
+        <p className="fq-hint">{name.trim() ? "Na janela de impressão, escolha \"Salvar como PDF\" e deixe os gráficos de fundo ligados." : "Escreva o seu nome para salvar o certificado."}</p>
+      </div>
+    );
+  }
+
+  return null;
+}
