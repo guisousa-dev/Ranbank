@@ -1,5 +1,5 @@
 // Curso: Hardware e sistema operacional. Junta duas partes, cada uma feita por uma pessoa:
-// Hardware (ainda sem material) e Software, "do botão Power à internet" (4 aulas).
+// Hardware, "por dentro do computador" (4 aulas), e Software, "do botão Power à internet" (4 aulas).
 // Segue o padrão de app/foundation-lessons.ts.
 
 import type { CourseContent } from "../foundation-lessons";
@@ -7,7 +7,338 @@ import type { CourseContent } from "../foundation-lessons";
 export const HARDWARE_SO: CourseContent = {
   closing: "Agora você sabe o caminho completo: do botão Power ao sistema, dos drivers à internet. A tecnologia muda o tempo todo, então continue explorando, sempre com cuidado.",
   modules: [
-    { title: "Hardware básico", lessons: [] },
+    {
+      title: "Hardware: por dentro do computador",
+      lessons: [
+        {
+          id: "fundamentos-de-hardware",
+          title: "Fundamentos de hardware",
+          summary: "Tipos de computador, as peças de dentro e de fora, periféricos e cuidados.",
+          goals: ["Reconhecer desktop, notebook, servidor e celular", "Identificar as principais peças de um computador", "Classificar periféricos em entrada, saída ou os dois", "Cuidar do equipamento no dia a dia"],
+          sections: [
+            {
+              title: "Tipos de computador",
+              body: [
+                "Hardware é a parte física do computador, o que dá para tocar. Software são os programas que dizem a ele o que fazer. Neste módulo, o assunto é o hardware.",
+                "Todo computador tem processador, memória e armazenamento. O que muda é o tamanho, a mobilidade, a potência e o uso.",
+                { table: { caption: "Os tipos mais comuns", head: ["Tipo", "Como é", "Uso comum"], rows: [
+                  ["Desktop", "Fica fixo na mesa. Tem boa potência e é fácil trocar peças.", "Escritório, casa e jogos"],
+                  ["Notebook", "Portátil, com tela, teclado e bateria.", "Trabalho e estudo em qualquer lugar"],
+                  ["Servidor", "Computador potente que atende outros computadores pela rede.", "Sites, e-mail e arquivos de empresas"],
+                  ["Celular", "Cabe no bolso e é usado tocando na tela.", "Mensagens, aplicativos e fotos"],
+                ] } },
+                { box: "exemplo", text: "Quando você digita uma mensagem, o teclado (hardware) manda as letras para o programa (software), que usa o processador e a memória (hardware) para mostrar o texto na tela (hardware)." },
+              ],
+            },
+            {
+              title: "As peças de dentro e as de fora",
+              body: [
+                "As peças internas ficam dentro do gabinete (no desktop) ou da carcaça (no notebook):",
+                { list: [
+                  "Placa-mãe: a placa principal, onde todas as outras peças se ligam.",
+                  "Processador (CPU): o \"cérebro\", que faz os cálculos e executa as instruções.",
+                  "Memória RAM: guarda o que está em uso agora, de forma temporária e rápida.",
+                  "SSD ou HD: guardam os arquivos de forma permanente. O SSD é rápido e silencioso; o HD tem discos que giram e é mais barato.",
+                  "Fonte de alimentação: transforma a energia da tomada no tipo que as peças usam.",
+                  "Placa de vídeo: cuida das imagens. Faz diferença em jogos, vídeos e design.",
+                  "Cooler: a ventoinha que tira o calor do processador.",
+                ] },
+                "As peças externas são as que você vê e liga por fora: o gabinete (a caixa que protege tudo), o monitor, o teclado e o mouse.",
+                { box: "chave", text: "A placa-mãe liga tudo, o processador pensa, a RAM guarda o que está em uso e o SSD ou HD guarda os arquivos." },
+              ],
+            },
+            {
+              title: "Periféricos: entrada, saída ou os dois",
+              body: [
+                "Periférico é qualquer aparelho ligado ao computador para ele fazer mais coisas. Para classificar, pergunte: a informação entra no computador, sai dele ou vai nos dois sentidos?",
+                { table: { caption: "Exemplos de periféricos", head: ["Tipo", "O que faz", "Exemplos"], rows: [
+                  ["Entrada", "Manda dados para o computador", "Teclado, mouse, microfone, webcam e scanner"],
+                  ["Saída", "Recebe dados do computador", "Monitor, caixas de som e impressora"],
+                  ["Entrada e saída", "Faz os dois", "Tela touch, headset (fone com microfone) e pen drive"],
+                ] } },
+                { box: "exemplo", text: "O pen drive é de entrada e saída porque o computador lê arquivos dele e também grava arquivos nele." },
+              ],
+            },
+            {
+              title: "Cuidados com o equipamento",
+              body: [
+                { list: [
+                  "Energia: use filtro de linha ou estabilizador e tire da tomada antes de abrir o equipamento.",
+                  "Líquidos: deixe copos e garrafas longe do teclado e do gabinete.",
+                  "Eletricidade estática: antes de pegar uma peça, toque numa parte de metal do gabinete. Segure as peças pelas bordas.",
+                  "Ventilação: deixe as saídas de ar livres e limpe a poeira com o aparelho desligado.",
+                  "Segurança digital: instale as atualizações, use antivírus e senhas fortes e faça cópia (backup) dos arquivos importantes.",
+                ] },
+                { box: "atencao", text: "A eletricidade estática do corpo, que você nem sente, pode queimar uma peça. Tocar no metal do gabinete antes descarrega essa energia." },
+              ],
+            },
+          ],
+          activity: {
+            title: "Descubra o que há no seu computador",
+            steps: [
+              "Abra o Gerenciador de Tarefas (Ctrl + Shift + Esc) e vá à aba Desempenho.",
+              "Anote o modelo do processador, quanto de memória RAM ele tem e o tipo de armazenamento (SSD ou HD).",
+              "Escolha três periféricos que você usa e diga se cada um é de entrada, de saída ou dos dois.",
+            ],
+            answer: "Na aba Desempenho, clique em CPU para ver o processador, em Memória para a RAM e em Disco para o armazenamento. Sobre os periféricos: teclado e mouse são de entrada, monitor e impressora são de saída, e headset e pen drive são de entrada e saída.",
+          },
+          recap: ["Desktop, notebook, servidor e celular funcionam do mesmo jeito; muda o uso.", "Periférico de entrada manda dados, o de saída recebe e alguns fazem os dois.", "Energia estável, nada de líquidos por perto e backup protegem o equipamento e os dados."],
+        },
+        {
+          id: "dentro-do-computador",
+          title: "Dentro do computador",
+          summary: "Placa-mãe, processador, memória, fonte, refrigeração e o que a BIOS guarda.",
+          goals: ["Entender o papel da placa-mãe e do chipset", "Comparar processadores por núcleos e clock", "Saber por que a memória é organizada em camadas", "Entender o que fazem a fonte e a refrigeração"],
+          sections: [
+            {
+              title: "Placa-mãe e chipset",
+              body: [
+                "A placa-mãe é a base onde tudo se encaixa. O chipset é o conjunto de circuitos que organiza a conversa entre o processador, a memória, os discos e as portas.",
+                { list: [
+                  "Soquete: o encaixe do processador. Cada geração de processador pede um soquete compatível.",
+                  "Slots de memória: onde entram os pentes de RAM. DDR4 e DDR5 não encaixam um no lugar do outro.",
+                  "Slots PCIe: recebem placa de vídeo, placa de rede e outras placas extras.",
+                  "Conectores M.2 e SATA: ligam o SSD e o HD. No M.2, o SSD encaixa direto na placa.",
+                  "Painel traseiro: as portas USB, de vídeo, de rede e de som, atrás do gabinete.",
+                ] },
+                { table: { caption: "Tamanhos de placa-mãe", head: ["Formato", "Tamanho", "Quando é usado"], rows: [
+                  ["ATX", "Padrão", "Gabinetes comuns, com mais slots e conectores"],
+                  ["Micro-ATX", "Menor", "Gabinetes compactos, com menos slots"],
+                  ["Mini-ITX", "Muito pequeno", "Computadores mínimos, com poucos slots"],
+                ] } },
+              ],
+            },
+            {
+              title: "Processador: núcleos e clock",
+              body: [
+                "Dois números ajudam a comparar processadores: quantas tarefas ele faz ao mesmo tempo (núcleos) e com que rapidez cada uma anda (clock, medido em GHz).",
+                "Threads são as filas de instruções que cada núcleo atende. Com a tecnologia SMT ou Hyper-Threading, um núcleo cuida de duas filas.",
+                { box: "exemplo", text: "Pense numa cozinha: os núcleos são os cozinheiros e o clock é a rapidez de cada um. Para um prato só, ajuda ter um cozinheiro rápido. Para muitos pedidos ao mesmo tempo, ajuda ter mais cozinheiros." },
+                "Mais núcleos ajudam a editar vídeo e a manter muitos programas e abas abertos. Clock mais alto ajuda nas tarefas do dia a dia que pedem resposta rápida.",
+                { box: "atencao", text: "O clock não é tudo. Um processador novo com clock menor pode ser mais rápido que um antigo com clock maior. E, se esquentar demais, o processador baixa o clock sozinho para se proteger." },
+              ],
+            },
+            {
+              title: "Memória em camadas: cache e RAM",
+              body: [
+                "O processador é muito mais rápido que a RAM e o SSD. Para ele não ficar esperando, a memória é organizada em camadas: quanto mais perto do processador, mais rápida e menor.",
+                { table: { caption: "Da mais rápida para a mais lenta", head: ["Camada", "Onde fica", "Tamanho"], rows: [
+                  ["Cache L1", "Dentro de cada núcleo", "Dezenas de KB"],
+                  ["Cache L2", "Junto de cada núcleo", "Centenas de KB a alguns MB"],
+                  ["Cache L3", "Dividida entre os núcleos", "Alguns MB"],
+                  ["Memória RAM", "Nos pentes da placa-mãe", "Alguns GB; apaga ao desligar"],
+                  ["SSD ou HD", "No disco", "Centenas de GB ou mais; guarda tudo"],
+                ] } },
+                { box: "pratica", text: "Dois pentes de RAM iguais costumam render mais que um pente só com a mesma memória total, porque trabalham juntos (canal duplo). O manual da placa diz em quais slots encaixar." },
+              ],
+            },
+            {
+              title: "Fonte e refrigeração",
+              body: [
+                "A fonte entrega energia estável para todas as peças. Na hora de escolher, veja:",
+                { list: [
+                  "Potência (W): precisa ser maior que o consumo somado das peças, com folga.",
+                  "Selo 80 Plus (de Bronze a Titânio): quanto mais alto, menos energia vira calor.",
+                  "Conectores: o de 24 pinos vai na placa-mãe, o de 8 pinos no processador e os PCIe na placa de vídeo.",
+                  "Proteções: boas fontes cortam a energia em caso de sobrecarga, curto-circuito ou pico de tensão.",
+                ] },
+                "A refrigeração tira o calor das peças. O air cooler (metal com ventoinha) é o mais comum e fácil de manter. O water cooler leva líquido por tubos até um radiador: esfria bem, mas custa mais e pede cuidado.",
+                "A pasta térmica é uma camada fina entre o processador e o cooler que melhora a passagem do calor. No gabinete, o ar frio entra pela frente ou por baixo e o quente sai por trás ou por cima.",
+                { box: "atencao", text: "Nunca abra a fonte. Mesmo desligada da tomada, ela pode guardar uma carga elétrica perigosa. Se der defeito, leve a um técnico ou troque a fonte inteira." },
+              ],
+            },
+            {
+              title: "O que a BIOS/UEFI guarda",
+              body: [
+                "Na aula \"Da BIOS ao sistema operacional\", você vê o caminho do botão Power até a área de trabalho. Aqui ficam alguns detalhes do lado do hardware:",
+                { list: [
+                  "POST: o teste automático do processador, da memória e do vídeo ao ligar. Se algo falha, o computador apita ou mostra uma mensagem.",
+                  "Ordem de boot: diz de qual disco o computador começa (SSD, HD ou pen drive de instalação).",
+                  "Secure Boot: só deixa iniciar sistemas confiáveis, o que protege a inicialização.",
+                  "Bateria CMOS: uma pilha pequena na placa que guarda a data, a hora e as configurações com o computador desligado.",
+                ] },
+                { box: "atencao", text: "Antes de mudar uma opção da BIOS/UEFI, anote o valor original. Se algo der errado, a própria tela tem a opção de voltar às configurações de fábrica." },
+              ],
+            },
+          ],
+          activity: {
+            title: "A ficha técnica do seu computador",
+            steps: [
+              "No Gerenciador de Tarefas (Ctrl + Shift + Esc), aba Desempenho, clique em CPU e anote os núcleos, os processadores lógicos, a velocidade e as caches.",
+              "Clique em Memória e anote quanto de RAM há, o tipo (DDR4 ou DDR5) e quantos slots estão em uso.",
+              "Aperte Windows + R, digite msinfo32 e aperte Enter. Anote o modelo da placa-mãe e a versão da BIOS.",
+            ],
+            answer: "\"Processadores lógicos\" são as threads: se aparecem o dobro dos núcleos, o processador usa SMT ou Hyper-Threading. Se só um slot de memória está em uso, há espaço para colocar outro pente igual e ganhar o canal duplo.",
+          },
+          recap: ["A placa-mãe liga as peças e o chipset define quantos recursos ela tem.", "Núcleos dizem quantas tarefas o processador faz juntas; o clock, a rapidez de cada uma.", "Cache, RAM e disco formam camadas: mais perto do processador, mais rápido e menor."],
+        },
+        {
+          id: "dados-e-conexoes",
+          title: "Dados e conexões",
+          summary: "HD, SSD e NVMe, unidades de medida, placa de vídeo e portas.",
+          goals: ["Diferenciar HD, SSD e SSD NVMe", "Entender bit, byte, KB, MB, GB e TB", "Distinguir placa de vídeo integrada e dedicada", "Reconhecer as portas e os cabos mais comuns"],
+          sections: [
+            {
+              title: "HD, SSD e NVMe",
+              body: [
+                "Todo computador precisa de um lugar para guardar os arquivos de forma permanente. Os mais usados são o HD, o SSD e o SSD NVMe.",
+                { table: { caption: "Comparando os três", head: ["", "HD", "SSD (SATA)", "SSD NVMe"], rows: [
+                  ["Como funciona", "Discos que giram", "Memória flash, sem partes móveis", "Memória flash ligada pelo PCIe"],
+                  ["Velocidade aproximada", "80 a 160 MB/s", "Até 550 MB/s", "De 2.000 a mais de 7.000 MB/s"],
+                  ["Resiste a quedas?", "Pouco", "Bem", "Bem"],
+                  ["Preço por GB", "O menor", "Médio", "O maior"],
+                  ["Bom para", "Guardar arquivos grandes e backups", "Deixar um computador antigo mais rápido", "Sistema, programas e jogos"],
+                ] } },
+                { box: "chave", text: "Colocar o sistema num SSD é uma das melhorias que mais aceleram um computador antigo." },
+                { box: "atencao", text: "Nenhum disco dura para sempre. Tenha sempre uma cópia dos arquivos importantes em outro lugar." },
+              ],
+            },
+            {
+              title: "Unidades de medida",
+              body: [
+                "O bit é a menor unidade de informação: vale 0 ou 1. Um byte são 8 bits, o espaço de uma letra. A partir daí, cada unidade vale cerca de mil da anterior.",
+                { table: { caption: "Do menor para o maior", head: ["Unidade", "Vale", "Exemplo aproximado"], rows: [
+                  ["Byte (B)", "8 bits", "Uma letra ou um número"],
+                  ["Kilobyte (KB)", "Cerca de 1.000 bytes", "Um texto curto"],
+                  ["Megabyte (MB)", "Cerca de 1.000 KB", "Uma foto ou uma música"],
+                  ["Gigabyte (GB)", "Cerca de 1.000 MB", "Um filme em qualidade comum"],
+                  ["Terabyte (TB)", "Cerca de 1.000 GB", "Centenas de filmes"],
+                ] } },
+                { box: "exemplo", text: "A internet é vendida em megabits por segundo (Mbps), e os arquivos são medidos em megabytes (MB). Como 1 byte tem 8 bits, uma internet de 200 Mbps baixa cerca de 25 MB por segundo (200 ÷ 8)." },
+                { box: "atencao", text: "Um disco de 500 GB aparece no Windows com cerca de 465 GB. Não é defeito: o fabricante conta de 1.000 em 1.000 e o Windows conta de 1.024 em 1.024." },
+              ],
+            },
+            {
+              title: "Placa de vídeo integrada ou dedicada",
+              body: [
+                "A placa de vídeo transforma os dados em imagem na tela. O processador dela se chama GPU, e faz milhares de cálculos ao mesmo tempo para desenhar as imagens.",
+                { table: { caption: "Integrada ou dedicada?", head: ["", "Integrada", "Dedicada"], rows: [
+                  ["Onde fica", "Dentro do processador", "Numa placa separada, no slot PCIe"],
+                  ["Memória", "Usa parte da RAM do computador", "Tem memória própria (VRAM)"],
+                  ["Consumo e calor", "Baixos", "Altos; pede fonte e ventilação melhores"],
+                  ["Bom para", "Estudo, escritório, internet e vídeos", "Jogos pesados, edição de vídeo e 3D"],
+                ] } },
+                { box: "atencao", text: "Se o computador tem placa de vídeo dedicada, ligue o cabo do monitor na saída da própria placa de vídeo, e não na da placa-mãe. Senão, a placa dedicada fica parada." },
+              ],
+            },
+            {
+              title: "Portas e conectores",
+              body: [
+                "Conhecer as portas evita comprar o cabo errado.",
+                { list: [
+                  "USB-A: retangular e o mais comum. Liga pen drive, teclado, mouse e HD externo. Só encaixa de um lado.",
+                  "USB-C: pequeno e encaixa dos dois lados. Pode levar dados, vídeo e energia, e carrega notebooks e celulares.",
+                  "HDMI: leva imagem e som num cabo só. É o padrão de TVs, monitores e videogames.",
+                  "DisplayPort: imagem e som, comum em monitores e placas de vídeo. Aguenta taxas de atualização altas.",
+                  "P2 (3,5 mm): o plugue de fone, microfone e caixas de som. Em geral, verde é a saída de som e rosa é o microfone.",
+                  "RJ-45: o conector do cabo de rede, que liga o computador ao roteador.",
+                ] },
+                { table: { caption: "Velocidades do USB", head: ["Padrão", "Velocidade máxima", "Observação"], rows: [
+                  ["USB 2.0", "480 Mbps", "Basta para teclado, mouse e impressora"],
+                  ["USB 3.0 (3.2 Gen 1)", "5 Gbps", "Costuma ter a parte de dentro azul"],
+                  ["USB 3.2 Gen 2", "10 Gbps", "Bom para SSD externo"],
+                  ["USB4", "40 Gbps ou mais", "Usa o conector USB-C"],
+                ] } },
+                { box: "atencao", text: "USB-C é o formato do conector, não a velocidade. Nem toda porta USB-C leva vídeo ou carrega aparelhos: confira o que o fabricante informa." },
+              ],
+            },
+          ],
+          activity: {
+            title: "Como é o seu computador?",
+            steps: [
+              "No Gerenciador de Tarefas (Ctrl + Shift + Esc), aba Desempenho, clique em Disco e anote o tipo (SSD ou HDD) e o tamanho.",
+              "Abra o Explorador de Arquivos (Windows + E), clique em Este Computador e compare o tamanho do disco com o que o fabricante anuncia.",
+              "Ainda na aba Desempenho, veja se aparece uma GPU ou duas.",
+              "Olhe o computador por fora e liste as portas que encontrar, com o nome de cada uma.",
+            ],
+            answer: "Se o disco mostra um pouco menos que o anunciado (por exemplo, 465 GB num disco de 500 GB), está tudo certo: é a diferença entre contar de 1.000 em 1.000 e de 1.024 em 1.024. Se aparecem duas GPUs, em geral uma é a integrada e a outra é a dedicada.",
+          },
+          recap: ["O SSD é muito mais rápido que o HD, e o NVMe é o mais rápido dos três.", "1 byte tem 8 bits: internet é medida em bits e arquivos em bytes.", "USB liga periféricos, HDMI e DisplayPort levam imagem, P2 leva som e RJ-45 liga à rede."],
+        },
+        {
+          id: "montagem-e-manutencao",
+          title: "Montagem e manutenção",
+          summary: "Montar na ordem certa, conferir se as peças combinam, limpar e resolver problemas.",
+          goals: ["Conhecer as etapas de montagem na ordem certa", "Conferir se as peças são compatíveis", "Fazer limpeza e manutenção com segurança", "Investigar problemas com método"],
+          sections: [
+            {
+              title: "Etapas de montagem",
+              body: [
+                "Montar um computador é encaixar peças compatíveis, na ordem certa e sem força.",
+                { list: [
+                  "Preparar a bancada: mesa limpa e iluminada, chave Phillips, os manuais e pulseira antiestática (ou tocar sempre no metal do gabinete).",
+                  "Instalar o processador: alinhar a marca do chip com a da placa, encaixar sem força e baixar a trava.",
+                  "Encaixar a RAM e o SSD M.2: a RAM só entra de um lado, guiada por um entalhe. O SSD M.2 é preso com um parafuso.",
+                  "Colocar a pasta térmica e o cooler: um pouco de pasta, o cooler por cima e o cabo da ventoinha ligado.",
+                  "Fixar a placa-mãe e a fonte no gabinete, com os espaçadores e o espelho das portas.",
+                  "Instalar os discos e a placa de vídeo, no slot PCIe principal.",
+                  "Ligar os cabos: o de 24 pinos, o do processador, os da placa de vídeo e os do painel frontal, seguindo o manual.",
+                  "Revisar e ligar: entrar na BIOS/UEFI para ver se as peças foram reconhecidas e depois instalar o sistema.",
+                ], ordered: true },
+                { box: "atencao", text: "Nunca force um encaixe. Se não entra, a posição está errada. Monte sempre com o cabo de energia fora da tomada." },
+                { box: "chave", text: "Processador, memória e cooler vão na placa-mãe antes de ela entrar no gabinete: fora da caixa há mais espaço e dá para ver melhor os encaixes." },
+              ],
+            },
+            {
+              title: "As peças combinam?",
+              body: [
+                "Antes de comprar ou trocar uma peça, confira se ela funciona com as outras. Uma peça incompatível pode nem encaixar.",
+                { table: { caption: "Lista de conferência", head: ["Peça", "Pergunta"], rows: [
+                  ["Processador", "O soquete do processador é o mesmo da placa-mãe?"],
+                  ["Memória RAM", "O tipo (DDR4 ou DDR5) e a quantidade são aceitos pela placa?"],
+                  ["Placa-mãe", "O formato (ATX, Micro-ATX ou Mini-ITX) cabe no gabinete?"],
+                  ["Placa de vídeo", "Cabe no gabinete, e a fonte tem os conectores que ela pede?"],
+                  ["Fonte", "A potência cobre todas as peças, com folga?"],
+                  ["Cooler", "Serve para o soquete e cabe no gabinete?"],
+                  ["SSD M.2", "O slot aceita o tamanho e o tipo (NVMe ou SATA)?"],
+                ] } },
+                { box: "pratica", text: "O manual e o site do fabricante da placa-mãe mostram quais processadores e memórias ela aceita, e se algum processador novo precisa de atualização da BIOS." },
+              ],
+            },
+            {
+              title: "Limpeza e manutenção preventiva",
+              body: [
+                "Poucos cuidados regulares evitam a maior parte dos defeitos.",
+                { table: { caption: "Rotina sugerida", head: ["Quando", "O que fazer"], rows: [
+                  ["Toda semana", "Reiniciar o computador e instalar as atualizações pendentes"],
+                  ["Todo mês", "Ver se há espaço livre no disco e fazer backup dos arquivos importantes"],
+                  ["A cada 6 meses", "Limpar a poeira de dentro (com mais frequência se houver animais ou muita poeira)"],
+                  ["A cada 2 ou 3 anos", "Avaliar a troca da pasta térmica e o estado das ventoinhas"],
+                ] } },
+                "Limpe com pincel macio e ar comprimido, nunca com aspirador comum, que pode gerar estática. Mantenha espaço livre no disco e tire programas que você não usa.",
+                { box: "exemplo", text: "Regra 3-2-1 do backup: três cópias dos arquivos, em dois tipos de mídia diferentes (por exemplo, SSD e nuvem), com uma delas fora de casa." },
+                { box: "atencao", text: "Antes de abrir o gabinete: desligue, tire da tomada e toque no metal. Ao usar ar comprimido, segure a ventoinha para ela não girar demais e quebrar." },
+              ],
+            },
+            {
+              title: "Resolvendo problemas com método",
+              body: [
+                "Diagnosticar é investigar: observe o que acontece, isole a possível causa, teste e anote o resultado. Comece sempre pelo mais simples.",
+                { box: "chave", text: "Mude uma coisa por vez. Assim você sabe qual mudança resolveu ou causou o problema." },
+                { table: { caption: "Problemas comuns", head: ["Problema", "O que conferir"], rows: [
+                  ["Não liga ou liga sem imagem", "Outra tomada e outro cabo; os cabos da fonte bem encaixados; a memória (testar um pente por vez); o cabo do monitor na saída certa; o que os bipes ou luzes de erro significam no manual"],
+                  ["Está lento", "Espaço livre no disco; uso da RAM no Gerenciador de Tarefas; programas que abrem sozinhos (aba Inicializar); vírus; atualizações; temperatura. Se ainda usa HD, trocar por SSD costuma dar o maior ganho"],
+                  ["Esquenta demais", "Poeira no cooler e nos filtros; pasta térmica seca; ventoinha parada; cabos atrapalhando o ar; no notebook, não usar em cima da cama ou do sofá"],
+                ] } },
+                "Um programa de monitoramento mostra a temperatura do processador. Em uso pesado, acima de uns 90 °C merece atenção.",
+              ],
+            },
+          ],
+          activity: {
+            title: "Projeto: planeje um computador",
+            steps: [
+              "Escolha um perfil: escritório e estudo, edição de vídeo, jogos ou servidor doméstico. Diga quem vai usar, para quê e quanto pode gastar.",
+              "Monte a lista de peças (processador, placa-mãe, RAM, armazenamento, placa de vídeo, fonte, refrigeração e gabinete) e explique por que escolheu cada uma.",
+              "Passe a lista de conferência da aula e confirme que todas as peças combinam.",
+              "Escreva um plano de manutenção (limpeza, atualizações e backup) e como você investigaria três problemas.",
+            ],
+            answer: "Algumas pistas por perfil. Escritório e estudo: SSD, RAM suficiente e preço baixo; a placa de vídeo integrada costuma bastar. Edição de vídeo: muitos núcleos, bastante RAM, SSD rápido e boa refrigeração. Jogos: placa de vídeo dedicada, fonte adequada e gabinete bem ventilado. Servidor doméstico: estabilidade, vários discos, fonte confiável e baixo consumo.",
+            note: "Os modelos podem ser pesquisados em lojas ou inventados. Se usar preços reais, anote a loja e a data.",
+          },
+          recap: ["Monte na ordem: processador, RAM, SSD e cooler na placa, depois o gabinete, os cabos e o teste.", "Antes de comprar, confira soquete, tipo de RAM, formato da placa e potência da fonte.", "No diagnóstico, comece pelo simples e mude uma coisa por vez."],
+        },
+      ],
+    },
     {
       title: "Software: do botão Power à internet",
       lessons: [

@@ -371,7 +371,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   // Só quatro tipos de quadro, em todos os cursos.
   assert.match(lessons, /export type BoxKind = "exemplo" \| "pratica" \| "atencao" \| "chave";/);
   // Cursos com aulas e quantas aulas cada um tem. Toda aula tem objetivos, atividade e resumo em 3 pontos.
-  const expected = { "educacao-financeira": 8, "gestao-tempo": 4, "autodesenvolvimento": 3, "hardware-so": 4, "impressora-3d": 6 };
+  const expected = { "educacao-financeira": 8, "gestao-tempo": 4, "autodesenvolvimento": 3, "hardware-so": 8, "impressora-3d": 6 };
   let allContent = "";
   for (const [id, total] of Object.entries(expected)) {
     assert.match(lessons, new RegExp(`"${id}": [A-Z_]+`), id);
@@ -388,8 +388,9 @@ test("Foundation lessons follow one standard and open over the catalog", async (
     await readFile(new URL(`../public${src}`, import.meta.url));
     assert.ok(alt.length > 30, `${src} tem descrição`);
   }
-  // Curso que junta duas partes: a parte sem material aparece como em preparação.
-  assert.match(allContent, /\{ title: "Hardware básico", lessons: \[\] \}/);
+  // Curso que junta duas partes: as duas já têm aulas. Módulo sem aulas aparece como em preparação.
+  assert.match(allContent, /title: "Hardware: por dentro do computador"/);
+  assert.match(allContent, /title: "Software: do botão Power à internet"/);
   assert.match(catalog, /Esta parte do curso ainda está em preparação\./);
   // Ferramenta interativa: a calculadora de custo da impressão 3D aparece dentro da aula e não envia nada.
   assert.match(allContent, /\{ tool: "custo-impressao-3d" \}/);
