@@ -9,15 +9,16 @@ import type { CategoryId, Course } from "./foundation-courses";
 import { BOX_LABEL, COURSE_CONTENT, QUIZ_RULES, lessonMinutes, lessonsOf } from "./foundation-lessons";
 import type { Block, QuizResult } from "./foundation-lessons";
 import { FinalChallenge } from "./FoundationQuiz";
+import { LessonListen, LessonReport } from "./FoundationLessonExtras";
 import { CategoryGlyph, PlayGlyph } from "./FoundationIcons";
 import { Mark } from "./FoundationBadge";
 
 /*
  * Site da Fundação RanBank: catálogo de cursos, no jeito de um app de streaming.
- * Passar o mouse mostra uma prévia; clicar abre o modal com tudo; "Assistir" abre a aula
+ * Passar o mouse mostra uma prévia; clicar abre o modal com tudo; "Começar" abre a aula
  * (modo aula, por cima da home) ou, nos cursos que ainda não têm aulas, o player de prévia.
  * Conta: a Fundação tem conta própria, com login do Google. Quem quiser pode vincular a conta do banco.
- * Sem conta, o que a pessoa assiste, guarda e curte fica só neste navegador (localStorage).
+ * Sem conta, o que a pessoa estuda, guarda e curte fica só neste navegador (localStorage).
  * Com conta, fica salvo no servidor (e uma cópia neste navegador), e aparece em qualquer aparelho.
  */
 
@@ -114,7 +115,7 @@ const LOGIN_MESSAGES: Record<string, string> = {
   erro: "Não deu para entrar com o Google agora. Tente de novo em instantes.",
 };
 
-/** Quanto do curso inteiro foi assistido, de 0 a 100. */
+/** Quanto do curso inteiro foi feito, de 0 a 100. */
 function coursePct(course: Course, progress?: Progress) {
   if (!progress) return 0;
   if (progress.done) return 100;
@@ -192,7 +193,7 @@ function CourseCard({ course, handlers, pct }: { course: Course; handlers: CardH
       onClick={() => handlers.onOpen(course)}
       onMouseEnter={(event) => handlers.onHoverStart(course, event.currentTarget)}
       onMouseLeave={handlers.onHoverEnd}
-      aria-label={`${course.title}${pct ? `, ${pct}% assistido` : ""}. Ver detalhes`}
+      aria-label={`${course.title}${pct ? `, ${pct}% feito` : ""}. Ver detalhes`}
     >
       <CoursePhoto course={course} />
       <CategoryTag course={course} />
@@ -243,7 +244,7 @@ function HoverPreview({ state, actions, lastWatched, onEnter, onLeave }: { state
   const common = lastWatched && lastWatched.id !== course.id ? sharedTags(lastWatched, course) : [];
   return (
     <div className="fc-preview" role="group" aria-label={`Prévia: ${course.title}`} style={{ ...cardStyle(course), left: state.left, top: state.top, width: state.width }} onMouseEnter={onEnter} onMouseLeave={onLeave}>
-      <button type="button" className="fc-preview-art" onClick={() => actions.play(course)} aria-label={`${pct ? "Continuar" : "Assistir"} ${course.title}`}>
+      <button type="button" className="fc-preview-art" onClick={() => actions.play(course)} aria-label={`${pct ? "Continuar" : "Começar"} ${course.title}`}>
         <CoursePhoto course={course} />
         <CategoryTag course={course} />
         <span className="fc-preview-bigplay" aria-hidden="true"><PlayGlyph size={26} /></span>
@@ -252,7 +253,7 @@ function HoverPreview({ state, actions, lastWatched, onEnter, onLeave }: { state
       </button>
       <div className="fc-preview-body">
         <div className="fc-preview-actions">
-          <button type="button" className="fc-circle is-light" onClick={() => actions.play(course)} aria-label={pct ? "Continuar" : "Assistir"}><PlayGlyph size={18} /></button>
+          <button type="button" className="fc-circle is-light" onClick={() => actions.play(course)} aria-label={pct ? "Continuar" : "Começar"}><PlayGlyph size={18} /></button>
           <button type="button" className="fc-circle" onClick={() => actions.toggleList(course)} aria-pressed={inList} aria-label={inList ? "Tirar da minha lista" : "Adicionar à minha lista"}><PlusIcon checked={inList} /></button>
           <button type="button" className="fc-circle" onClick={() => actions.toggleLike(course)} aria-pressed={liked} aria-label={liked ? "Desfazer gostei" : "Gostei"}><LikeIcon filled={liked} /></button>
           <button type="button" className="fc-circle is-more" onClick={() => actions.open(course)} aria-label="Mais informações"><ChevronDown /></button>
@@ -261,7 +262,7 @@ function HoverPreview({ state, actions, lastWatched, onEnter, onLeave }: { state
         {common.length > 0 && lastWatched && <p className="fc-preview-match">Tem a ver com {lastWatched.title}: {common.join(", ").toLowerCase()}</p>}
         <p className="fc-preview-meta">
           <span>{partsLabel(course)}</span>
-          {pct > 0 && <span className="is-green">{progress?.done ? "Concluído" : `${pct}% assistido`}</span>}
+          {pct > 0 && <span className="is-green">{progress?.done ? "Concluído" : `${pct}% feito`}</span>}
         </p>
         <ul className="fc-tags">{course.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>
       </div>
@@ -296,7 +297,7 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
 
   const partState = (index: number) => {
     if (!progress) return { pct: 0, label: "" };
-    if (partDone(course, progress, index)) return { pct: 100, label: "Vista" };
+    if (partDone(course, progress, index)) return { pct: 100, label: "Feita" };
     if (index === progress.part) return { pct: progress.pct, label: progress.pct ? `${progress.pct}%` : "" };
     return { pct: 0, label: "" };
   };
@@ -311,7 +312,7 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
           <div className="fc-dialog-hero-copy">
             <h2 id="fc-dialog-title" className={longTitle(course)}>{course.title}</h2>
             <div className="fc-dialog-actions">
-              <button type="button" className="fc-btn fc-btn-light" onClick={() => actions.play(course)}><PlayGlyph /> {progress?.done ? "Assistir de novo" : pct ? "Continuar" : "Assistir"}</button>
+              <button type="button" className="fc-btn fc-btn-light" onClick={() => actions.play(course)}><PlayGlyph /> {progress?.done ? "Fazer de novo" : pct ? "Continuar" : "Começar"}</button>
               <button type="button" className="fc-circle is-big" onClick={() => actions.toggleList(course)} aria-pressed={inList} aria-label={inList ? "Tirar da minha lista" : "Adicionar à minha lista"}><PlusIcon checked={inList} /></button>
               <button type="button" className="fc-circle is-big" onClick={() => actions.toggleLike(course)} aria-pressed={liked} aria-label={liked ? "Desfazer gostei" : "Gostei"}><LikeIcon filled={liked} /></button>
             </div>
@@ -322,7 +323,7 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
         <div className="fc-dialog-body">
           <div className="fc-dialog-main">
             <p className="fc-dialog-meta">
-              {pct > 0 && <span className="is-green">{progress?.done ? "Concluído" : `${pct}% assistido`}</span>}
+              {pct > 0 && <span className="is-green">{progress?.done ? "Concluído" : `${pct}% feito`}</span>}
               <span>{partsLabel(course)}</span>
               <span>Para iniciantes</span>
             </p>
@@ -360,7 +361,7 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
                             {state.pct > 0 && state.pct < 100 && <span className="fc-part-bar" aria-hidden="true"><i style={{ width: `${state.pct}%` }} /></span>}
                           </span>
                           <span className="fc-part-time" aria-hidden="true">{item.lesson.video ? "Vídeo e texto" : "Texto"} · {lessonMinutes(item.lesson)} min</span>
-                          <span className="fc-part-state" aria-hidden="true">{state.label === "Vista" ? "Feita" : state.label || <PlayGlyph size={16} />}</span>
+                          <span className="fc-part-state" aria-hidden="true">{state.label || <PlayGlyph size={16} />}</span>
                         </button>
                       </li>
                     );
@@ -378,7 +379,7 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
                 const state = partState(index);
                 return (
                   <li key={part.title}>
-                    <button type="button" onClick={() => actions.play(course, index)} aria-label={`Assistir parte ${index + 1}: ${part.title}`}>
+                    <button type="button" onClick={() => actions.play(course, index)} aria-label={`Abrir parte ${index + 1}: ${part.title}`}>
                       <b aria-hidden="true">{index + 1}</b>
                       <span className="fc-part-copy"><strong>{part.title}</strong>{state.pct > 0 && <span className="fc-part-bar" aria-hidden="true"><i style={{ width: `${state.pct}%` }} /></span>}</span>
                       <span className="fc-part-state">{state.label || <PlayGlyph size={16} />}</span>
@@ -499,11 +500,12 @@ function LessonBlock({ block }: { block: Block }) {
   }
   const { caption, head, rows } = block.table;
   return (
-    <div className="fc-table">
+    // Com 3 colunas ou mais, no celular cada linha vira um cartão (data-label repete o nome da coluna).
+    <div className={`fc-table ${head.length > 2 ? "is-wide" : ""}`}>
       <table>
         <caption>{caption}</caption>
         <thead><tr>{head.map((cell) => <th key={cell} scope="col">{cell}</th>)}</tr></thead>
-        <tbody>{rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, index) => index === 0 ? <th key={index} scope="row">{cell}</th> : <td key={index}>{cell}</td>)}</tr>)}</tbody>
+        <tbody>{rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, index) => index === 0 ? <th key={index} scope="row">{cell}</th> : <td key={index} data-label={head[index]}>{cell}</td>)}</tr>)}</tbody>
       </table>
     </div>
   );
@@ -535,10 +537,18 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
     mainRef.current?.scrollTo({ top: 0 });
     titleRef.current?.focus();
     const current = latest.current.progress;
-    // "Continue assistindo" volta para a última aula aberta.
+    // "Continuar de onde parei" volta para a última aula aberta.
     if (!current?.done && current?.part !== index) latest.current.onSave({ ...current, part: index, pct: 0, updatedAt: new Date().toISOString() });
     latest.current.onNavigate(index);
   }, [index]);
+
+  // Título da aba com a aula aberta, para o histórico e os favoritos do navegador. Ao fechar, volta o da página.
+  useEffect(() => {
+    const before = document.title;
+    return () => { document.title = before; };
+  }, []);
+  const tabTitle = `${challenge ? "Desafio final" : finished ? "Curso concluído" : lessons[index].lesson.title} · ${course.title} | Fundação RanBank`;
+  useEffect(() => { document.title = tabTitle; }, [tabTitle]);
 
   // Quanto da aula atual já foi lido (pela rolagem), de 10 em 10%.
   const onScroll = () => {
@@ -628,6 +638,7 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
               lessonsCount={lessons.length}
               result={progress?.quiz}
               studentName={studentName}
+              signedIn={studentName !== undefined}
               onResult={saveQuiz}
               onBack={() => go(0)}
             />
@@ -658,6 +669,8 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
               <p className="fc-lesson-eyebrow">Módulo {moduleIndex + 1} · {module.title}</p>
               <h2 id="fc-lesson-title" ref={titleRef} tabIndex={-1}>{lesson.title}</h2>
               <p className="fc-lesson-meta">Aula {index + 1} de {lessons.length} · cerca de {lessonMinutes(lesson)} minutos</p>
+              <LessonListen key={`ouvir-${lesson.id}`} lesson={lesson} />
+              {content.review && <aside className="fc-box is-atencao" aria-label="Conteúdo em revisão"><strong>Em revisão</strong><p>{content.review}</p></aside>}
 
               <section className="fc-lesson-goals" aria-labelledby="fc-goals">
                 <h3 id="fc-goals">Nesta aula você vai</h3>
@@ -708,6 +721,7 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
               )}
 
               {content.note && <p className="fc-lesson-note">{content.note}</p>}
+              <LessonReport key={`erro-${lesson.id}`} courseId={course.id} lessonId={lesson.id} />
 
               <div className="fc-lesson-nav">
                 {index > 0 && <button type="button" className="fc-btn fc-btn-soft" onClick={() => go(index - 1)}>Aula anterior</button>}
@@ -978,14 +992,14 @@ function ProfileDialog({ account, saved, onOpen, onLogout, onAccountChange, onCl
 
         <ul className="fc-profile-stats">
           <li><b>{done.length}</b><span>{done.length === 1 ? "curso concluído" : "cursos concluídos"}</span></li>
-          <li><b>{watching.length}</b><span>assistindo agora</span></li>
+          <li><b>{watching.length}</b><span>em andamento</span></li>
           <li><b>{list.length}</b><span>na minha lista</span></li>
           <li><b>{liked.length}</b><span>{liked.length === 1 ? "curtido" : "curtidos"}</span></li>
         </ul>
 
         <div className="fc-profile-body">
           {group("Cursos concluídos", "Quando você terminar um curso, ele aparece aqui.", done.map((course) => mini(course, "Concluído")))}
-          {group("Continue assistindo", "Nenhum curso em andamento.", watching.map(({ course, progress }) => mini(course, `${coursePct(course, progress)}% assistido`)))}
+          {group("Continuar de onde parei", "Nenhum curso em andamento.", watching.map(({ course, progress }) => mini(course, `${coursePct(course, progress)}% feito`)))}
           {group("Minha lista", "Use o + nos cursos para guardar o que quer ver depois.", list.map((course) => mini(course, categoryOf(course.category).name)))}
           <BankLink account={account} onChange={onAccountChange} />
           <p className="fc-profile-note">Você entrou com o Google. O seu progresso fica salvo na sua conta da Fundação e aparece em qualquer aparelho em que você entrar.</p>
@@ -1246,7 +1260,7 @@ export default function FoundationCatalog() {
           <p className="fc-billboard-meta">Passo {featuredIndex + 1} de {starter.length} da trilha</p>
           <p className="fc-billboard-text">{featured.hook}</p>
           <div className="fc-billboard-actions">
-            <button type="button" className="fc-btn fc-btn-light" onClick={() => actions.play(featured)}><PlayGlyph /> {featuredPct ? "Continuar" : "Assistir"}</button>
+            <button type="button" className="fc-btn fc-btn-light" onClick={() => actions.play(featured)}><PlayGlyph /> {featuredPct ? "Continuar" : "Começar"}</button>
             <button type="button" className="fc-btn fc-btn-soft" onClick={() => actions.open(featured)}>
               <svg className="fc-info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg>
               Mais informações
@@ -1273,7 +1287,7 @@ export default function FoundationCatalog() {
         </section>
       ) : (
         <>
-          <Row title="Continue assistindo" onScroll={hidePreview}>
+          <Row title="Continuar de onde parei" onScroll={hidePreview}>
             {watching.length
               ? watching.map(({ course, progress }) => (
                 <div className="fc-continue" key={course.id}>
@@ -1281,7 +1295,7 @@ export default function FoundationCatalog() {
                   <span><strong>{course.title}</strong><small>{hasLessons(course) ? "Aula" : "Parte"} {progress.part + 1} de {partsOf(course).length} · {coursePct(course, progress)}% {hasLessons(course) ? "feito" : "assistido"}</small></span>
                 </div>
               ))
-              : <p className="fc-empty"><span>Aperte <b>Assistir</b> em qualquer curso e ele aparece aqui, do ponto em que você parou.</span></p>}
+              : <p className="fc-empty"><span>Aperte <b>Começar</b> em qualquer curso e ele aparece aqui, do ponto em que você parou.</span></p>}
           </Row>
 
           {latest && becauseWatched.length > 0 && (

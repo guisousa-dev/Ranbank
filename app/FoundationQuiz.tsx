@@ -142,8 +142,8 @@ function Seal() {
   );
 }
 
-function Certificate({ course, modules, lessonsCount, name, hits, date, code }: {
-  course: Course; modules: string[]; lessonsCount: number; name: string; hits: number; date: string; code: string;
+function Certificate({ course, modules, lessonsCount, name, hits, date, code, verified }: {
+  course: Course; modules: string[]; lessonsCount: number; name: string; hits: number; date: string; code: string; verified: boolean;
 }) {
   const when = new Date(date).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
   return (
@@ -169,7 +169,7 @@ function Certificate({ course, modules, lessonsCount, name, hits, date, code }: 
           <dl><dt>Concluído em</dt><dd>{when}</dd></dl>
           <dl><dt>Carga</dt><dd>{lessonsCount} aulas</dd></dl>
           <dl><dt>Código</dt><dd className="fq-p-code">{code}</dd></dl>
-          <p className="fq-p-note">Curso livre de um projeto educacional, sem valor de diploma.</p>
+          <p className="fq-p-note">Curso livre de um projeto educacional, sem valor de diploma.{verified && <> Confira o código em ranbank.com.br/fundacao/certificado.</>}</p>
         </div>
       </div>
     </div>
@@ -178,7 +178,7 @@ function Certificate({ course, modules, lessonsCount, name, hits, date, code }: 
 
 /* Desafio ------------------------------------------------------------- */
 
-export function FinalChallenge({ course, modules, questions, lessonsCount, result, studentName, onResult, onBack }: {
+export function FinalChallenge({ course, modules, questions, lessonsCount, result, studentName, signedIn = false, onResult, onBack }: {
   course: Course;
   /** Títulos dos módulos, na ordem. */
   modules: string[];
@@ -187,6 +187,8 @@ export function FinalChallenge({ course, modules, questions, lessonsCount, resul
   result?: QuizResult;
   /** Nome da conta logada, para já vir preenchido no certificado. */
   studentName?: string;
+  /** Com conta, o certificado é registrado no servidor e pode ser conferido pelo código. */
+  signedIn?: boolean;
   onResult: (result: QuizResult) => void;
   onBack: () => void;
 }) {
@@ -339,6 +341,33 @@ export function FinalChallenge({ course, modules, questions, lessonsCount, resul
     setName(value);
     const current = latest.current.result;
     if (current?.passed) latest.current.onResult({ ...current, passed: { ...current.passed, name: value.trim() || undefined } });
+  };
+
+  // Salvar em PDF: quem tem conta registra o certificado antes (para o código poder ser conferido).
+  // Se o registro falhar, o PDF sai do mesmo jeito, só sem a linha de conferência.
+  const [saving, setSaving] = useState(false);
+  const printCertificate = async () => {
+    const current = latest.current.result;
+    const clean = name.trim();
+    if (signedIn && current?.passed && clean && current.passed.verifiedName !== clean) {
+      setSaving(true);
+      try {
+        const response = await fetch("/api/fundacao/certificado", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ code: current.passed.code, course: course.id, courseTitle: course.title, name: clean, hits: current.passed.hits, issuedAt: current.passed.at }),
+        });
+        if (response.ok) {
+          const data = await response.json() as { code?: string };
+          // O servidor guarda o primeiro código de cada pessoa e curso: o certificado usa sempre esse.
+          latest.current.onResult({ ...current, passed: { ...current.passed, code: data.code ?? current.passed.code, verifiedName: clean } });
+          await new Promise((resolve) => setTimeout(resolve, 50)); // deixa a linha de conferência aparecer antes de imprimir
+        }
+      } catch { /* imprime sem a linha de conferência */ }
+      setSaving(false);
+    }
+    window.print();
   };
 
   /* Telas */
@@ -518,12 +547,15 @@ export function FinalChallenge({ course, modules, questions, lessonsCount, resul
             <input type="text" maxLength={48} autoComplete="name" placeholder="Digite seu nome completo" value={name} onChange={(event) => saveName(event.target.value)} />
           </label>
         </div>
-        <Certificate course={course} modules={modules} lessonsCount={lessonsCount} name={name.trim()} hits={passed.hits} date={passed.at} code={passed.code} />
+        <Certificate course={course} modules={modules} lessonsCount={lessonsCount} name={name.trim()} hits={passed.hits} date={passed.at} code={passed.code} verified={Boolean(name.trim()) && passed.verifiedName === name.trim()} />
         <div className="fq-actions">
-          <button type="button" className="fc-btn fc-btn-light" onClick={() => window.print()} disabled={!name.trim()}>Salvar em PDF</button>
+          <button type="button" className="fc-btn fc-btn-light" onClick={() => void printCertificate()} disabled={!name.trim() || saving}>{saving ? "Registrando..." : "Salvar em PDF"}</button>
           <button type="button" className="fc-btn fc-btn-soft" onClick={() => setPhase("intro")}>Jogar de novo</button>
         </div>
         <p className="fq-hint">{name.trim() ? "Na janela de impressão, escolha \"Salvar como PDF\" e deixe os gráficos de fundo ligados." : "Escreva o seu nome para salvar o certificado."}</p>
+        <p className="fq-hint">{signedIn
+          ? <>Ao salvar, o certificado fica registrado na sua conta e o código pode ser conferido em <a href="/fundacao/certificado">ranbank.com.br/fundacao/certificado</a>.</>
+          : "Entre com a sua conta da Fundação antes de salvar para que o código do certificado possa ser conferido no site."}</p>
       </div>
     );
   }

@@ -638,6 +638,18 @@ body:has(.fc) .rb-noncommercial-seal { display: none; }
 .fc-table thead th { font-size: 14px; color: #a9aeb9; }
 .fc-table tbody th { color: #fff; }
 
+/* Celular: tabela com 3 colunas ou mais vira uma pilha de cartões, um por linha, com o nome da coluna antes de cada dado. */
+@media (max-width: 600px) {
+  .fc-table.is-wide { overflow: visible; }
+  .fc-table.is-wide table, .fc-table.is-wide tbody, .fc-table.is-wide tr, .fc-table.is-wide th, .fc-table.is-wide td { display: block; }
+  .fc-table.is-wide caption { display: block; }
+  .fc-table.is-wide thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .fc-table.is-wide tbody tr { margin-top: 10px; padding: 12px 14px; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px; background: rgba(255, 255, 255, 0.04); }
+  .fc-table.is-wide tbody th, .fc-table.is-wide td { padding: 4px 0; border-bottom: 0; }
+  .fc-table.is-wide tbody th { margin-bottom: 4px; font-size: 17px; }
+  .fc-table.is-wide td::before { content: attr(data-label); display: block; font-size: 13px; font-weight: 700; color: #a9aeb9; }
+}
+
 .fc-lesson-activity { border-color: color-mix(in srgb, var(--fc-accent) 40%, transparent); }
 .fc-lesson-activity details { margin-top: 16px; }
 .fc-lesson-activity summary { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); font-weight: 600; cursor: pointer; }
@@ -646,6 +658,18 @@ body:has(.fc) .rb-noncommercial-seal { display: none; }
 .fc-lesson-files a { color: #8fb1ff; }
 .fc-lesson-files a span { color: #a9aeb9; }
 .fc-lesson-note { margin-top: 28px !important; font-size: 14px; color: #a9aeb9; }
+.fc-listen { margin-top: 14px; gap: 8px; }
+.fc-listen[aria-pressed="true"] { background: color-mix(in srgb, var(--fc-accent) 30%, transparent); }
+.fc-report { margin-top: 24px; }
+.fc-report-open { min-height: 44px; padding: 0; border: 0; background: none; color: #a9aeb9; font: inherit; font-size: 15px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.fc-report-open:hover { color: #fff; }
+.fc-report form { display: grid; gap: 8px; padding: 16px; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px; }
+.fc-report label { font-weight: 700; }
+.fc-report textarea { width: 100%; padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.24); border-radius: 8px; background: rgba(255, 255, 255, 0.06); color: inherit; font: inherit; font-size: 16px; resize: vertical; }
+.fc-report small { font-size: 13px; color: #a9aeb9; }
+.fc-report-error { color: #ff9b9b; font-size: 15px; }
+.fc-report-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.fc-report-done { margin-top: 24px !important; color: #3ddc84; font-size: 15px; }
 .fc-lesson-nav { margin-top: 36px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
 .fc-lesson-nav .fc-btn-light { margin-left: auto; }
 .fc-lesson-main .fc-player-end { min-height: 100%; }
@@ -904,3 +928,32 @@ button.fc-account { cursor: pointer; }
   .fc-bank-link .fc-btn { flex: 1 1 100%; }
 }
 .fc a.fc-btn-light { color: #0c0e12; }
+
+/* ------------------------------------------------------------------ */
+/* Conferir certificado: /fundacao/certificado                         */
+/* ------------------------------------------------------------------ */
+
+.fc-verify { display: flex; flex-direction: column; align-items: center; padding: 0 16px 64px; }
+.fc-verify-top { width: 100%; max-width: 640px; padding: 24px 0; }
+.fc-verify-brand { display: inline-flex; align-items: center; gap: 10px; color: #fff; font-weight: 700; text-decoration: none; }
+.fc-verify-card { width: 100%; max-width: 640px; padding: 32px; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; background: #111318; }
+.fc-verify-card h1 { margin-top: 8px; font-size: clamp(28px, 5vw, 40px); line-height: 1.1; color: #fff; }
+.fc-verify-card > p { margin-top: 12px; color: #c9ccd4; }
+.fc-verify-card form { margin-top: 24px; display: grid; gap: 8px; }
+.fc-verify-card label { font-weight: 700; }
+.fc-verify-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.fc-verify-row input { flex: 1 1 220px; min-height: 52px; padding: 0 16px; border: 1px solid rgba(255, 255, 255, 0.24); border-radius: 12px; background: rgba(255, 255, 255, 0.06); color: #fff; font: inherit; font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; letter-spacing: 0.04em; text-transform: uppercase; }
+.fc-verify-result { margin-top: 20px; outline: none; }
+.fc-verify-ok { padding: 18px 20px; border: 1px solid #3ddc84; border-radius: 14px; background: rgba(61, 220, 132, 0.1); }
+.fc-verify-ok strong { color: #3ddc84; font-size: 18px; }
+.fc-verify-ok dl { margin-top: 10px; display: grid; gap: 8px; }
+.fc-verify-ok dl div { display: grid; grid-template-columns: 130px 1fr; gap: 12px; }
+.fc-verify-ok dt { color: #a9aeb9; font-size: 14px; }
+.fc-verify-ok dd { margin: 0; color: #fff; overflow-wrap: anywhere; }
+.fc-verify-error { padding: 14px 16px; border: 1px solid #f5b83d; border-radius: 12px; background: rgba(245, 184, 61, 0.1); color: #ffe3a6; }
+.fc-verify-note { margin-top: 24px !important; font-size: 14px; color: #8b909b !important; }
+@media (max-width: 600px) {
+  .fc-verify-card { padding: 20px 16px; }
+  .fc-verify-ok dl div { grid-template-columns: 1fr; gap: 2px; }
+  .fc-verify-row .fc-btn { flex: 1 1 100%; }
+}
