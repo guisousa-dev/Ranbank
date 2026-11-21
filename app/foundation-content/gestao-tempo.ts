@@ -139,6 +139,9 @@ export const GESTAO_TEMPO: CourseContent = {
                   ["Não planejar", "Confusão sobre o que fazer primeiro"],
                   ["Usar demais o celular", "Perda de concentração"],
                   ["Interrupções o tempo todo", "Dificuldade para terminar as tarefas"],
+                  ["Procrastinar", "Tarefas acumuladas e prazos apertados"],
+                  ["Documentos desorganizados", "Tempo perdido procurando informação"],
+                  ["Reuniões sem objetivo claro", "Menos tempo para fazer as tarefas"],
                   ["Fazer muitas coisas ao mesmo tempo", "Mais erros e menos atenção"],
                   ["Não definir prioridades", "Tempo gasto no que é menos importante"],
                 ] } },
@@ -170,7 +173,8 @@ export const GESTAO_TEMPO: CourseContent = {
             {
               title: "Ferramentas de organização",
               body: [
-                { list: ["Agenda de papel ou no celular: compromissos, reuniões e prazos", "Google Agenda: eventos, lembretes e visão da semana", "Trello: tarefas em colunas como \"A fazer\", \"Fazendo\" e \"Feito\"", "Checklist: confere se nada importante ficou para trás"] },
+                { list: ["Lista de tarefas: anote o que precisa fazer, marque as prioridades e risque o que terminou", "Agenda de papel ou no celular: compromissos, reuniões e prazos", "Google Agenda: eventos, lembretes e visão da semana", "Trello: tarefas em colunas como \"A fazer\", \"Fazendo\" e \"Feito\"", "Checklist: confere se nada importante ficou para trás"] },
+                "Além do plano do dia, vale fazer um plano da semana: no começo de cada semana, reserve horários para trabalho, estudos, reuniões e o que mais for importante.",
                 { box: "chave", text: "Não precisa usar todas. Escolha uma forma simples e mantenha atualizada." },
               ],
             },
