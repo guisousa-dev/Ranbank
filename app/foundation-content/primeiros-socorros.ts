@@ -6,6 +6,7 @@
 import type { CourseContent } from "../foundation-lessons";
 
 export const PRIMEIROS_SOCORROS: CourseContent = {
+  review: "Estas aulas ainda vão passar pela leitura de um profissional de saúde. Até lá, siga sempre as orientações do SAMU (192) e dos Bombeiros (193).",
   note: "Este curso é introdutório e não substitui um treinamento prático com profissionais (oferecido, por exemplo, pela Cruz Vermelha e pelo Corpo de Bombeiros). Em qualquer emergência, ligue para o SAMU (192) ou para os Bombeiros (193).",
   closing: "Nos primeiros minutos de uma emergência, quem sabe o básico faz diferença: manter a calma, se proteger, chamar ajuda e agir sem piorar a situação. Se puder, faça um curso prático para treinar com as mãos o que aprendeu aqui.",
   modules: [

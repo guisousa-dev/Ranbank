@@ -73,12 +73,52 @@ Se as dependências já estiverem instaladas e o comando `npm` não estiver no
 A integração da Cloudflare é ativada nos builds e no script
 `deploy:cloudflare`. O desenvolvimento local usa o servidor Node.js.
 
+### Só o site e a Fundação (sem o backend Java)
+
+Para mexer nas páginas e nos cursos basta o Node.js 22:
+
+```powershell
+npm ci
+npm run dev
+```
+
+Sem banco configurado, as rotas que usam o Postgres (`/api/health`, login da
+Fundação, certificados) respondem 503. O resto do site funciona normalmente.
+
+Antes de enviar uma mudança, rode as três checagens:
+
+```powershell
+npx tsc --noEmit
+npm run lint
+npm test
+```
+
+`npm test` faz o build e roda `tests/*.test.mjs`. Um dos testes carrega todos os
+cursos e confere se cada aula segue o padrão (de 2 a 4 objetivos, de 3 a 5
+tópicos, atividade e resumo em 3 pontos).
+
+### Fundação RanBank: onde fica cada coisa
+
+- **Catálogo:** `app/foundation-courses.ts` (12 cursos, categorias e trilha inicial).
+- **Aulas:** `app/foundation-content/<id do curso>.ts`, registradas em `COURSE_CONTENT`
+  (`app/foundation-lessons.ts`, que também descreve o padrão de uma aula).
+- **Telas:** `app/FoundationCatalog.tsx` (catálogo e modo aula),
+  `app/FoundationQuiz.tsx` (desafio final e certificado),
+  `app/FoundationLessonExtras.tsx` ("Ouvir esta aula" e "Encontrou um erro"),
+  `app/FoundationCertificateCheck.tsx` (conferir certificado) e `app/foundation.css`.
+- **API:** `app/api/[...path]/fundacao.ts` (login com Google, progresso,
+  certificados e avisos de erro). As tabelas são criadas sozinhas no Postgres.
+- **Regra:** os cursos e os certificados nunca mostram o nome de quem fez o curso.
+
 ## Rotas públicas
 
 - `/`: site institucional do RanBank.
 - `/banco`: conta digital demonstrativa e Future Lab.
 - `/instituto`: tecnologias emergentes, pesquisa e educação.
 - `/projetos`: Portal de Impacto e carteira simulada de investimento social privado.
+- `/fundacao`: vitrine da Fundação RanBank.
+- `/fundacao/cursos`: catálogo e aulas (`?curso=<id>&aula=<n>` abre uma aula).
+- `/fundacao/certificado`: confere um certificado pelo código.
 - `/seguranca`: Central de Segurança RanBank.
 - `/privacidade`: política de privacidade e preferências de cookies.
 

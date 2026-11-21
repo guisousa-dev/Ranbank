@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { register } from "node:module";
 import test from "node:test";
 
 const pageUrl = new URL("../app/page.tsx", import.meta.url);
@@ -345,7 +346,7 @@ test("links the bank's Foundation page to the Foundation course catalog", async 
   for (const name of ['person: "Lucio"', 'person: "Isabela"', 'person: "Luidy"']) assert.ok(team.includes(name), name);
   for (const name of ["Lúcio", "Isabella", "Luiddy"]) assert.ok(!team.includes(name), name);
   assert.match(courses, /STARTER_PATH = \["educacao-financeira", "gestao-tempo", "autodesenvolvimento"\]/);
-  for (const row of ["Continue assistindo", "Comece por aqui", "Minha lista", "Porque você fez", "Porque você gostou de", "Mais como este"]) assert.ok(catalog.includes(row), row);
+  for (const row of ["Continuar de onde parei", "Comece por aqui", "Minha lista", "Porque você fez", "Porque você gostou de", "Mais como este"]) assert.ok(catalog.includes(row), row);
   // Prévia ao passar o mouse, modal com o que se aprende e player de prévia que salva o progresso.
   assert.match(catalog, /function HoverPreview\(/);
   assert.match(catalog, /O que você vai aprender até o final do curso/);
@@ -370,17 +371,44 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   const catalog = await readFile(new URL("../app/FoundationCatalog.tsx", import.meta.url), "utf8");
   // Só quatro tipos de quadro, em todos os cursos.
   assert.match(lessons, /export type BoxKind = "exemplo" \| "pratica" \| "atencao" \| "chave";/);
-  // Cursos com aulas e quantas aulas cada um tem. Toda aula tem objetivos, atividade e resumo em 3 pontos.
-  const expected = { "educacao-financeira": 8, "gestao-tempo": 4, "autodesenvolvimento": 5, "hardware-so": 8, "impressora-3d": 6, "domino": 6, "jogos": 5, "futebol": 9, "literatura": 6, "xadrez": 6, "primeiros-socorros": 5, "maquiagem": 5 };
+  // Todo curso registrado em COURSE_CONTENT segue o padrão descrito em foundation-lessons.ts.
+  // O Node carrega os arquivos .ts direto (eles só têm dados). O gancho completa o ".ts" dos imports
+  // entre arquivos de conteúdo, que no código ficam sem extensão.
+  register(`data:text/javascript,${encodeURIComponent(`export async function resolve(specifier, context, next) {
+    try { return await next(specifier, context); } catch (error) {
+      if (specifier.startsWith(".") && !/\\.[a-z]+$/.test(specifier)) return next(specifier + ".ts", context);
+      throw error;
+    }
+  }`)}`);
+  const ids = [...lessons.matchAll(/^\s+"([a-z0-9-]+)": [A-Z0-9_]+,$/gm)].map(([, id]) => id);
+  assert.ok(ids.length > 0, "há cursos com aulas");
   let allContent = "";
-  for (const [id, total] of Object.entries(expected)) {
-    assert.match(lessons, new RegExp(`"${id}": [A-Z_]+`), id);
-    const content = await readFile(new URL(`../app/foundation-content/${id}.ts`, import.meta.url), "utf8");
-    const count = (pattern) => (content.match(pattern) ?? []).length;
-    assert.equal(count(/^\s+id: "/gm), total, `${id} tem ${total} aulas`);
-    for (const field of [/goals: \[/g, /activity: \{/g, /recap: \[/g]) assert.equal(count(field), total, `${id}: ${field}`);
-    allContent += content;
+  const quizCourses = [];
+  for (const id of ids) {
+    const url = new URL(`../app/foundation-content/${id}.ts`, import.meta.url);
+    const course = Object.values(await import(url.href))[0];
+    const all = course.modules.flatMap((module) => module.lessons);
+    assert.ok(all.length > 0, `${id} tem aulas`);
+    assert.equal(new Set(all.map((lesson) => lesson.id)).size, all.length, `${id}: endereços de aula repetidos`);
+    for (const lesson of all) {
+      const where = `${id}/${lesson.id}`;
+      assert.match(lesson.id, /^[a-z0-9-]+$/, `${where}: endereço sem acento nem espaço`);
+      assert.ok(lesson.title && lesson.summary, `${where}: título e frase da lista`);
+      assert.ok(lesson.goals.length >= 2 && lesson.goals.length <= 4, `${where}: de 2 a 4 objetivos`);
+      assert.ok(lesson.sections.length >= 3 && lesson.sections.length <= 5, `${where}: de 3 a 5 tópicos`);
+      for (const section of lesson.sections) assert.ok(section.title && section.body.length > 0, `${where}: tópico vazio`);
+      assert.ok(lesson.activity.title && lesson.activity.steps.length > 0, `${where}: atividade`);
+      assert.equal(lesson.recap.length, 3, `${where}: resumo em 3 pontos`);
+    }
+    if (course.quiz) quizCourses.push(id);
+    allContent += await readFile(url, "utf8");
   }
+  // A Rani fala dos cursos sem números escritos à mão; este trecho avisa quando o texto dela ficar velho.
+  const catalogCourses = await readFile(new URL("../app/foundation-courses.ts", import.meta.url), "utf8");
+  const rani = await readFile(new URL("../app/rani-knowledge.ts", import.meta.url), "utf8");
+  const raniFoundation = rani.slice(rani.indexOf('topic: "Fundação RanBank"'), rani.indexOf('topic: "Parcerias"'));
+  if (raniFoundation.includes("Todos os cursos já têm aulas")) assert.equal(ids.length, (catalogCourses.match(/learn: \[/g) ?? []).length, "a Rani diz que todos os cursos têm aulas");
+  assert.deepEqual(quizCourses, ["impressora-3d"], "atualize o texto da Rani sobre desafio final e certificado");
   // Imagens das aulas: toda imagem existe em public/ e tem descrição (alt) para leitor de tela.
   const images = [...allContent.matchAll(/\{ image: "([^"]+)", alt: "((?:[^"\\]|\\.)*)" \}/g)];
   assert.ok(images.length >= 20, "as aulas têm imagens");
@@ -403,6 +431,20 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   assert.match(catalog, /addEventListener\("popstate"/);
   assert.match(catalog, /<summary>Ver resposta<\/summary>/);
   assert.match(catalog, /youtube-nocookie\.com\/embed\/\$\{lesson\.video\.youtubeId\}\?cc_load_policy=1/);
+  // Extras da aula: título da aba, ouvir só com voz do aparelho, aviso de erro sem dados pessoais e tabela em cartões.
+  const extras = await readFile(new URL("../app/FoundationLessonExtras.tsx", import.meta.url), "utf8");
+  const api = await readFile(new URL("../app/api/[...path]/fundacao.ts", import.meta.url), "utf8");
+  assert.match(catalog, /document\.title = tabTitle/);
+  assert.match(extras, /voice\.localService/);
+  assert.match(extras, /fetch\("\/api\/fundacao\/erro"/);
+  assert.match(api, /CREATE TABLE IF NOT EXISTS foundation_reports/);
+  assert.doesNotMatch(api.slice(api.indexOf("foundation_reports ("), api.indexOf("foundation_reports (") + 400), /ip|email|name/i);
+  assert.match(catalog, /data-label=\{head\[index\]\}/);
+  // Certificado conferível: registro com conta e página pública que não carrega o texto das aulas.
+  const check = await readFile(new URL("../app/FoundationCertificateCheck.tsx", import.meta.url), "utf8");
+  assert.match(api, /path === "fundacao\/certificado"/);
+  assert.doesNotMatch(check, /foundation-courses|foundation-lessons/);
+  assert.match(await readFile(new URL("../app/fundacao/certificado/page.tsx", import.meta.url), "utf8"), /FoundationCertificateCheck/);
   // Sem créditos de autoria nas aulas.
   for (const word of ["autoria", "Responsável pela elaboração", "Elaborado por"]) assert.ok(!allContent.includes(word) && !lessons.includes(word), word);
 });

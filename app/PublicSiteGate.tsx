@@ -732,7 +732,7 @@ const FOUNDATION_WISHES: Array<{ category: CategoryId; wish: string }> = [
 ];
 const FOUNDATION_STEPS = [
   { title: "Escolha", text: "Passe o mouse num curso para ver a prévia. Abra para ver tudo o que você vai aprender até o final." },
-  { title: "Assista no seu ritmo", text: "Parou no meio? O curso fica em Continue assistindo, do ponto em que você parou." },
+  { title: "Estude no seu ritmo", text: "Parou no meio? O curso fica em Continuar de onde parei, do ponto em que você parou." },
   { title: "Entre com a sua conta RanBank", text: "O mesmo CPF e a mesma senha do banco. Seus cursos concluídos e a sua lista ficam no seu perfil." },
 ];
 const courseLink = (course: Course) => `${FOUNDATION_SITE_URL}?curso=${course.id}`;
@@ -848,7 +848,7 @@ export function FoundationPublicPage() {
         <div className="rs-wrap">
           <header className="fdn-head">
             <span className="fdn-kicker">Como funciona</span>
-            <h2>Três passos e você já está assistindo.</h2>
+            <h2>Três passos e você já está estudando.</h2>
           </header>
           <ol className="fdn-steps">
             {FOUNDATION_STEPS.map((step, index) => (
