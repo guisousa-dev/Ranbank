@@ -371,7 +371,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   // Só quatro tipos de quadro, em todos os cursos.
   assert.match(lessons, /export type BoxKind = "exemplo" \| "pratica" \| "atencao" \| "chave";/);
   // Cursos com aulas e quantas aulas cada um tem. Toda aula tem objetivos, atividade e resumo em 3 pontos.
-  const expected = { "educacao-financeira": 8, "gestao-tempo": 4, "autodesenvolvimento": 3, "hardware-so": 8, "impressora-3d": 6 };
+  const expected = { "educacao-financeira": 8, "gestao-tempo": 4, "autodesenvolvimento": 5, "hardware-so": 8, "impressora-3d": 6, "domino": 6, "jogos": 5, "futebol": 9, "literatura": 6 };
   let allContent = "";
   for (const [id, total] of Object.entries(expected)) {
     assert.match(lessons, new RegExp(`"${id}": [A-Z_]+`), id);
