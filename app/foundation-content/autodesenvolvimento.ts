@@ -1,4 +1,4 @@
-// Curso: Autodesenvolvimento. 2 módulos (as duas apostilas), 3 aulas.
+// Curso: Autodesenvolvimento. 3 módulos (as três apostilas), 5 aulas.
 // Segue o padrão de app/foundation-lessons.ts.
 
 import type { CourseContent } from "../foundation-lessons";
@@ -190,6 +190,163 @@ export const AUTODESENVOLVIMENTO: CourseContent = {
             note: "Não existem respostas certas ou erradas. O mais importante é transformar a reflexão em um primeiro passo.",
           },
           recap: ["Procrastinar quase sempre tem a ver com emoção, não com preguiça.", "Começar pequeno e tirar distrações ajuda a sair do lugar.", "Um plano bom muda poucos hábitos por vez e é revisado toda semana."],
+        },
+      ],
+    },
+    {
+      title: "Inteligência emocional e autocompaixão",
+      lessons: [
+        {
+          id: "entender-e-nomear-emocoes",
+          title: "Entender e nomear as emoções",
+          summary: "O que as emoções avisam, a ligação com a procrastinação e uma técnica para se acalmar.",
+          goals: ["Explicar com suas palavras o que é inteligência emocional", "Perceber a emoção que está por trás de um adiamento", "Dar um nome mais preciso ao que você sente", "Usar a técnica \"pare, respire, escolha\""],
+          sections: [
+            {
+              title: "Emoção não é inimiga",
+              body: [
+                "Emoções não são boas ou ruins: são sinais. O medo avisa de um possível perigo. A raiva mostra que um limite foi ultrapassado. A tristeza indica que algo importante foi perdido.",
+                "O problema não é sentir. É não saber o que fazer com o que se sente.",
+                { box: "pratica", text: "Antes de seguir, responda: de 0 a 10, qual é a sua energia agora? E o seu estresse? Se o seu dia fosse um clima (sol, nublado, chuva ou tempestade), qual seria?" },
+              ],
+            },
+            {
+              title: "O que é inteligência emocional",
+              body: [
+                "É a capacidade de perceber, entender e lidar com as próprias emoções e com as dos outros. O psicólogo Daniel Goleman ajudou a popularizar o tema e dividiu essa capacidade em cinco habilidades:",
+                { table: { caption: "As cinco habilidades", head: ["Habilidade", "Em palavras simples", "Exemplo"], rows: [
+                  ["Autoconsciência", "Perceber o que estou sentindo", "\"Estou irritado porque estou com fome e atrasado.\""],
+                  ["Autorregulação", "Não ser levado pelo impulso", "Respirar antes de responder uma mensagem que irritou"],
+                  ["Motivação", "Seguir em frente por razões que importam para mim", "Estudar sem vontade, lembrando do objetivo"],
+                  ["Empatia", "Entender o que o outro sente", "Perceber que um colega está sobrecarregado"],
+                  ["Habilidades sociais", "Me relacionar bem", "Pedir ajuda ou dizer \"não\" com clareza"],
+                ] } },
+                "Este módulo foca nas duas primeiras, que são a base das outras.",
+              ],
+            },
+            {
+              title: "Emoção e procrastinação",
+              body: [
+                "Procrastinar tem mais a ver com lidar com emoções do que com organizar o tempo. Quando uma tarefa desperta algo desconfortável (insegurança, tédio, medo de não ficar boa), o cérebro busca alívio rápido, e o alívio mais rápido costuma ser trocar a tarefa pelo celular.",
+                "O alívio vem, mas dura pouco. Depois chegam a culpa e a tarefa acumulada.",
+                { box: "chave", text: "No ciclo do hábito que você viu no módulo 2, a emoção desconfortável é um gatilho escondido." },
+              ],
+            },
+            {
+              title: "Dar nome ao que você sente",
+              body: [
+                "Colocar a emoção em palavras ajuda a diminuir a intensidade dela. Dizer \"estou nervoso com a apresentação\" alivia mais do que ficar com um \"estou mal\" vago. O problema é que a maioria das pessoas usa poucas palavras: bem, mal, estressado.",
+                { table: { caption: "Mapa das emoções", head: ["Família", "Palavras mais precisas"], rows: [
+                  ["Medo", "Insegurança, preocupação, nervosismo, receio, pânico"],
+                  ["Tristeza", "Desânimo, solidão, decepção, saudade, vazio"],
+                  ["Raiva", "Irritação, frustração, ressentimento, impaciência"],
+                  ["Vergonha e culpa", "Constrangimento, arrependimento, sentir-se inadequado"],
+                  ["Alegria", "Alívio, orgulho, gratidão, entusiasmo, calma"],
+                ] } },
+                { box: "exemplo", text: "Use o modelo: \"Eu estou sentindo ______ porque ______. O meu corpo mostra isso em ______ (peito apertado, estômago, ombros tensos).\"" },
+              ],
+            },
+            {
+              title: "Pare, respire, escolha",
+              body: [
+                "Use quando perceber que a emoção está tomando conta:",
+                { list: [
+                  "Pare: interrompa o que está fazendo por alguns segundos.",
+                  "Respire: puxe o ar pelo nariz contando até 4 e solte pela boca contando até 6. Repita 5 vezes. Soltar o ar devagar ajuda o corpo a desacelerar.",
+                  "Nomeie: diga para você mesmo \"estou sentindo ______\".",
+                  "Escolha: pergunte \"qual é o menor próximo passo que eu consigo dar agora?\".",
+                ], ordered: true },
+                { box: "pratica", text: "Faça uma rodada agora. Dê uma nota de 0 a 10 para a sua tensão antes e outra depois. Se a nota mudou pouco, tudo bem: é uma habilidade que melhora com treino." },
+              ],
+            },
+          ],
+          activity: {
+            title: "Cace o gatilho emocional",
+            steps: [
+              "Pense em três tarefas que você costuma adiar.",
+              "Para cada uma, anote a emoção que aparece quando você pensa em começar (use o mapa das emoções).",
+              "Anote também o que você faz para fugir dela (por exemplo, abrir as redes sociais).",
+              "Veja se alguma emoção se repete.",
+            ],
+            answer: "A emoção que se repete é o seu gatilho emocional principal. Na próxima vez que ela aparecer, use o \"pare, respire, escolha\" e dê só o menor passo da tarefa.",
+          },
+          recap: ["Emoções são sinais, não inimigas.", "Procrastinar muitas vezes é fugir de um desconforto.", "Dar nome à emoção e respirar devagar ajudam a acalmar."],
+        },
+        {
+          id: "autocompaixao-e-resiliencia",
+          title: "Autocompaixão e resiliência",
+          summary: "Tratar a si mesmo como trataria um amigo e voltar depois de um tropeço.",
+          goals: ["Entender o que é autocompaixão e o que ela não é", "Usar os três passos da autocompaixão num momento difícil", "Retomar o plano depois de um tropeço"],
+          sections: [
+            {
+              title: "O que é autocompaixão",
+              body: [
+                "Imagine que um amigo diz: \"Adiei de novo aquela tarefa e me sinto um fracasso.\" O que você diria a ele? E o que você diz para si mesmo quando é você que adia? Se as respostas são bem diferentes, este tópico é para você.",
+                "Autocompaixão é tratar a si mesmo com a mesma gentileza que você teria com alguém de quem gosta, principalmente quando erra ou sofre. A pesquisadora Kristin Neff descreve três partes:",
+                { table: { caption: "As três partes da autocompaixão", head: ["Parte", "O que significa", "Em vez de"], rows: [
+                  ["Autogentileza", "Ser compreensivo com você mesmo", "Se criticar duramente"],
+                  ["Humanidade compartilhada", "Lembrar que errar faz parte da vida de todo mundo", "Achar que só você falha"],
+                  ["Atenção plena", "Perceber o que sente, sem exagerar nem negar", "Se afundar na emoção ou fingir que ela não existe"],
+                ] } },
+              ],
+            },
+            {
+              title: "O que autocompaixão não é",
+              body: [
+                { table: { caption: "Mitos e verdades", head: ["Mito", "Verdade"], rows: [
+                  ["\"Ser gentil comigo é ser acomodado.\"", "Quem se trata com compaixão tende a assumir melhor os erros e tentar de novo."],
+                  ["\"Se eu não me cobrar duro, não evoluo.\"", "A cobrança pesada gera medo de errar, e o medo alimenta a procrastinação."],
+                  ["\"É sentir pena de si.\"", "É reconhecer a dificuldade e agir com cuidado, sem se fazer de vítima."],
+                  ["\"É desculpa para não se esforçar.\"", "Pelo contrário: dá segurança para recomeçar."],
+                ] } },
+                { box: "chave", text: "A autocompaixão diminui a culpa e a vergonha, que são justamente o que faz a gente fugir da tarefa." },
+              ],
+            },
+            {
+              title: "Os três passos para um momento difícil",
+              body: [
+                "Use quando errar, adiar ou se sentir mal consigo mesmo:",
+                { list: [
+                  "\"Isso está sendo difícil.\" (Atenção plena: reconheça o que sente.)",
+                  "\"Todo mundo passa por momentos assim.\" (Humanidade compartilhada: você não está sozinho.)",
+                  "\"Que eu seja gentil comigo agora. Do que eu preciso neste momento?\" (Autogentileza: ofereça cuidado.)",
+                ], ordered: true },
+                { table: { caption: "Troque a frase", head: ["Crítica", "Versão gentil"], rows: [
+                  ["\"Sou um desastre, nunca termino nada.\"", "\"Hoje não consegui terminar. O que posso fazer de pequeno amanhã?\""],
+                  ["\"Todo mundo consegue, menos eu.\"", "\"Muita gente tem dificuldade com isso. Não estou sozinho.\""],
+                  ["\"Estraguei tudo.\"", "\"Errei nesta parte. O que aprendi para a próxima?\""],
+                ] } },
+                { box: "pratica", text: "Escolha um erro ou adiamento recente e escreva uma carta curta para você, como se viesse de um amigo sábio e carinhoso: reconheça que foi difícil, lembre que errar é humano e sugira um passo pequeno para recomeçar." },
+              ],
+            },
+            {
+              title: "Resiliência: voltar depois de cair",
+              body: [
+                "Resiliência não é ser forte o tempo todo nem nunca cair. É conseguir voltar depois de cair. Tolerância à frustração é aguentar o desconforto de errar ou de não ver resultado logo, sem desistir.",
+                "Lembra da mentalidade de crescimento, do módulo 1? A palavra \"ainda\" ajuda muito: \"eu não consigo manter a rotina\" vira \"eu ainda não consigo manter a rotina\".",
+                { list: [
+                  "Acolha: use os três passos da autocompaixão, sem se punir.",
+                  "Entenda: o que aconteceu? Cansaço, meta grande demais, falta de planejamento? Sem culpa, só curiosidade.",
+                  "Ajuste: diminua o passo. Se a meta era 30 minutos, tente 5.",
+                  "Retome: volte ao plano na próxima chance. A regra de ouro é nunca falhar duas vezes seguidas.",
+                ], ordered: true },
+                { box: "exemplo", text: "Planeje a reação antes: \"Se eu ficar nervoso antes de começar o relatório, então vou respirar 5 vezes e escrever só o título.\"" },
+                { box: "atencao", text: "Este curso é educativo e não substitui acompanhamento psicológico. Se a tristeza, a ansiedade ou o desânimo estiverem fortes ou durarem muito, procure um profissional de saúde. O CVV atende de graça pelo telefone 188, a qualquer hora." },
+              ],
+            },
+          ],
+          activity: {
+            title: "A história da Marina",
+            steps: [
+              "Marina, 29 anos, decidiu estudar 1 hora por dia para um concurso. Na primeira semana foi tudo bem. Na segunda, o trabalho apertou e ela pulou três dias seguidos. Pensou: \"Eu sempre desisto de tudo. Não adianta tentar.\" E passou a semana sem abrir os livros, se sentindo culpada.",
+              "Que emoções a Marina provavelmente sentiu?",
+              "Qual frase de autocrítica mais atrapalhou?",
+              "Como ela poderia usar os três passos da autocompaixão?",
+              "Qual seria um passo pequeno e realista para ela retomar amanhã?",
+            ],
+            answer: "Ela provavelmente sentiu culpa, desânimo e frustração. A frase \"eu sempre desisto de tudo\" transformou um tropeço numa sentença sobre quem ela é. Com autocompaixão, ela poderia dizer: \"Foi uma semana difícil, isso acontece com muita gente. Vou voltar com 15 minutos hoje.\" Assim ela evita a segunda falha seguida e mantém o hábito vivo.",
+          },
+          recap: ["Autocompaixão é gentileza, humanidade compartilhada e atenção plena.", "Se cobrar duro aumenta o medo de errar e a procrastinação.", "Resiliência é voltar depois de cair: nunca falhe duas vezes seguidas."],
         },
       ],
     },

@@ -4,10 +4,17 @@
 // Para colocar um curso novo: copie um arquivo de lá, troque o texto e registre aqui em COURSE_CONTENT.
 
 import { AUTODESENVOLVIMENTO } from "./foundation-content/autodesenvolvimento";
+import { DOMINO } from "./foundation-content/domino";
 import { EDUCACAO_FINANCEIRA } from "./foundation-content/educacao-financeira";
+import { FUTEBOL } from "./foundation-content/futebol";
 import { GESTAO_TEMPO } from "./foundation-content/gestao-tempo";
 import { HARDWARE_SO } from "./foundation-content/hardware-so";
 import { IMPRESSORA_3D } from "./foundation-content/impressora-3d";
+import { JOGOS } from "./foundation-content/jogos";
+import { LITERATURA } from "./foundation-content/literatura";
+import { MAQUIAGEM } from "./foundation-content/maquiagem";
+import { PRIMEIROS_SOCORROS } from "./foundation-content/primeiros-socorros";
+import { XADREZ } from "./foundation-content/xadrez";
 
 /**
  * Quadros de destaque. São só estes quatro, em todos os cursos:
@@ -106,6 +113,13 @@ export const COURSE_CONTENT: Record<string, CourseContent> = {
   "autodesenvolvimento": AUTODESENVOLVIMENTO,
   "hardware-so": HARDWARE_SO,
   "impressora-3d": IMPRESSORA_3D,
+  "domino": DOMINO,
+  "jogos": JOGOS,
+  "futebol": FUTEBOL,
+  "literatura": LITERATURA,
+  "xadrez": XADREZ,
+  "primeiros-socorros": PRIMEIROS_SOCORROS,
+  "maquiagem": MAQUIAGEM,
 };
 
 /** Todas as aulas do curso, em ordem, com o módulo de cada uma. */
