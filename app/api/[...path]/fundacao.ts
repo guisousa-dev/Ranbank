@@ -13,6 +13,9 @@ import type { Row, Sql } from "./cloudflare-backend";
  *   PUT    fundacao/progresso                       salva lista, curtidos e progresso
  *   POST   fundacao/vincular                        vincula a conta do banco (CPF/conta/e-mail + senha)
  *   DELETE fundacao/vincular                        desfaz o vínculo
+ *   POST   fundacao/certificado                     registra o certificado de quem passou no desafio final
+ *   GET    fundacao/certificado?codigo=FRB-...      confere um certificado (público, sem login)
+ *   POST   fundacao/erro                            "Encontrou um erro nesta aula?" (público, sem login)
  *
  * Variáveis do Worker: GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET (segredo).
  * Do Google só são pedidos nome, e-mail e foto (escopos openid, email e profile).
@@ -25,6 +28,9 @@ const OAUTH_COOKIE = "FUNDACAO_OAUTH";
 const SESSION_DAYS = 30;
 const OAUTH_SECONDS = 10 * 60;
 const MAX_PROGRESS_BYTES = 200_000;
+const REPORTS_PER_HOUR = 60;
+const CERTIFICATE_CODE = /^FRB-[A-Z0-9]{1,6}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+const SLUG = /^[a-z0-9-]{1,80}$/;
 const CALLBACK_PATH = "/api/auth/google/callback";
 const HOME = "/fundacao/cursos";
 // O login do Google só aceita os endereços cadastrados no Google Cloud.
@@ -122,6 +128,26 @@ function ensureSchema(sql: Sql) {
       created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     )`);
     await sql.query(`CREATE INDEX IF NOT EXISTS foundation_sessions_user ON foundation_sessions(user_id)`);
+    // Certificados de quem tem conta: o código pode ser conferido em /fundacao/certificado.
+    await sql.query(`CREATE TABLE IF NOT EXISTS foundation_certificates (
+      code VARCHAR(32) PRIMARY KEY,
+      user_id BIGINT NOT NULL REFERENCES foundation_users(id) ON DELETE CASCADE,
+      course_id VARCHAR(64) NOT NULL,
+      course_title VARCHAR(120) NOT NULL,
+      student_name VARCHAR(120) NOT NULL,
+      hits SMALLINT NOT NULL,
+      issued_at TIMESTAMPTZ NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE (user_id, course_id)
+    )`);
+    // "Encontrou um erro nesta aula?": só o curso, a aula, o texto e a data. Não guarda IP, nome nem e-mail.
+    await sql.query(`CREATE TABLE IF NOT EXISTS foundation_reports (
+      id BIGSERIAL PRIMARY KEY,
+      course_id VARCHAR(64) NOT NULL,
+      lesson_id VARCHAR(80) NOT NULL,
+      message VARCHAR(1000) NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`);
   })().catch((cause) => { schemaReady = null; throw cause; });
   return schemaReady;
 }
@@ -242,8 +268,52 @@ export async function handleFoundationApi(sql: Sql, request: Request, path: stri
     return json({ message: "Você saiu da sua conta da Fundação." }, 200, { "set-cookie": cookie(request, SESSION_COOKIE, "", 0) });
   }
 
+  // Rotas públicas: conferir certificado e avisar de um erro na aula.
+  if (method === "GET" && path === "fundacao/certificado") {
+    const code = (new URL(request.url).searchParams.get("codigo") ?? "").trim().toUpperCase();
+    if (!CERTIFICATE_CODE.test(code)) return fail("Código inválido. Ele tem o formato FRB-XXX-XXXX-XXXX.");
+    const rows = await sql.query(`SELECT code, course_title, student_name, hits, issued_at FROM foundation_certificates WHERE code=$1`, [code]);
+    const found = rows[0] as Row | undefined;
+    if (!found) return fail("Não encontramos um certificado com este código.", 404);
+    return json({ code: found.code, course: found.course_title, name: found.student_name, hits: found.hits, issuedAt: found.issued_at });
+  }
+
+  if (method === "POST" && path === "fundacao/erro") {
+    let data: Row = {};
+    try { data = await request.json() as Row; } catch { /* confere abaixo */ }
+    const course = String(data.course ?? ""), lesson = String(data.lesson ?? ""), message = String(data.message ?? "").trim();
+    if (!SLUG.test(course) || !SLUG.test(lesson) || message.length < 5 || message.length > 1000) return fail("Conte em poucas palavras o que está errado (até 1000 letras).");
+    // Freio contra envio em massa: no máximo REPORTS_PER_HOUR avisos por hora, somando todo mundo.
+    const recent = await sql.query(`SELECT COUNT(*)::int AS total FROM foundation_reports WHERE created_at > CURRENT_TIMESTAMP - INTERVAL '1 hour'`);
+    if (Number(recent[0]?.total) >= REPORTS_PER_HOUR) return fail("Recebemos muitos avisos agora. Tente de novo mais tarde.", 429);
+    await sql.query(`INSERT INTO foundation_reports(course_id,lesson_id,message) VALUES($1,$2,$3)`, [course, lesson, message]);
+    return json({ message: "Obrigado! A equipe vai conferir esta aula." }, 201);
+  }
+
   const user = await currentUser(sql, request);
   if (!user) return fail("Entre com a sua conta para continuar.", 401);
+
+  if (method === "POST" && path === "fundacao/certificado") {
+    let data: Row = {};
+    try { data = await request.json() as Row; } catch { /* confere abaixo */ }
+    const code = String(data.code ?? ""), course = String(data.course ?? "");
+    const courseTitle = String(data.courseTitle ?? "").trim().slice(0, 120), name = String(data.name ?? "").trim().slice(0, 120);
+    const hits = Number(data.hits), issuedAt = new Date(String(data.issuedAt ?? ""));
+    if (!CERTIFICATE_CODE.test(code) || !SLUG.test(course) || !courseTitle || !name || !Number.isInteger(hits) || hits < 0 || hits > 100 || Number.isNaN(issuedAt.getTime()) || issuedAt.getTime() > Date.now() + 86400000) {
+      return fail("Os dados do certificado estão incompletos.");
+    }
+    try {
+      // Um certificado por pessoa e curso: o código continua o primeiro; o nome pode ser corrigido.
+      const rows = await sql.query(
+        `INSERT INTO foundation_certificates(code,user_id,course_id,course_title,student_name,hits,issued_at) VALUES($1,$2,$3,$4,$5,$6,$7)
+         ON CONFLICT (user_id, course_id) DO UPDATE SET student_name=EXCLUDED.student_name, course_title=EXCLUDED.course_title
+         RETURNING code`, [code, user.id, course, courseTitle, name, hits, issuedAt.toISOString()]);
+      return json({ code: rows[0].code });
+    } catch (cause) {
+      if ((cause as { code?: string }).code === "23505") return fail("Este código já pertence a outro certificado.", 409);
+      throw cause;
+    }
+  }
 
   if (method === "GET" && path === "fundacao/sessao") return json(userView(user));
 

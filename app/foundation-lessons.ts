@@ -74,6 +74,8 @@ export type CourseContent = {
   modules: Module[];
   /** Aviso que aparece no pé de todas as aulas do curso. */
   note?: string;
+  /** Aviso no topo de todas as aulas, enquanto o conteúdo espera a revisão de um especialista. Tirar depois da revisão. */
+  review?: string;
   /** Mensagem da tela de conclusão. */
   closing?: string;
   /** Perguntas do desafio final. O curso que tem desafio dá certificado a quem passa. */
@@ -99,8 +101,12 @@ export type QuizResult = {
   /** Maior número de acertos numa partida. */
   best: number;
   tries: number;
-  /** Preenchido na primeira aprovação; o código do certificado não muda depois. */
-  passed?: { at: string; hits: number; code: string; name?: string };
+  /**
+   * Preenchido na primeira aprovação; o código do certificado não muda depois.
+   * `verifiedName`: o nome registrado no servidor (só para quem tem conta). O certificado mostra
+   * onde conferir o código quando esse nome é o mesmo que está nele.
+   */
+  passed?: { at: string; hits: number; code: string; name?: string; verifiedName?: string };
 };
 
 /** Regras do desafio final: quantas perguntas, quantos acertos para passar e segundos por pergunta. */
@@ -137,6 +143,18 @@ const blockText = (block: Block): string => {
   if ("image" in block || "tool" in block) return "";
   return [block.table.caption, ...block.table.head, ...block.table.rows.flat()].join(" ");
 };
+
+/** A aula em trechos de texto corrido, na ordem da página. Usado pelo botão "Ouvir esta aula". */
+export function lessonSpeech(lesson: Lesson) {
+  return [
+    lesson.title,
+    `Nesta aula você vai: ${lesson.goals.join("; ")}.`,
+    ...lesson.sections.flatMap((section, index) => [`${index + 1}. ${section.title}.`, ...section.body.map(blockText)]),
+    `Atividade: ${lesson.activity.title}.`,
+    ...lesson.activity.steps,
+    `Resumo da aula: ${lesson.recap.join(" ")}`,
+  ].filter((text) => text.trim());
+}
 
 /** Tempo da aula em minutos: leitura (cerca de 150 palavras por minuto, com calma) mais o vídeo. */
 export function lessonMinutes(lesson: Lesson) {
