@@ -12,6 +12,9 @@ import { HARDWARE_SO } from "./foundation-content/hardware-so";
 import { IMPRESSORA_3D } from "./foundation-content/impressora-3d";
 import { JOGOS } from "./foundation-content/jogos";
 import { LITERATURA } from "./foundation-content/literatura";
+import { MAQUIAGEM } from "./foundation-content/maquiagem";
+import { PRIMEIROS_SOCORROS } from "./foundation-content/primeiros-socorros";
+import { XADREZ } from "./foundation-content/xadrez";
 
 /**
  * Quadros de destaque. São só estes quatro, em todos os cursos:
@@ -114,6 +117,9 @@ export const COURSE_CONTENT: Record<string, CourseContent> = {
   "jogos": JOGOS,
   "futebol": FUTEBOL,
   "literatura": LITERATURA,
+  "xadrez": XADREZ,
+  "primeiros-socorros": PRIMEIROS_SOCORROS,
+  "maquiagem": MAQUIAGEM,
 };
 
 /** Todas as aulas do curso, em ordem, com o módulo de cada uma. */

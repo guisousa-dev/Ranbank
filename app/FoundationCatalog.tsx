@@ -1259,7 +1259,7 @@ export default function FoundationCatalog() {
         </div>
       </section>
 
-      <p className="fc-preview-note">{COURSES.filter(hasLessons).length} de {COURSES.length} cursos já têm aulas. Os outros estão em preparação.</p>
+      {COURSES.some((course) => !hasLessons(course)) && <p className="fc-preview-note">{COURSES.filter(hasLessons).length} de {COURSES.length} cursos já têm aulas. Os outros estão em preparação.</p>}
 
       <div className="fc-chips" role="group" aria-label="Filtrar por categoria" id="cursos">
         <button type="button" aria-pressed={filter === "todos"} onClick={() => setFilter("todos")}>Todos</button>
