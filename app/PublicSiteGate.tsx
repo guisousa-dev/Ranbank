@@ -821,7 +821,7 @@ export function FoundationPublicPage() {
         </div>
       </section>
 
-      <section className="fdn-section" id="descobrir">
+      <section className="fdn-section is-soft" id="descobrir">
         <div className="rs-wrap">
           <header className="fdn-head">
             <span className="fdn-kicker">Descubra o seu curso</span>
