@@ -868,3 +868,99 @@ html[data-site-theme="light"] .rs-page-hero.has-video p { color: #c5c9d2; }
 html[data-site-theme="light"] .rs-page-hero.has-video .rs-chip { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.16); color: #d9dce3; }
 html[data-site-theme="light"] .rs-page-hero.has-video .rs-hero-index span { border-color: rgba(255, 255, 255, 0.16); color: #a9aeb9; }
 html[data-site-theme="light"] .rs-page-hero.has-video .rs-hero-index b { color: #fff; }
+
+/* ==========================================================================
+   Modo escuro: as seções "claras" (.rs-light) viram azul-marinho, sem fundo branco.
+   No tema claro elas continuam cinza-claro (regras acima). Telas de celular e
+   maquetes do app continuam claras, como um aparelho de verdade.
+   ========================================================================== */
+
+html:not([data-site-theme="light"]) .rs-light,
+html:not([data-site-theme="light"]) .rs.rb-org-page,
+html:not([data-site-theme="light"]) .rs .org-chart-section {
+  --rs-paper: #0c1a30;
+  --rs-ink: #eef2fa;
+  --rs-ink-muted: #a7b4c8;
+  --rs-paper-line: rgba(143, 177, 255, 0.16);
+  --rs-blue-ink: #8fb1ff;
+  --rs-green-ink: #5fe39d;
+  --rs-navy-card: #132844;
+}
+html:not([data-site-theme="light"]) .rs-calm.rs-light { background: var(--rs-paper); }
+
+/* Cartões: azul-marinho um pouco mais claro que a seção */
+html:not([data-site-theme="light"]) .rs-light :is(.rs-facts article, .rs-tile:not(.rs-tile-pix, .rs-tile-card), .rs-steps li, .rs-roadmap li, .rs-team article:not(.rs-team-more), .rs-controls article, .rs-ran-tip, .rs-projects article, .rs-references a, .rs-honest),
+html:not([data-site-theme="light"]) .rs .org-node,
+html:not([data-site-theme="light"]) .rs .org-ombudsman,
+html:not([data-site-theme="light"]) .rs .org-vice { background: var(--rs-navy-card); border-color: var(--rs-paper-line); }
+html:not([data-site-theme="light"]) .rs-light .rs-roadmap li { border-top-color: rgba(143, 177, 255, 0.28); }
+html:not([data-site-theme="light"]) .rs-light .rs-roadmap .is-done { border-top-color: #22b566; }
+html:not([data-site-theme="light"]) .rs-light .rs-roadmap .is-next { border-top-color: var(--rs-blue); }
+html:not([data-site-theme="light"]) .rs-light .rs-roadmap .is-study { border-top-color: #d9a21b; }
+html:not([data-site-theme="light"]) .rs-light .rs-roadmap .is-future { border-top-color: #6b7a93; }
+html:not([data-site-theme="light"]) .rs-light .rs-tile-card { background: #060e1c; border-color: #060e1c; }
+html:not([data-site-theme="light"]) .rs-light .rs-avatar { background: #1e3a6e; }
+html:not([data-site-theme="light"]) .rs .org-department > header { background: #060e1c; }
+html:not([data-site-theme="light"]) .rs .org-leadership::before, html:not([data-site-theme="light"]) .rs .org-leadership::after,
+html:not([data-site-theme="light"]) .rs .org-branches::before, html:not([data-site-theme="light"]) .rs .org-branches::after,
+html:not([data-site-theme="light"]) .rs .org-department::before,
+html:not([data-site-theme="light"]) .rs .org-department > div .org-slot + .org-slot > .org-node::before { background: #34507a; }
+
+/* Ícones, etiquetas e botões dentro das seções azul-marinho */
+html:not([data-site-theme="light"]) .rs-light .rs-tile-icon { background: rgba(143, 177, 255, 0.14); }
+html:not([data-site-theme="light"]) .rs-light .rs-tile-pix .rs-tile-icon { background: rgba(255, 255, 255, 0.18); }
+html:not([data-site-theme="light"]) .rs-light .rs-status { background: rgba(143, 177, 255, 0.16); }
+html:not([data-site-theme="light"]) .rs-light :is(.rs-status.is-done, .rs-roadmap .is-done .rs-status) { background: rgba(61, 220, 132, 0.16); color: #5fe39d; }
+html:not([data-site-theme="light"]) .rs-light :is(.rs-status.is-study, .rs-roadmap .is-study .rs-status) { background: rgba(245, 184, 61, 0.16); color: #f5c86b; }
+html:not([data-site-theme="light"]) .rs-light :is(.rs-status.is-idea, .rs-roadmap .is-future .rs-status) { background: rgba(255, 255, 255, 0.08); color: #a7b4c8; }
+html:not([data-site-theme="light"]) .rs-light .rs-honest .rs-icon { color: #ffc857; }
+html:not([data-site-theme="light"]) .rs-light .rs-calm-points .rs-icon { background: rgba(61, 220, 132, 0.14); }
+html:not([data-site-theme="light"]) .rs-light .rs-btn-outline { border-color: rgba(255, 255, 255, 0.35); }
+html:not([data-site-theme="light"]) .rs-light .rs-btn-outline:hover { border-color: #fff; }
+html:not([data-site-theme="light"]) .rs-light .cb-phone { box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), inset 0 0 0 1.5px rgba(255, 255, 255, 0.12); }
+
+
+/* ==========================================================================
+   Modo escuro: blocos azuis mais profundos (em vez do azul vivo) e
+   telas de celular do app também no escuro.
+   ========================================================================== */
+
+html:not([data-site-theme="light"]) .rs-final { background: radial-gradient(70% 120% at 50% 0%, #1a3f86 0%, #0f2758 55%, #0a1a3d 100%); border-block: 1px solid rgba(143, 177, 255, 0.16); }
+html:not([data-site-theme="light"]) :is(.rs-tile-pix, .rs-team-more, .rs .org-president) { background: linear-gradient(145deg, #1a3f86 0%, #102a5e 100%); border-color: rgba(143, 177, 255, 0.24); }
+html:not([data-site-theme="light"]) .rs-team-more:hover { background: linear-gradient(145deg, #1f4a9c 0%, #133270 100%); }
+
+/* Telas do app: cores do tema escuro do banco */
+html:not([data-site-theme="light"]) :is(.rs-phone, .rs-pix-mock, .cb-phone) {
+  --rs-ink: #eef2fa;
+  --rs-ink-muted: #9aa8bd;
+  --rs-paper: #1b2b45;
+  --rs-paper-line: #26385a;
+  --rs-blue-ink: #8fb1ff;
+  --rs-green-ink: #5fe39d;
+}
+html:not([data-site-theme="light"]) :is(.rs-phone-screen, .cb-screen) { background: #0b1526; color: #eef2fa; }
+html:not([data-site-theme="light"]) .rs-pix-mock { background: #0b1526; color: #eef2fa; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45); }
+html:not([data-site-theme="light"]) :is(.rs-app-card, .rs-app-moves, .rs-app-actions i, .cb-options button, .cb-bills, .cb-shortcuts span, .cb-notices li, .cb-plan li, .cb-ghost, .cb-actions button) { background: #15233a; color: #eef2fa; }
+html:not([data-site-theme="light"]) .rs-app-actions i { color: #8fb1ff; box-shadow: none; }
+html:not([data-site-theme="light"]) .rs-app-avatar.is-small { background: rgba(143, 177, 255, 0.16); color: #a9c1ff; }
+html:not([data-site-theme="light"]) .rs-phone { background: #05070c; }
+html:not([data-site-theme="light"]) .cb-screen p { color: #c3cddd; }
+html:not([data-site-theme="light"]) :is(.cb-top, .cb-hint, .cb-bills small, .cb-home > small, .cb-balance-label, .cb-notice-head small) { color: #9aa8bd; }
+html:not([data-site-theme="light"]) :is(.cb-back, .cb-range b) { color: #8fb1ff; }
+html:not([data-site-theme="light"]) .cb-progress { background: #26385a; }
+html:not([data-site-theme="light"]) :is(.cb-options button, .cb-ghost, .cb-actions button) { border-color: #2c4166; }
+html:not([data-site-theme="light"]) .cb-options button:hover { border-color: #4f7fe0; }
+html:not([data-site-theme="light"]) .cb-actions button:first-child { border-color: #2563eb; background: #2563eb; color: #fff; }
+html:not([data-site-theme="light"]) .cb-bills li + li { border-top-color: #22324f; }
+html:not([data-site-theme="light"]) :is(.cb-bills li.is-off strong, .cb-bills li.is-off b) { color: #66758c; }
+html:not([data-site-theme="light"]) .cb-notice-head { color: #eef2fa; }
+html:not([data-site-theme="light"]) .cb-notices li.is-open { box-shadow: 0 0 0 2px #4f7fe0; }
+html:not([data-site-theme="light"]) .cb-toast { background: #020814; border: 1px solid #22324f; }
+html:not([data-site-theme="light"]) :is(.cb-chip, .cb-plan li > b) { background: rgba(143, 177, 255, 0.16); color: #a9c1ff !important; }
+html:not([data-site-theme="light"]) :is(.cb-reply, .cb-plan li.is-done > b) { background: rgba(61, 220, 132, 0.16); color: #5fe39d !important; }
+html:not([data-site-theme="light"]) .cb-forecast.is-calm { background: rgba(61, 220, 132, 0.14); color: #7ee8ad; }
+html:not([data-site-theme="light"]) .cb-forecast.is-tight { background: rgba(245, 184, 61, 0.14); color: #f5c86b; }
+html:not([data-site-theme="light"]) .cb-forecast.is-short { background: rgba(143, 177, 255, 0.14); color: #a9c1ff; }
+
+/* Tema claro no organograma: o topo e a página de cada cargo tinham texto branco fixo. */
+html[data-site-theme="light"] .rs :is(.org-hero, .org-profile-screen) { color: var(--rs-text); }
