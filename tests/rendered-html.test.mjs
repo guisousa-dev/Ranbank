@@ -481,3 +481,18 @@ test("warns that the bank is fictional and switches themes with a circle from th
   assert.match(bank, /switchThemeFrom\(event/);
   assert.match(siteCss, /html\[data-site-theme="light"\] \{/);
 });
+
+test("shows a simple, working copy of the bank app at the top of the site", async () => {
+  const site = await readFile(new URL("../app/PublicSiteGate.tsx", import.meta.url), "utf8");
+  const phone = await readFile(new URL("../app/HeroBankPhone.tsx", import.meta.url), "utf8");
+  assert.match(site, /<HeroBankPhone \/>/);
+  // Mesmos ícones e abas do app do banco, com o Pix sem passar do saldo e nada enviado.
+  assert.match(phone, /from "\.\/bank\/BankIcon"/);
+  for (const tab of ["Início", "Pix", "Extrato", "Carteira", "Segurança"]) assert.ok(phone.includes(`label: "${tab}"`), tab);
+  assert.match(phone, /disabled=\{cents > balance\}/);
+  assert.ok(!phone.includes("fetch("), "o celular não envia nada");
+  // Redes sociais no rodapé aparecem como ícones.
+  assert.match(site, /className="rs-social"/);
+  assert.match(site, /<Icon name="instagram"/);
+  assert.match(site, /<Icon name="tiktok"/);
+});

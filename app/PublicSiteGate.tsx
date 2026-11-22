@@ -11,6 +11,7 @@ import type { CategoryId, Course } from "./foundation-courses";
 import { CategoryGlyph, PlayGlyph } from "./FoundationIcons";
 import type { IconName } from "./SiteIcons";
 import { FictionCard } from "./FictionNotice";
+import HeroBankPhone from "./HeroBankPhone";
 import { saveTheme, switchThemeFrom } from "./theme-switch";
 import type { ThemeName } from "./theme-switch";
 
@@ -217,8 +218,10 @@ export function PublicFooter() {
         </div>
         <div className="rs-footer-col">
           <strong>Redes sociais</strong>
-          <a href="https://www.instagram.com/ranbank.df" target="_blank" rel="noreferrer">Instagram @ranbank.df</a>
-          <a href="https://www.tiktok.com/@ranbank.df" target="_blank" rel="noreferrer">TikTok @ranbank.df</a>
+          <div className="rs-social">
+            <a href="https://www.instagram.com/ranbank.df" target="_blank" rel="noreferrer" aria-label="Instagram do RanBank (@ranbank.df), abre em outra aba" title="Instagram @ranbank.df"><Icon name="instagram" size={24} /></a>
+            <a href="https://www.tiktok.com/@ranbank.df" target="_blank" rel="noreferrer" aria-label="TikTok do RanBank (@ranbank.df), abre em outra aba" title="TikTok @ranbank.df"><Icon name="tiktok" size={24} /></a>
+          </div>
         </div>
       </div>
       <p className="rs-footer-legal">
@@ -302,48 +305,6 @@ function PublicShell({ children, className = "" }: { children: ReactNode; classN
 /* Maquetes do aplicativo                                              */
 /* ------------------------------------------------------------------ */
 
-function PhoneMockup() {
-  const actions: Array<[IconName, string]> = [["pix", "Pix"], ["bill", "Pagar"], ["calendar", "Agendar"], ["vault", "Guardar"]];
-  const moves = [
-    ["Pix recebido", "Bruno Lima", "+ R$ 150,00", "in"],
-    ["Mercado Bom Preço", "Cartão Ecocard", "- R$ 86,40", "out"],
-    ["Cofrinho", "Meta: viagem", "- R$ 200,00", "out"],
-  ];
-  return (
-    <div className="rs-phone" aria-label="Exemplo da tela inicial do aplicativo RanBank, com valores fictícios" role="img">
-      <div className="rs-phone-screen">
-        <div className="rs-app-top">
-          <span className="rs-app-avatar">A</span>
-          <div><small>Olá,</small><strong>Ana</strong></div>
-          <Icon name="eye" size={20} />
-        </div>
-        <div className="rs-app-balance">
-          <small>Saldo disponível</small>
-          <strong>R$ 4.280,50</strong>
-        </div>
-        <div className="rs-app-actions">
-          {actions.map(([icon, label]) => (
-            <span key={label}><i><Icon name={icon} size={20} /></i>{label}</span>
-          ))}
-        </div>
-        <div className="rs-app-card">
-          <img src="/images/ranbank-ecocard-nativa-frente.webp" alt="" />
-          <div><strong>Ecocard</strong><small>Fatura atual R$ 312,40</small></div>
-        </div>
-        <div className="rs-app-moves">
-          <small>Últimas movimentações</small>
-          {moves.map(([title, detail, value, kind]) => (
-            <div key={title}>
-              <span><strong>{title}</strong><small>{detail}</small></span>
-              <b className={kind === "in" ? "is-in" : ""}>{value}</b>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function PixConfirmMockup() {
   return (
     <div className="rs-pix-mock" aria-hidden="true">
@@ -410,7 +371,7 @@ export function PublicHome() {
             <p className="rs-hero-proof"><Icon name="check" size={18} /> Protótipo no ar: dá para entrar e fazer um Pix de teste agora.</p>
           </div>
           <div className="rs-hero-visual">
-            <PhoneMockup />
+            <HeroBankPhone />
             <img className="rs-hero-card" src="/images/ranbank-ecocard-nativa-frente.webp" alt="Cartão Ecocard RanBank" />
           </div>
         </div>
