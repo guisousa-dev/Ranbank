@@ -58,7 +58,11 @@ test("offers a persistent, accessible dark mode across the bank", async () => {
   const layout = await readFile(layoutUrl, "utf8");
   const theme = await readFile(bankThemeUrl, "utf8");
   const clarity = await readFile(clarityRefreshUrl, "utf8");
-  assert.match(page, /ranbank-theme/);
+  assert.match(await readFile(new URL("../app/theme-switch.ts", import.meta.url), "utf8"), /THEME_KEY = "ranbank-theme"/);
+  assert.match(page, /saveTheme\(nextTheme\)/);
+  // Sem escolha salva, o banco abre escuro; quem escolheu o claro continua no claro.
+  assert.match(page, /storedTheme === "light" \? "light" : "dark"/);
+  assert.match(await readFile(new URL("../app/theme-switch.ts", import.meta.url), "utf8"), /data-bank-theme",t\|\|"dark"/);
   assert.match(page, /aria-pressed/);
   assert.match(page, /Ativar modo escuro/);
   assert.doesNotMatch(page, /balance-brand/);
@@ -457,4 +461,41 @@ test("shows the app from the inside with four calm, interactive screens", async 
   // O site não usa termos técnicos: quem explica é a pessoa que apresenta.
   assert.doesNotMatch(publicSite + calm, /\bUX\b|ansiedade|carga cognitiva/i);
   assert.ok(!calm.includes("fetch("), "as telas não enviam nada");
+});
+
+test("warns that the bank is fictional and switches themes with a circle from the click", async () => {
+  const layout = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
+  const notice = await readFile(new URL("../app/FictionNotice.tsx", import.meta.url), "utf8");
+  const theme = await readFile(new URL("../app/theme-switch.ts", import.meta.url), "utf8");
+  const site = await readFile(new URL("../app/PublicSiteGate.tsx", import.meta.url), "utf8");
+  const bank = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const siteCss = await readFile(new URL("../app/site.css", import.meta.url), "utf8");
+  // Aviso ao entrar no site e no banco, com o card do site acompanhando a rolagem.
+  assert.match(layout, /<FictionNotice \/>/);
+  assert.match(notice, /role="dialog" aria-modal="true"/);
+  assert.match(notice, /não tem autorização do Banco Central/);
+  assert.match(notice, /pathname\.startsWith\("\/banco"\)/);
+  assert.match(site, /<FictionCard \/>/);
+  // Tema: o mesmo botão de círculo no site e no banco, sem piscar ao abrir e respeitando "reduzir movimento".
+  assert.match(layout, /SITE_THEME_BOOT/);
+  assert.match(theme, /startViewTransition/);
+  assert.match(theme, /prefers-reduced-motion: reduce/);
+  assert.match(site, /switchThemeFrom\(event/);
+  assert.match(bank, /switchThemeFrom\(event/);
+  assert.match(siteCss, /html\[data-site-theme="light"\] \{/);
+});
+
+test("shows a simple, working copy of the bank app at the top of the site", async () => {
+  const site = await readFile(new URL("../app/PublicSiteGate.tsx", import.meta.url), "utf8");
+  const phone = await readFile(new URL("../app/HeroBankPhone.tsx", import.meta.url), "utf8");
+  assert.match(site, /<HeroBankPhone \/>/);
+  // Mesmos ícones e abas do app do banco, com o Pix sem passar do saldo e nada enviado.
+  assert.match(phone, /from "\.\/bank\/BankIcon"/);
+  for (const tab of ["Início", "Pix", "Extrato", "Carteira", "Segurança"]) assert.ok(phone.includes(`label: "${tab}"`), tab);
+  assert.match(phone, /disabled=\{cents > balance\}/);
+  assert.ok(!phone.includes("fetch("), "o celular não envia nada");
+  // Redes sociais no rodapé aparecem como ícones.
+  assert.match(site, /className="rs-social"/);
+  assert.match(site, /<Icon name="instagram"/);
+  assert.match(site, /<Icon name="tiktok"/);
 });
