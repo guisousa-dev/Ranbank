@@ -3,6 +3,7 @@
 
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { saveTheme, savedTheme, switchThemeFrom } from "./theme-switch";
 import type { BankingTab } from "./BankingSuite";
 import type { InnovationTab } from "./InnovationHub";
 import AuthScreen, { type AuthMode } from "./bank/AuthScreen";
@@ -212,8 +213,8 @@ export default function Home() {
   const [balanceVisible, setBalanceVisible] = useState(true);
 
   useEffect(() => {
-    const savedTheme = window.localStorage.getItem("ranbank-theme");
-    const initialTheme: BankTheme = savedTheme === "dark" ? "dark" : "light";
+    const storedTheme = savedTheme();
+    const initialTheme: BankTheme = storedTheme === "dark" ? "dark" : "light";
     document.documentElement.dataset.bankTheme = initialTheme;
     const syncTheme = window.setTimeout(() => setBankTheme(initialTheme), 0);
     return () => {
@@ -222,12 +223,12 @@ export default function Home() {
     };
   }, []);
 
-  const toggleBankTheme = () => {
+  const toggleBankTheme = (event: React.MouseEvent<HTMLButtonElement>) => switchThemeFrom(event, () => {
     const nextTheme: BankTheme = bankTheme === "dark" ? "light" : "dark";
     setBankTheme(nextTheme);
-    window.localStorage.setItem("ranbank-theme", nextTheme);
+    saveTheme(nextTheme);
     document.documentElement.dataset.bankTheme = nextTheme;
-  };
+  });
 
   useEffect(() => {
     if (!loginLoading) return;
