@@ -1,7 +1,7 @@
 /*
  * Troca de tema claro/escuro, usada no site e no banco.
  * - A escolha fica em localStorage ("ranbank-theme") e vale para o site e para o banco.
- * - Sem escolha salva, o site abre escuro e o banco abre claro (como sempre foi).
+ * - Sem escolha salva, o site e o banco abrem escuros. Quem escolher o claro continua no claro.
  * - A troca acontece num círculo que cresce a partir do clique (View Transitions).
  *   Em navegador sem suporte, ou com "reduzir movimento" ligado, troca na hora.
  */
@@ -25,8 +25,11 @@ export function saveTheme(theme: ThemeName) {
   try { window.localStorage.setItem(THEME_KEY, theme); } catch { /* sem armazenamento: vale só nesta visita */ }
 }
 
-/** Script que roda antes da página aparecer, para o site já abrir no tema salvo (sem piscar). */
-export const SITE_THEME_BOOT = `try{var t=localStorage.getItem("${THEME_KEY}");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-site-theme",t)}catch(e){}`;
+/**
+ * Script que roda antes da página aparecer, para o site e o banco já abrirem no tema certo (sem piscar).
+ * No banco (/banco), sem escolha salva, já marca o escuro.
+ */
+export const SITE_THEME_BOOT = `try{var d=document.documentElement,t=localStorage.getItem("${THEME_KEY}");if(t!=="light"&&t!=="dark")t="";if(t)d.setAttribute("data-site-theme",t);if(/^\\/banco(\\/|$)/.test(location.pathname))d.setAttribute("data-bank-theme",t||"dark")}catch(e){}`;
 
 type ViewTransitionDocument = Document & { startViewTransition?: (update: () => void) => { ready: Promise<void>; finished: Promise<void> } };
 

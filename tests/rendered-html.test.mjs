@@ -60,6 +60,9 @@ test("offers a persistent, accessible dark mode across the bank", async () => {
   const clarity = await readFile(clarityRefreshUrl, "utf8");
   assert.match(await readFile(new URL("../app/theme-switch.ts", import.meta.url), "utf8"), /THEME_KEY = "ranbank-theme"/);
   assert.match(page, /saveTheme\(nextTheme\)/);
+  // Sem escolha salva, o banco abre escuro; quem escolheu o claro continua no claro.
+  assert.match(page, /storedTheme === "light" \? "light" : "dark"/);
+  assert.match(await readFile(new URL("../app/theme-switch.ts", import.meta.url), "utf8"), /data-bank-theme",t\|\|"dark"/);
   assert.match(page, /aria-pressed/);
   assert.match(page, /Ativar modo escuro/);
   assert.doesNotMatch(page, /balance-brand/);

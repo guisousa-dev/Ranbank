@@ -176,14 +176,15 @@ export default function Home() {
   const [accountManagementOpen, setAccountManagementOpen] = useState(false);
   const [pixKeysOpen, setPixKeysOpen] = useState(false);
   const [resettingDemo, setResettingDemo] = useState(false);
-  const [bankTheme, setBankTheme] = useState<BankTheme>("light");
+  const [bankTheme, setBankTheme] = useState<BankTheme>("dark");
   const [balanceVisible, setBalanceVisible] = useState(true);
 
   useEffect(() => {
     const storedTheme = savedTheme();
-    const initialTheme: BankTheme = storedTheme === "dark" ? "dark" : "light";
-    document.documentElement.dataset.bankTheme = initialTheme;
+    const initialTheme: BankTheme = storedTheme === "light" ? "light" : "dark";
     const syncTheme = window.setTimeout(() => setBankTheme(initialTheme), 0);
+    if (window.location.pathname === "/") return () => window.clearTimeout(syncTheme);
+    document.documentElement.dataset.bankTheme = initialTheme;
     return () => {
       window.clearTimeout(syncTheme);
       delete document.documentElement.dataset.bankTheme;
