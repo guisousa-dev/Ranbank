@@ -138,6 +138,49 @@
   .fdn-match-ask button, .fdn-match-photo img, .fdn-match-more a { transition: none; }
 }
 
+/* Tema escuro: a seção "Descubra o seu curso" fica azul-marinho, como as seções do resto do site. */
+html:not([data-site-theme="light"]) .fdn-section.is-soft { background: #0c1a30; border-top-color: transparent; }
+html:not([data-site-theme="light"]) .fdn-section.is-soft + .fdn-section { border-top-color: transparent; }
+html:not([data-site-theme="light"]) .fdn-section.is-soft :is(.fdn-match-ask button, .fdn-match-more a) { background: #132844; border-color: rgba(143, 177, 255, 0.16); }
+html:not([data-site-theme="light"]) .fdn-section.is-soft .fdn-head p,
+html:not([data-site-theme="light"]) .fdn-section.is-soft :is(.fdn-match-ask small, .fdn-match-more > span, .fdn-match-more small) { color: #a7b4c8; }
+
+/* Tema claro: fundo cinza-azulado suave, texto escuro. A parede de cursos aparece clarinha atrás do título.
+   O fim da página continua azul-escuro, como os banners do site. */
+html[data-site-theme="light"] .fdn-page { background: var(--rs-bg); }
+html[data-site-theme="light"] .fdn-wall::after {
+  background:
+    radial-gradient(ellipse 62% 60% at 50% 50%, rgba(238, 241, 245, 0.95) 0%, rgba(238, 241, 245, 0.86) 50%, rgba(238, 241, 245, 0.55) 100%),
+    linear-gradient(180deg, #eef1f5 0%, rgba(238, 241, 245, 0) 20%, rgba(238, 241, 245, 0) 72%, #eef1f5 100%);
+}
+html[data-site-theme="light"] .fdn-hero .fdn-kicker { background: rgba(255, 255, 255, 0.7); border-color: rgba(12, 14, 18, 0.12); color: #3d4350; }
+html[data-site-theme="light"] .fdn-hero-copy h1 { color: #0c0e12; }
+html[data-site-theme="light"] .fdn-hero-copy h1 span,
+html[data-site-theme="light"] .fdn-head .fdn-kicker { color: #13874e; }
+html[data-site-theme="light"] .fdn-hero-copy > p { color: #3d4350; }
+html[data-site-theme="light"] .fdn-hero .fdn-btn-play { background: #0c0e12; color: #fff; box-shadow: 0 18px 40px rgba(12, 14, 18, 0.2); }
+html[data-site-theme="light"] .fdn-hero .fdn-btn-play:hover { background: #23262d; }
+html[data-site-theme="light"] .fdn-facts li { background: rgba(255, 255, 255, 0.7); border-color: rgba(12, 14, 18, 0.1); color: #3d4350; }
+html[data-site-theme="light"] .fdn-facts b { color: #0c0e12; }
+
+html[data-site-theme="light"] .fdn-section + .fdn-section { border-top-color: rgba(12, 14, 18, 0.08); }
+html[data-site-theme="light"] .fdn-section.is-soft { background: var(--rs-paper); }
+html[data-site-theme="light"] .fdn-head h2 { color: #0c0e12; }
+html[data-site-theme="light"] .fdn-head p { color: #545b68; }
+html[data-site-theme="light"] .fdn-match-ask button { background: var(--rs-card); border-color: rgba(12, 14, 18, 0.1); color: #0c0e12; }
+html[data-site-theme="light"] .fdn-match-ask button[aria-pressed="true"] { background: color-mix(in srgb, var(--chip) 14%, #fff); color: #0c0e12; }
+html[data-site-theme="light"] .fdn-match-ask small,
+html[data-site-theme="light"] .fdn-match-more > span,
+html[data-site-theme="light"] .fdn-match-more small { color: #545b68; }
+html[data-site-theme="light"] .fdn-match-more a { background: var(--rs-card); border-color: rgba(12, 14, 18, 0.1); color: #0c0e12; }
+html[data-site-theme="light"] .fdn-steps li { background: var(--rs-card); border-color: rgba(12, 14, 18, 0.08); }
+html[data-site-theme="light"] .fdn-steps li:last-child { background: radial-gradient(90% 120% at 100% 0%, rgba(37, 99, 235, 0.16), rgba(37, 99, 235, 0) 60%), var(--rs-card); border-color: rgba(37, 99, 235, 0.35); }
+html[data-site-theme="light"] .fdn-steps b { background-image: linear-gradient(180deg, #13874e, rgba(19, 135, 78, 0.18)); }
+html[data-site-theme="light"] .fdn-steps h3 { color: #0c0e12; }
+html[data-site-theme="light"] .fdn-steps p { color: #3d4350; }
+html[data-site-theme="light"] .fdn-honest { color: #545b68; }
+html[data-site-theme="light"] .fdn-final { background: radial-gradient(50% 80% at 50% 0%, rgba(37, 99, 235, 0.55), rgba(37, 99, 235, 0) 70%), #0c1a30; }
+
 /* ------------------------------------------------------------------ */
 /* Site da Fundação: catálogo                                          */
 /* ------------------------------------------------------------------ */

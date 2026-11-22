@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- Vinext serves the local RanBank brand image directly. */
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { AnchorHTMLAttributes, CSSProperties, ReactNode } from "react";
 import { Icon } from "./SiteIcons";
 import RaniAssistant, { openRani } from "./RaniAssistant";
@@ -10,6 +10,10 @@ import { CATEGORIES, COURSES, FOUNDATION_SITE_URL, categoryOf, courseImage } fro
 import type { CategoryId, Course } from "./foundation-courses";
 import { CategoryGlyph, PlayGlyph } from "./FoundationIcons";
 import type { IconName } from "./SiteIcons";
+import { FictionCard } from "./FictionNotice";
+import HeroBankPhone from "./HeroBankPhone";
+import { saveTheme, switchThemeFrom } from "./theme-switch";
+import type { ThemeName } from "./theme-switch";
 
 // Vídeo de fundo da abertura. Usa só os primeiros segundos: depois entra a arte antiga do cartão, com outra bandeira.
 const HERO_CLIP_END = 3.5;
@@ -153,6 +157,7 @@ export function PublicHeader(props: { dark?: boolean }) {
             {navigation.map((item) => <Link key={item.href} href={item.href} onClick={() => setOpen(false)}>{item.label}</Link>)}
           </nav>
           <div className="rs-header-actions">
+            <SiteThemeButton />
             <Link className="rs-btn rs-btn-quiet" href="/banco">Entrar</Link>
             <Link className="rs-btn rs-btn-primary" href="/banco?modo=criar-conta">Abrir conta</Link>
             <button className="rs-menu-toggle" type="button" aria-expanded={open} aria-label={open ? "Fechar menu" : "Abrir menu"} onClick={() => setOpen(!open)}>
@@ -161,7 +166,30 @@ export function PublicHeader(props: { dark?: boolean }) {
           </div>
         </div>
       </header>
+      <FictionCard />
     </>
+  );
+}
+
+// Tema do site: lido do atributo data-site-theme da página (o script do layout já aplica o tema salvo).
+const subscribeSiteTheme = (onChange: () => void) => {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-site-theme"] });
+  return () => observer.disconnect();
+};
+const currentSiteTheme = (): ThemeName => (document.documentElement.dataset.siteTheme === "light" ? "light" : "dark");
+
+function SiteThemeButton() {
+  const theme = useSyncExternalStore(subscribeSiteTheme, currentSiteTheme, () => "dark" as ThemeName);
+  const next: ThemeName = theme === "dark" ? "light" : "dark";
+  return (
+    <button
+      type="button" className="rs-theme-toggle"
+      aria-label={next === "light" ? "Ativar modo claro" : "Ativar modo escuro"} title={next === "light" ? "Modo claro" : "Modo escuro"}
+      onClick={(event) => switchThemeFrom(event, () => { document.documentElement.dataset.siteTheme = next; saveTheme(next); })}
+    >
+      <Icon name={theme === "dark" ? "sun" : "moon"} size={22} />
+    </button>
   );
 }
 
@@ -190,8 +218,10 @@ export function PublicFooter() {
         </div>
         <div className="rs-footer-col">
           <strong>Redes sociais</strong>
-          <a href="https://www.instagram.com/ranbank.df" target="_blank" rel="noreferrer">Instagram @ranbank.df</a>
-          <a href="https://www.tiktok.com/@ranbank.df" target="_blank" rel="noreferrer">TikTok @ranbank.df</a>
+          <div className="rs-social">
+            <a href="https://www.instagram.com/ranbank.df" target="_blank" rel="noreferrer" aria-label="Instagram do RanBank (@ranbank.df), abre em outra aba" title="Instagram @ranbank.df"><Icon name="instagram" size={24} /></a>
+            <a href="https://www.tiktok.com/@ranbank.df" target="_blank" rel="noreferrer" aria-label="TikTok do RanBank (@ranbank.df), abre em outra aba" title="TikTok @ranbank.df"><Icon name="tiktok" size={24} /></a>
+          </div>
         </div>
       </div>
       <p className="rs-footer-legal">
@@ -275,48 +305,6 @@ function PublicShell({ children, className = "" }: { children: ReactNode; classN
 /* Maquetes do aplicativo                                              */
 /* ------------------------------------------------------------------ */
 
-function PhoneMockup() {
-  const actions: Array<[IconName, string]> = [["pix", "Pix"], ["bill", "Pagar"], ["calendar", "Agendar"], ["vault", "Guardar"]];
-  const moves = [
-    ["Pix recebido", "Bruno Lima", "+ R$ 150,00", "in"],
-    ["Mercado Bom Preço", "Cartão Ecocard", "- R$ 86,40", "out"],
-    ["Cofrinho", "Meta: viagem", "- R$ 200,00", "out"],
-  ];
-  return (
-    <div className="rs-phone" aria-label="Exemplo da tela inicial do aplicativo RanBank, com valores fictícios" role="img">
-      <div className="rs-phone-screen">
-        <div className="rs-app-top">
-          <span className="rs-app-avatar">A</span>
-          <div><small>Olá,</small><strong>Ana</strong></div>
-          <Icon name="eye" size={20} />
-        </div>
-        <div className="rs-app-balance">
-          <small>Saldo disponível</small>
-          <strong>R$ 4.280,50</strong>
-        </div>
-        <div className="rs-app-actions">
-          {actions.map(([icon, label]) => (
-            <span key={label}><i><Icon name={icon} size={20} /></i>{label}</span>
-          ))}
-        </div>
-        <div className="rs-app-card">
-          <img src="/images/ranbank-ecocard-nativa-frente.webp" alt="" />
-          <div><strong>Ecocard</strong><small>Fatura atual R$ 312,40</small></div>
-        </div>
-        <div className="rs-app-moves">
-          <small>Últimas movimentações</small>
-          {moves.map(([title, detail, value, kind]) => (
-            <div key={title}>
-              <span><strong>{title}</strong><small>{detail}</small></span>
-              <b className={kind === "in" ? "is-in" : ""}>{value}</b>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function PixConfirmMockup() {
   return (
     <div className="rs-pix-mock" aria-hidden="true">
@@ -383,7 +371,7 @@ export function PublicHome() {
             <p className="rs-hero-proof"><Icon name="check" size={18} /> Protótipo no ar: dá para entrar e fazer um Pix de teste agora.</p>
           </div>
           <div className="rs-hero-visual">
-            <PhoneMockup />
+            <HeroBankPhone />
             <img className="rs-hero-card" src="/images/ranbank-ecocard-nativa-frente.webp" alt="Cartão Ecocard RanBank" />
           </div>
         </div>
@@ -833,7 +821,7 @@ export function FoundationPublicPage() {
         </div>
       </section>
 
-      <section className="fdn-section" id="descobrir">
+      <section className="fdn-section is-soft" id="descobrir">
         <div className="rs-wrap">
           <header className="fdn-head">
             <span className="fdn-kicker">Descubra o seu curso</span>

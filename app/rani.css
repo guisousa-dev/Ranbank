@@ -24,6 +24,18 @@ html[data-bank-theme="dark"] .rani-bank {
   --rani-blue-soft: rgba(37, 99, 235, 0.22);
   --rani-chat: #0b0c0f;
 }
+/* No site, a Rani segue o tema do site: escura (azul-marinho) quando o site está escuro. */
+html:not([data-site-theme="light"]) .rani-site {
+  --rani-bg: #13203a;
+  --rani-soft: #1b2b45;
+  --rani-line: rgba(143, 177, 255, 0.18);
+  --rani-text: #eef2fa;
+  --rani-muted: #a7b4c8;
+  --rani-blue-ink: #8fb1ff;
+  --rani-blue-soft: rgba(37, 99, 235, 0.22);
+  --rani-chat: #0b1526;
+}
+html:not([data-site-theme="light"]) .rani-site .rani-panel { box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6); }
 .rani *, .rani *::before, .rani *::after { box-sizing: border-box; }
 .rani p { margin: 0; }
 .rani button { font: inherit; cursor: pointer; }
