@@ -10,6 +10,7 @@ import { BOX_LABEL, COURSE_CONTENT, QUIZ_RULES, lessonMinutes, lessonsOf } from 
 import type { Block, QuizResult } from "./foundation-lessons";
 import { FinalChallenge } from "./FoundationQuiz";
 import { LessonListen, LessonReport } from "./FoundationLessonExtras";
+import { CheckCard, ModuleQuizCard, NOTEBOOK_TOOLS, NotebookCover, NotebookDesk, NotebookProvider, PostIts, SortCard, WriteField, useRuledPaper } from "./FoundationNotebook";
 import { CategoryGlyph, PlayGlyph } from "./FoundationIcons";
 import { Mark } from "./FoundationBadge";
 
@@ -119,7 +120,7 @@ const LOGIN_MESSAGES: Record<string, string> = {
 function coursePct(course: Course, progress?: Progress) {
   if (!progress) return 0;
   if (progress.done) return 100;
-  if (hasLessons(course)) return Math.round(((progress.doneLessons?.length ?? 0) / partsOf(course).length) * 100);
+  if (hasLessons(course)) return Math.min(100, Math.round(((progress.doneLessons?.filter((index) => index < partsOf(course).length).length ?? 0) / partsOf(course).length) * 100));
   return Math.round(((progress.part + progress.pct / 100) / partsOf(course).length) * 100);
 }
 
@@ -478,15 +479,24 @@ function PrintCostCalculator() {
 
 function LessonBlock({ block }: { block: Block }) {
   if (typeof block === "string") return <p>{block}</p>;
-  if ("tool" in block) return <PrintCostCalculator />;
+  if ("tool" in block) {
+    if (block.tool === "custo-impressao-3d") return <PrintCostCalculator />;
+    const Tool = NOTEBOOK_TOOLS[block.tool];
+    return <Tool />;
+  }
+  if ("check" in block) return <CheckCard check={block.check} />;
+  if ("sort" in block) return <SortCard sort={block.sort} />;
+  if ("write" in block) return <WriteField label={block.write} />;
+  if ("cards" in block) return <PostIts cards={block.cards} />;
   if ("list" in block) {
     const items = block.list.map((item) => <li key={item}>{item}</li>);
     return block.ordered ? <ol>{items}</ol> : <ul>{items}</ul>;
   }
   if ("box" in block) {
+    const label = block.title ?? BOX_LABEL[block.box];
     return (
-      <aside className={`fc-box is-${block.box}`} aria-label={BOX_LABEL[block.box]}>
-        <strong>{BOX_LABEL[block.box]}</strong>
+      <aside className={`fc-box is-${block.box}`} aria-label={label}>
+        <strong>{label}</strong>
         <p>{block.text}</p>
       </aside>
     );
@@ -511,6 +521,22 @@ function LessonBlock({ block }: { block: Block }) {
   );
 }
 
+/** Cores do caderno: a capa do curso (foundation-content) ou, sem capa, as cores da categoria. */
+const notebookStyle = (course: Course) => {
+  const category = categoryOf(course.category);
+  const cover = COURSE_CONTENT[course.id]?.cover;
+  return {
+    "--fc-bg": category.bg, "--fc-accent": category.accent,
+    "--nb-cover": cover?.color ?? category.bg,
+    "--nb-ink": cover?.ink ?? `color-mix(in srgb, ${category.accent} 45%, #14161c)`,
+    "--nb-glow": cover?.glow ?? category.accent,
+  } as CSSProperties;
+};
+
+/**
+ * A aula como um caderno: capa ao abrir, abas em cima (módulos e a prova) e a folha pautada com o conteúdo.
+ * Os exercícios ficam "colados" na folha e o que a pessoa responde fica só no aparelho (FoundationNotebook.tsx).
+ */
 function LessonView({ course, start, progress, studentName, onSave, onNavigate, onClose, onOpen }: {
   course: Course; start: number; progress?: Progress; studentName?: string;
   onSave: (progress: Progress) => void; onNavigate: (index: number) => void; onClose: () => void; onOpen: (course: Course) => void;
@@ -519,10 +545,13 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
   const lessons = lessonsOf(course.id);
   const [index, setIndex] = useState(Math.min(start, lessons.length - 1));
   const [finished, setFinished] = useState(false);
-  const [listOpen, setListOpen] = useState(false);
   const [challenge, setChallenge] = useState(false);
+  const [soon, setSoon] = useState<number | null>(null);
+  const [cover, setCover] = useState(true);
+  const [opening, setOpening] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
   const latest = useRef({ progress, onSave, onNavigate, onClose });
   useEffect(() => { latest.current = { progress, onSave, onNavigate, onClose }; });
 
@@ -532,34 +561,39 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
     return () => document.removeEventListener("keydown", onKey);
   }, []);
 
-  // Ao abrir uma aula: volta para o topo, leva o foco ao título e marca onde a pessoa está.
+  // Ao abrir uma aula: marca onde a pessoa está ("Continuar de onde parei" volta para a última aula aberta).
   useEffect(() => {
-    mainRef.current?.scrollTo({ top: 0 });
-    titleRef.current?.focus();
     const current = latest.current.progress;
-    // "Continuar de onde parei" volta para a última aula aberta.
     if (!current?.done && current?.part !== index) latest.current.onSave({ ...current, part: index, pct: 0, updatedAt: new Date().toISOString() });
     latest.current.onNavigate(index);
   }, [index]);
+
+  // A cada folha nova: volta para o topo e leva o foco ao título.
+  const pageKey = cover ? "capa" : challenge ? "prova" : finished ? "fim" : soon !== null ? `modulo-${soon}` : lessons[index].lesson.id;
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 });
+    titleRef.current?.focus();
+  }, [pageKey]);
+  useRuledPaper(pageRef, pageKey);
 
   // Título da aba com a aula aberta, para o histórico e os favoritos do navegador. Ao fechar, volta o da página.
   useEffect(() => {
     const before = document.title;
     return () => { document.title = before; };
   }, []);
-  const tabTitle = `${challenge ? "Desafio final" : finished ? "Curso concluído" : lessons[index].lesson.title} · ${course.title} | Fundação RanBank`;
+  const tabTitle = `${challenge ? "Prova" : finished ? "Curso concluído" : lessons[index].lesson.title} · ${course.title} | Fundação RanBank`;
   useEffect(() => { document.title = tabTitle; }, [tabTitle]);
 
   // Quanto da aula atual já foi lido (pela rolagem), de 10 em 10%.
   const onScroll = () => {
     const main = mainRef.current;
     const current = latest.current.progress;
-    if (!main || !current || current.done || current.part !== index) return;
+    if (!main || cover || !current || current.done || current.part !== index) return;
     const pct = Math.min(90, Math.floor((main.scrollTop / Math.max(1, main.scrollHeight - main.clientHeight)) * 10) * 10);
     if (pct > current.pct) latest.current.onSave({ ...current, part: index, pct, updatedAt: new Date().toISOString() });
   };
 
-  const go = (next: number) => { setListOpen(false); setFinished(false); setChallenge(false); setIndex(next); };
+  const go = (next: number) => { setFinished(false); setChallenge(false); setSoon(null); setIndex(next); };
   const isDone = (lessonIndex: number) => partDone(course, progress, lessonIndex);
   const missing = lessons.map((_, lessonIndex) => lessonIndex).filter((lessonIndex) => lessonIndex !== index && !isDone(lessonIndex));
   const isLast = index === lessons.length - 1;
@@ -579,160 +613,217 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
   };
 
   const { lesson, module, moduleIndex } = lessons[index];
+  const lastOfModule = isLast || lessons[index + 1].moduleIndex !== moduleIndex;
   const next = similarCourses(course, [], 3);
-  // Desafio final: só nos cursos que têm perguntas, e liberado depois de todas as aulas.
+  // Prova: só nos cursos que têm perguntas, e liberada depois de todas as aulas.
   const quiz = content.quiz;
   const allDone = lessons.every((_, lessonIndex) => isDone(lessonIndex));
-  const openChallenge = () => { setListOpen(false); setFinished(false); setChallenge(true); mainRef.current?.scrollTo({ top: 0 }); };
+  const openChallenge = () => { setFinished(false); setSoon(null); setChallenge(true); };
+  const openModule = (target: number) => {
+    const first = lessons.findIndex((entry) => entry.moduleIndex === target);
+    if (first >= 0) { go(moduleIndex === target ? index : first); return; }
+    setFinished(false); setChallenge(false); setSoon(target);
+  };
   const saveQuiz = (result: QuizResult) => {
     const current = latest.current.progress;
     onSave({ part: index, pct: 0, ...current, updatedAt: new Date().toISOString(), quiz: result });
   };
+  const openBook = () => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setCover(false); return; }
+    setOpening(true);
+    window.setTimeout(() => { setCover(false); setOpening(false); }, 520);
+  };
+  const started = Boolean(progress?.doneLessons?.length || (progress?.part ?? 0) > 0);
+  const activeTab = challenge ? -1 : soon ?? moduleIndex;
 
   return (
-    <div className="fc-lesson" role="dialog" aria-modal="true" aria-labelledby="fc-lesson-title" style={cardStyle(course)}>
-      <div className="fc-player-top fc-lesson-top">
-        <button type="button" className="fc-player-back" onClick={onClose}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
-          Voltar
-        </button>
-        <span><strong>{course.title}</strong><small>{challenge ? "Desafio final" : `Aula ${index + 1} de ${lessons.length}`}</small></span>
-        <button type="button" className="fc-lesson-toggle" aria-expanded={listOpen} aria-controls="fc-lesson-list" onClick={() => setListOpen(!listOpen)}>Aulas</button>
-      </div>
+    <div className={`fc-lesson nb-desk ${content.cover?.desk ? `is-${content.cover.desk}` : ""}`} role="dialog" aria-modal="true" aria-labelledby="fc-lesson-title" style={notebookStyle(course)}>
+      <NotebookProvider courseId={course.id} stickers={content.stickers}>
+        <NotebookDesk kind={content.cover?.desk} />
+        <div className="fc-player-top fc-lesson-top">
+          <button type="button" className="fc-player-back" onClick={onClose}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
+            Voltar
+          </button>
+          <span><strong>{course.title}</strong><small>{cover ? "Capa do caderno" : challenge ? "Prova" : `Aula ${index + 1} de ${lessons.length}`}</small></span>
+        </div>
 
-      <div className="fc-lesson-body">
-        <nav id="fc-lesson-list" className={`fc-lesson-list ${listOpen ? "is-open" : ""}`} aria-label="Aulas do curso">
-          {content.modules.map((item, itemIndex) => (
-            <div key={item.title}>
-              <p>Módulo {itemIndex + 1}: {item.title}</p>
-              {item.lessons.length === 0 && <small className="fc-module-soon">Em preparação</small>}
-              <ol>
-                {lessons.map((entry, lessonIndex) => entry.moduleIndex === itemIndex && (
-                  <li key={entry.lesson.id}>
-                    <button type="button" aria-current={lessonIndex === index && !challenge ? "step" : undefined} onClick={() => go(lessonIndex)}>
-                      <span className={`fc-lesson-dot ${isDone(lessonIndex) ? "is-done" : ""}`} aria-hidden="true">{isDone(lessonIndex) ? "✓" : lessonIndex + 1}</span>
-                      <span>{entry.lesson.title}{isDone(lessonIndex) && <span className="fc-sr"> (feita)</span>}</span>
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          ))}
-          {quiz && (
-            <div className="fc-lesson-final">
-              <p>Fim do curso</p>
-              <button type="button" aria-current={challenge ? "step" : undefined} disabled={!allDone} onClick={openChallenge}>
-                <span className={`fc-lesson-dot is-final ${progress?.quiz?.passed ? "is-done" : ""}`} aria-hidden="true">{progress?.quiz?.passed ? "✓" : "★"}</span>
-                <span>Desafio final<small>{progress?.quiz?.passed ? "Certificado liberado" : allDone ? `Acerte ${QUIZ_RULES.pass} de ${QUIZ_RULES.total} e ganhe o certificado` : "Libera quando você concluir as aulas"}</small></span>
-              </button>
-            </div>
-          )}
-        </nav>
-
-        <div className="fc-lesson-main" ref={mainRef} onScroll={onScroll}>
-          {challenge && quiz ? (
-            <FinalChallenge
-              course={course}
-              modules={content.modules.map((item) => item.title)}
-              questions={quiz}
-              lessonsCount={lessons.length}
-              result={progress?.quiz}
-              studentName={studentName}
-              signedIn={studentName !== undefined}
-              onResult={saveQuiz}
-              onBack={() => go(0)}
-            />
-          ) : finished ? (
-            <div className="fc-player-end">
-              <span className="fc-player-check" aria-hidden="true">✓</span>
-              <h2 id="fc-lesson-title" ref={titleRef} tabIndex={-1}>Você concluiu {course.title}!</h2>
-              {content.closing && <p>{content.closing}</p>}
-              {quiz && (
-                <div className="fc-final-cta">
-                  <p>Falta só o desafio final: {QUIZ_RULES.total} perguntas sobre as aulas. Acerte {QUIZ_RULES.pass} e ganhe o certificado.</p>
-                  <button type="button" className="fc-btn fc-btn-light" onClick={openChallenge}>{progress?.quiz?.passed ? "Ver meu certificado" : "Fazer o desafio final"}</button>
-                </div>
-              )}
-              <p>Porque você fez este curso, talvez goste de:</p>
-              <div className="fc-player-next">
-                {next.map((other) => (
-                  <button type="button" key={other.id} style={cardStyle(other)} onClick={() => { onClose(); onOpen(other); }}>
-                    <CoursePhoto course={other} />
-                    <CategoryTag course={other} />
-                    <strong>{other.title}</strong>
-                  </button>
-                ))}
-              </div>
+        <div className="nb-scroll" ref={mainRef} onScroll={onScroll}>
+          {cover ? (
+            <div className="nb">
+              <NotebookCover
+                title={course.title}
+                kicker={`Fundação RanBank · ${categoryOf(course.category).name}`}
+                details={`${content.modules.length} ${content.modules.length === 1 ? "módulo" : "módulos"} · ${lessons.length} ${lessons.length === 1 ? "aula pronta" : "aulas prontas"}`}
+                openLabel={started ? `Continuar na aula ${index + 1}` : "Abrir o caderno"}
+                titleRef={titleRef}
+                opening={opening}
+                onOpen={openBook}
+              />
             </div>
           ) : (
-            <article className="fc-lesson-article">
-              <p className="fc-lesson-eyebrow">Módulo {moduleIndex + 1} · {module.title}</p>
-              <h2 id="fc-lesson-title" ref={titleRef} tabIndex={-1}>{lesson.title}</h2>
-              <p className="fc-lesson-meta">Aula {index + 1} de {lessons.length} · cerca de {lessonMinutes(lesson)} minutos</p>
-              <LessonListen key={`ouvir-${lesson.id}`} lesson={lesson} />
-              {content.review && <aside className="fc-box is-atencao" aria-label="Conteúdo em revisão"><strong>Em revisão</strong><p>{content.review}</p></aside>}
-
-              <section className="fc-lesson-goals" aria-labelledby="fc-goals">
-                <h3 id="fc-goals">Nesta aula você vai</h3>
-                <ul>{lesson.goals.map((goal) => <li key={goal}>{goal}</li>)}</ul>
-              </section>
-
-              {lesson.video && (
-                <figure className="fc-lesson-video">
-                  <iframe
-                    src={`https://www.youtube-nocookie.com/embed/${lesson.video.youtubeId}?cc_load_policy=1&rel=0`}
-                    title={`Vídeo da aula: ${lesson.title}`} loading="lazy"
-                    allow="encrypted-media; picture-in-picture; fullscreen" referrerPolicy="strict-origin-when-cross-origin"
-                  />
-                  <figcaption>Vídeo com legenda ({lesson.video.minutes} min). O mesmo conteúdo está em texto logo abaixo.</figcaption>
-                </figure>
-              )}
-
-              {lesson.sections.map((section, sectionIndex) => (
-                <section key={section.title} className="fc-lesson-section">
-                  <h3>{sectionIndex + 1}. {section.title}</h3>
-                  {section.body.map((block, blockIndex) => <LessonBlock key={blockIndex} block={block} />)}
-                </section>
-              ))}
-
-              <section className="fc-lesson-activity" aria-labelledby="fc-activity">
-                <p className="fc-lesson-eyebrow">Atividade</p>
-                <h3 id="fc-activity">{lesson.activity.title}</h3>
-                <ol>{lesson.activity.steps.map((step) => <li key={step}>{step}</li>)}</ol>
-                {lesson.activity.note && <p>{lesson.activity.note}</p>}
-                {lesson.activity.answer && (
-                  <details>
-                    <summary>Ver resposta</summary>
-                    <p>{lesson.activity.answer}</p>
-                  </details>
-                )}
-              </section>
-
-              <section className="fc-lesson-recap" aria-labelledby="fc-recap">
-                <h3 id="fc-recap">Resumo da aula</h3>
-                <ul>{lesson.recap.map((item) => <li key={item}>{item}</li>)}</ul>
-              </section>
-
-              {lesson.files && lesson.files.length > 0 && (
-                <section className="fc-lesson-files" aria-labelledby="fc-files">
-                  <h3 id="fc-files">Material para baixar</h3>
-                  <ul>{lesson.files.map((file) => <li key={file.href}><a href={file.href} download>{file.label} <span>({file.size})</span></a></li>)}</ul>
-                </section>
-              )}
-
-              {content.note && <p className="fc-lesson-note">{content.note}</p>}
-              <LessonReport key={`erro-${lesson.id}`} courseId={course.id} lessonId={lesson.id} />
-
-              <div className="fc-lesson-nav">
-                {index > 0 && <button type="button" className="fc-btn fc-btn-soft" onClick={() => go(index - 1)}>Aula anterior</button>}
-                <button type="button" className="fc-btn fc-btn-light" onClick={complete}>
-                  {progress?.done || missing.length === 0 ? "Concluir o curso" : isLast ? `Concluir e ir para a aula ${missing[0] + 1}` : "Concluir e ir para a próxima"}
+            <div className="nb">
+              <nav className="nb-tabs" aria-label="Módulos do curso">
+                {content.modules.map((item, itemIndex) => (
+                  <button key={item.title} type="button" style={{ "--i": itemIndex } as CSSProperties} aria-current={activeTab === itemIndex ? "page" : undefined} onClick={() => openModule(itemIndex)}>
+                    <span>Módulo {itemIndex + 1}</span>
+                    <b>{item.title}</b>
+                    {item.lessons.length === 0 && <span className="fc-sr"> (em preparação)</span>}
+                  </button>
+                ))}
+                <button type="button" className="is-test" aria-current={challenge ? "page" : undefined} onClick={openChallenge}>
+                  <span>Fim do curso</span>
+                  <b>{progress?.quiz?.passed ? "Prova ✓" : "Prova"}</b>
                 </button>
+              </nav>
+
+              <div className="nb-book">
+                <span className="nb-spiral" aria-hidden="true" />
+                <div className="nb-page" key={pageKey} ref={pageRef} data-ruled>
+                  {challenge ? (
+                    quiz && allDone ? (
+                      <div className="nb-sheet">
+                        <FinalChallenge
+                          course={course}
+                          modules={content.modules.map((item) => item.title)}
+                          questions={quiz}
+                          lessonsCount={lessons.length}
+                          result={progress?.quiz}
+                          studentName={studentName}
+                          signedIn={studentName !== undefined}
+                          onResult={saveQuiz}
+                          onBack={() => go(0)}
+                        />
+                      </div>
+                    ) : (
+                      <div className="nb-article" data-ruled>
+                        <p className="nb-eyebrow" data-tight>Fim do curso</p>
+                        <h2 id="fc-lesson-title" ref={titleRef} tabIndex={-1}>Prova</h2>
+                        <p>{quiz
+                          ? `A prova libera quando você concluir todas as aulas. São ${QUIZ_RULES.total} perguntas sobre o curso: acerte ${QUIZ_RULES.pass} e ganhe o certificado.`
+                          : "A prova deste curso está em preparação. Enquanto isso, os exercícios das aulas ajudam você a conferir o que aprendeu."}</p>
+                        <div><button type="button" className="nb-btn" onClick={() => go(index)}>Voltar para a aula {index + 1}</button></div>
+                      </div>
+                    )
+                  ) : finished ? (
+                    <div className="fc-player-end">
+                      <span className="fc-player-check" aria-hidden="true">✓</span>
+                      <h2 id="fc-lesson-title" ref={titleRef} tabIndex={-1}>Você concluiu {course.title}!</h2>
+                      {content.closing && <p>{content.closing}</p>}
+                      {quiz && (
+                        <div className="fc-final-cta">
+                          <p>Falta só a prova: {QUIZ_RULES.total} perguntas sobre as aulas. Acerte {QUIZ_RULES.pass} e ganhe o certificado.</p>
+                          <button type="button" className="nb-btn" onClick={openChallenge}>{progress?.quiz?.passed ? "Ver meu certificado" : "Fazer a prova"}</button>
+                        </div>
+                      )}
+                      <p>Porque você fez este curso, talvez goste de:</p>
+                      <div className="fc-player-next">
+                        {next.map((other) => (
+                          <button type="button" key={other.id} style={cardStyle(other)} onClick={() => { onClose(); onOpen(other); }}>
+                            <CoursePhoto course={other} />
+                            <CategoryTag course={other} />
+                            <strong>{other.title}</strong>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : soon !== null ? (
+                    <div className="nb-article" data-ruled>
+                      <p className="nb-eyebrow" data-tight>Módulo {soon + 1}</p>
+                      <h2 id="fc-lesson-title" ref={titleRef} tabIndex={-1}>{content.modules[soon].title}</h2>
+                      <p>Estas folhas ainda estão em branco: o módulo está em preparação. Assim que ficar pronto, as aulas aparecem aqui.</p>
+                      <div><button type="button" className="nb-btn" onClick={() => go(index)}>Voltar para a aula {index + 1}</button></div>
+                    </div>
+                  ) : (
+                    <>
+                      <nav className="nb-lessons" aria-label={`Aulas do módulo ${moduleIndex + 1}`}>
+                        {lessons.map((entry, lessonIndex) => entry.moduleIndex === moduleIndex && (
+                          <button key={entry.lesson.id} type="button" aria-current={lessonIndex === index ? "step" : undefined} onClick={() => go(lessonIndex)}>
+                            <span className={`fc-lesson-dot ${isDone(lessonIndex) ? "is-done" : ""}`} aria-hidden="true">{isDone(lessonIndex) ? "✓" : lessonIndex + 1}</span>
+                            <span>{entry.lesson.title}{isDone(lessonIndex) && <span className="fc-sr"> (feita)</span>}</span>
+                          </button>
+                        ))}
+                      </nav>
+
+                      <article className="nb-article" data-ruled>
+                        <p className="nb-eyebrow" data-tight>Módulo {moduleIndex + 1} · {module.title}</p>
+                        <h2 id="fc-lesson-title" ref={titleRef} tabIndex={-1} data-tight>{lesson.title}</h2>
+                        <div className="nb-meta">
+                          <p>Aula {index + 1} de {lessons.length} · cerca de {lessonMinutes(lesson)} minutos</p>
+                          <LessonListen key={`ouvir-${lesson.id}`} lesson={lesson} />
+                        </div>
+                        {content.review && <aside className="fc-box is-atencao" aria-label="Conteúdo em revisão"><strong>Em revisão</strong><p>{content.review}</p></aside>}
+
+                        <section className="nb-pasted nb-goals" aria-labelledby="fc-goals">
+                          <h3 id="fc-goals">Nesta aula você vai</h3>
+                          <ul>{lesson.goals.map((goal) => <li key={goal}>{goal}</li>)}</ul>
+                        </section>
+
+                        {lesson.video && (
+                          <figure className="fc-lesson-video nb-pasted">
+                            <iframe
+                              src={`https://www.youtube-nocookie.com/embed/${lesson.video.youtubeId}?cc_load_policy=1&rel=0`}
+                              title={`Vídeo da aula: ${lesson.title}`} loading="lazy"
+                              allow="encrypted-media; picture-in-picture; fullscreen" referrerPolicy="strict-origin-when-cross-origin"
+                            />
+                            <figcaption>Vídeo com legenda ({lesson.video.minutes} min). O mesmo conteúdo está em texto logo abaixo.</figcaption>
+                          </figure>
+                        )}
+
+                        {lesson.sections.map((section, sectionIndex) => (
+                          <section key={section.title} className="nb-section" data-ruled>
+                            <h3 data-tight>{sectionIndex + 1}. {section.title}</h3>
+                            {section.body.map((block, blockIndex) => <LessonBlock key={blockIndex} block={block} />)}
+                          </section>
+                        ))}
+
+                        <section className="nb-pasted nb-activity" aria-labelledby="fc-activity">
+                          <p className="nb-tag">Atividade</p>
+                          <h3 id="fc-activity">{lesson.activity.title}</h3>
+                          <ol>{lesson.activity.steps.map((step) => <li key={step}>{step}</li>)}</ol>
+                          {lesson.activity.note && <p>{lesson.activity.note}</p>}
+                          {lesson.activity.fields?.map((field) => <WriteField key={field} label={field} />)}
+                          {lesson.activity.fields && <p className="nb-muted">O que você escreve aqui fica salvo só neste aparelho.</p>}
+                          {lesson.activity.answer && (
+                            <details>
+                              <summary>Ver resposta</summary>
+                              <p>{lesson.activity.answer}</p>
+                            </details>
+                          )}
+                        </section>
+
+                        <section className="nb-section nb-recap" aria-labelledby="fc-recap" data-ruled>
+                          <h3 id="fc-recap" data-tight>Resumo da aula</h3>
+                          <ul>{lesson.recap.map((item) => <li key={item}>{item}</li>)}</ul>
+                        </section>
+
+                        {lastOfModule && module.quiz && <ModuleQuizCard quiz={module.quiz} moduleIndex={moduleIndex} moduleTitle={module.title} />}
+
+                        {lesson.files && lesson.files.length > 0 && (
+                          <section className="nb-pasted nb-files" aria-labelledby="fc-files">
+                            <h3 id="fc-files">Material para baixar</h3>
+                            <ul>{lesson.files.map((file) => <li key={file.href}><a href={file.href} download>{file.label} <span>({file.size})</span></a></li>)}</ul>
+                          </section>
+                        )}
+
+                        {content.note && <p className="nb-note">{content.note}</p>}
+                        <LessonReport key={`erro-${lesson.id}`} courseId={course.id} lessonId={lesson.id} />
+
+                        <div className="nb-nav">
+                          {index > 0 && <button type="button" className="nb-btn is-soft" onClick={() => go(index - 1)}>Aula anterior</button>}
+                          <button type="button" className="nb-btn" onClick={complete}>
+                            {progress?.done || missing.length === 0 ? "Concluir o curso" : isLast ? `Concluir e ir para a aula ${missing[0] + 1}` : "Concluir e virar a página"}
+                          </button>
+                        </div>
+                      </article>
+                    </>
+                  )}
+                </div>
               </div>
-            </article>
+            </div>
           )}
         </div>
-      </div>
+      </NotebookProvider>
     </div>
   );
 }

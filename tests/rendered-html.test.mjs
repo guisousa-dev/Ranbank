@@ -449,6 +449,27 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   assert.match(api, /path === "fundacao\/certificado"/);
   assert.doesNotMatch(check, /foundation-courses|foundation-lessons/);
   assert.match(await readFile(new URL("../app/fundacao/certificado/page.tsx", import.meta.url), "utf8"), /FoundationCertificateCheck/);
+  // Caderno: capa, abas dos módulos com a prova, folha pautada e exercícios que só guardam no aparelho.
+  const notebook = await readFile(new URL("../app/FoundationNotebook.tsx", import.meta.url), "utf8");
+  const notebookCss = await readFile(new URL("../app/foundation-notebook.css", import.meta.url), "utf8");
+  assert.match(catalog, /<NotebookCover/);
+  assert.match(catalog, /className="nb-tabs" aria-label="Módulos do curso"/);
+  assert.match(catalog, /useRuledPaper\(pageRef, pageKey\)/);
+  assert.ok(!notebook.includes("fetch("), "o caderno não envia nada");
+  assert.match(notebook, /localStorage\.setItem\(storageKey\(courseId\)/);
+  assert.match(notebookCss, /html\[data-site-theme="light"\] \.fc-lesson\.nb-desk \{/);
+  assert.match(notebookCss, /prefers-reduced-motion: reduce/);
+  // Educação financeira: 5 módulos de 3 aulas; o Módulo 1 está pronto e os outros aparecem em preparação.
+  const finance = Object.values(await import(new URL("../app/foundation-content/educacao-financeira.ts", import.meta.url).href))[0];
+  assert.deepEqual(finance.modules.map((module) => module.lessons.length), [3, 0, 0, 0, 0]);
+  assert.equal(finance.modules[0].quiz.questions.length, 10);
+  for (const question of finance.modules[0].quiz.questions) assert.ok(question.answer < question.options.length, question.question);
+  const financeText = await readFile(new URL("../app/foundation-content/educacao-financeira.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(financeText, /\b\d+ min\b|\d horas · /, "sem promessa de tempo escrita à mão");
+  for (const tool of ["diagnostico-financeiro", "gasto-formiga", "prioridades", "simulacao-lia"]) assert.match(financeText, new RegExp(`tool: "${tool}"`), tool);
+  // Simulação da Lia: os três caminhos fecham com as contas do material (sempre A, B e C).
+  assert.match(notebook, /const START = 650;/);
+  assert.match(notebook, /const GOAL = 250;/);
   // Sem créditos de autoria nas aulas.
   for (const word of ["autoria", "Responsável pela elaboração", "Elaborado por"]) assert.ok(!allContent.includes(word) && !lessons.includes(word), word);
 });

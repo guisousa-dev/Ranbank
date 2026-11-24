@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Caveat, Geist } from "next/font/google";
 import InstitutionalExperience from "./InstitutionalExperience";
 import PublicSiteGate from "./PublicSiteGate";
 import PwaInstaller from "./PwaInstaller";
@@ -26,9 +26,12 @@ import "./site.css";
 import "./bank-clean.css";
 import "./rani.css";
 import "./foundation.css";
+import "./foundation-notebook.css";
 import "./fiction-notice.css";
 
 const geist = Geist({ variable: "--font-geist", subsets: ["latin"] });
+// Letra de mão: só nos títulos e nos post-its do caderno das aulas da Fundação.
+const hand = Caveat({ variable: "--font-hand", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "RanBank | Banco digital educacional",
@@ -38,5 +41,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="pt-BR" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: SITE_THEME_BOOT }} /><meta name="referrer" content="strict-origin-when-cross-origin"/><meta name="theme-color" content="#061a33"/></head><body className={geist.variable}><InstitutionalExperience /><PublicSiteGate /><BackendWarmup />{children}<AccountLoadGuard /><PwaInstaller /><FictionNotice /><aside className="rb-noncommercial-seal" role="note" aria-label="Projeto demonstrativo, sem valor comercial"><span>Projeto demonstrativo</span><strong>Sem valor comercial</strong></aside></body></html>;
+  return <html lang="pt-BR" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: SITE_THEME_BOOT }} /><meta name="referrer" content="strict-origin-when-cross-origin"/><meta name="theme-color" content="#061a33"/></head><body className={`${geist.variable} ${hand.variable}`}><InstitutionalExperience /><PublicSiteGate /><BackendWarmup />{children}<AccountLoadGuard /><PwaInstaller /><FictionNotice /><aside className="rb-noncommercial-seal" role="note" aria-label="Projeto demonstrativo, sem valor comercial"><span>Projeto demonstrativo</span><strong>Sem valor comercial</strong></aside></body></html>;
 }
