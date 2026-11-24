@@ -208,11 +208,11 @@ function CourseCard({ course, handlers, pct }: { course: Course; handlers: CardH
 }
 
 /** Fileira horizontal com setas para rolar (no celular, só arrastar). */
-function Row({ id, title, action, onScroll, children }: { id?: string; title: ReactNode; action?: ReactNode; onScroll?: () => void; children: ReactNode }) {
+function Row({ id, title, action, tone, onScroll, children }: { id?: string; title: ReactNode; action?: ReactNode; tone?: string; onScroll?: () => void; children: ReactNode }) {
   const track = useRef<HTMLDivElement>(null);
   const scroll = (direction: 1 | -1) => track.current?.scrollBy({ left: direction * track.current.clientWidth * 0.8, behavior: "smooth" });
   return (
-    <section className="fc-row" id={id}>
+    <section className={tone ? "fc-row is-band" : "fc-row"} id={id} style={tone ? { "--fc-band": tone } as CSSProperties : undefined}>
       <div className="fc-row-head">
         <h2>{title}</h2>
         {action}
@@ -1424,7 +1424,7 @@ export default function FoundationCatalog() {
             </Row>
           )}
 
-          <Row id="trilha" title="Comece por aqui" action={<span className="fc-row-note">Uma trilha em ordem, para quem está começando</span>} onScroll={hidePreview}>
+          <Row id="trilha" tone="#8fb1ff" title="Comece por aqui" action={<span className="fc-row-note">Uma trilha em ordem, para quem está começando</span>} onScroll={hidePreview}>
             {starter.map((course, index) => {
               return (
                 <button type="button" key={course.id} className="fc-poster" style={cardStyle(course)} onClick={() => actions.open(course)} aria-label={`Passo ${index + 1}: ${course.title}`}>
@@ -1448,7 +1448,7 @@ export default function FoundationCatalog() {
           {myList.length > 0 && <Row id="minha-lista" title="Minha lista" onScroll={hidePreview}>{cards(myList)}</Row>}
 
           {rows.map((category) => (
-            <Row key={category.id} id={category.id} title={category.name} onScroll={hidePreview} action={filter === "todos" ? <button type="button" className="fc-more" onClick={() => setFilter(category.id)}>Ver só esta categoria</button> : <button type="button" className="fc-more" onClick={() => setFilter("todos")}>Ver todas</button>}>
+            <Row key={category.id} id={category.id} tone={category.accent} title={category.name} onScroll={hidePreview} action={filter === "todos" ? <button type="button" className="fc-more" onClick={() => setFilter(category.id)}>Ver só esta categoria</button> : <button type="button" className="fc-more" onClick={() => setFilter("todos")}>Ver todas</button>}>
               {cards(COURSES.filter((course) => course.category === category.id))}
             </Row>
           ))}

@@ -185,7 +185,7 @@ html[data-site-theme="light"] .fdn-final { background: radial-gradient(50% 80% a
 /* Site da Fundação: catálogo                                          */
 /* ------------------------------------------------------------------ */
 
-.fc { --fc-side: 48px; min-height: 100vh; background: #0a0a0c; color: #f4f5f7; font-family: var(--font-geist), "Segoe UI", Arial, sans-serif; font-size: 17px; line-height: 1.5; padding-bottom: 1px; }
+.fc { --fc-side: max(48px, calc((100% - 1440px) / 2)); min-height: 100vh; background: #0a0a0c; color: #f4f5f7; font-family: var(--font-geist), "Segoe UI", Arial, sans-serif; font-size: 17px; line-height: 1.5; padding-bottom: 1px; }
 .fc *, .fc *::before, .fc *::after { box-sizing: border-box; }
 .fc h1, .fc h2, .fc h3, .fc p { margin: 0; }
 .fc button { font: inherit; cursor: pointer; }
@@ -218,7 +218,7 @@ html[data-site-theme="light"] .fdn-final { background: radial-gradient(50% 80% a
 .fc-back { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; font-size: 15px; font-weight: 600; color: #d9dce3 !important; text-decoration: none; }
 .fc-back:hover { background: rgba(255, 255, 255, 0.1); color: #fff !important; }
 
-.fc-billboard-copy { position: relative; z-index: 2; padding: 92px var(--fc-side) 0; max-width: 648px; display: flex; flex-direction: column; align-items: flex-start; }
+.fc-billboard-copy { position: relative; z-index: 2; padding: 92px var(--fc-side) 0; max-width: calc(552px + 2 * var(--fc-side)); display: flex; flex-direction: column; align-items: flex-start; }
 .fc-eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fc-eyebrow, #3ddc84); }
 .fc-billboard-copy h1 { margin-top: 14px; font-size: 64px; line-height: 1; letter-spacing: -0.04em; font-weight: 700; color: #fff; }
 .fc-billboard-meta { margin-top: 16px !important; font-size: 15px; font-weight: 500; color: #d9dce3; }
@@ -545,7 +545,7 @@ body:has(.fc) .rb-noncommercial-seal { display: none; }
 .fc-player-next strong, .fc-player-next small { position: relative; z-index: 1; }
 
 /* Topo: logo do RanBank no lugar da foto */
-.fc-billboard-art { position: absolute; right: 0; top: 0; width: min(58%, 1000px); height: 100%; overflow: hidden;
+.fc-billboard-art { position: absolute; right: max(0px, calc(var(--fc-side) - 48px)); top: 0; width: min(58%, 1000px); height: 100%; overflow: hidden;
   background:
     radial-gradient(55% 60% at 55% 48%, rgba(37, 99, 235, 0.55), rgba(37, 99, 235, 0) 70%),
     radial-gradient(35% 40% at 75% 25%, rgba(34, 195, 238, 0.25), rgba(34, 195, 238, 0) 70%),
@@ -994,13 +994,12 @@ html[data-site-theme="light"] .fc-chips button { border-color: rgba(0, 0, 0, 0.2
 html[data-site-theme="light"] .fc-chips button:hover { border-color: rgba(0, 0, 0, 0.55); }
 html[data-site-theme="light"] .fc-chips button[aria-pressed="true"] { background: #15171c; border-color: #15171c; color: #fff; }
 html[data-site-theme="light"] .fc-arrow { color: #15171c; }
-html[data-site-theme="light"] .fc-arrow.is-right { background: linear-gradient(90deg, rgba(244, 245, 247, 0) 0%, #f4f5f7 75%); }
-html[data-site-theme="light"] .fc-arrow.is-left { background: linear-gradient(270deg, rgba(244, 245, 247, 0) 0%, #f4f5f7 75%); }
+html[data-site-theme="light"] .fc-arrow.is-right { background: linear-gradient(90deg, transparent 0%, var(--fc-surface) 75%); }
+html[data-site-theme="light"] .fc-arrow.is-left { background: linear-gradient(270deg, transparent 0%, var(--fc-surface) 75%); }
 html[data-site-theme="light"] .fc-arrow svg { background: rgba(255, 255, 255, 0.9); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15); }
 html[data-site-theme="light"] .fc-card:hover, html[data-site-theme="light"] .fc-card:focus-visible { box-shadow: 0 0 0 2px #15171c; }
 html[data-site-theme="light"] .fc-empty { border-color: rgba(0, 0, 0, 0.2); }
-html[data-site-theme="light"] .fc-poster { color: #15171c; }
-html[data-site-theme="light"] .fc-poster-number { color: #f4f5f7; -webkit-text-stroke-color: #aab0bb; }
+html[data-site-theme="light"] .fc-poster-number { color: var(--fc-surface); -webkit-text-stroke-color: #aab0bb; }
 html[data-site-theme="light"] .fc-poster:hover .fc-poster-card, html[data-site-theme="light"] .fc-poster:focus-visible .fc-poster-card { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25); }
 html[data-site-theme="light"] .fc-footer, html[data-site-theme="light"] .fc-legal { border-top-color: rgba(0, 0, 0, 0.1); }
 html[data-site-theme="light"] .fc-credit a { color: #3d424d; }
@@ -1042,3 +1041,35 @@ html[data-site-theme="light"] .fc-notice button { background: rgba(0, 0, 0, 0.07
   html[data-site-theme="light"] .fc-billboard-shade { background: linear-gradient(0deg, #f4f5f7 30%, rgba(244, 245, 247, 0.2) 70%, rgba(244, 245, 247, 0) 100%); }
 }
 html[data-site-theme="light"] .fc-eyebrow { color: color-mix(in srgb, var(--fc-eyebrow, #3ddc84) 55%, #0b0c10); }
+
+/* Modo claro com ritmo: topo azulado, destaque num painel, cada categoria numa faixa da sua cor e rodapé escuro. */
+html[data-site-theme="light"] .fc { --fc-surface: #f3f4f7; background: linear-gradient(180deg, #e4ecfb 0, #eef2f9 420px, #f3f4f7 680px); }
+html[data-site-theme="light"] .fc-header { background: none; }
+html[data-site-theme="light"] .fc-billboard-shade { display: none; }
+html[data-site-theme="light"] .fc-billboard-art {
+  top: 88px; bottom: 44px; left: max(calc(var(--fc-side) + 620px), 50%); right: var(--fc-side); width: auto; height: auto;
+  border-radius: 28px; -webkit-mask-image: none; mask-image: none;
+  box-shadow: 0 20px 40px -22px rgba(11, 29, 74, 0.55), 0 0 0 1px rgba(11, 29, 74, 0.08);
+}
+html[data-site-theme="light"] .fc-row.is-band {
+  --fc-surface: color-mix(in srgb, var(--fc-band) 13%, #f8f9fb);
+  margin-top: 0; padding: 30px 0 10px; background: var(--fc-surface);
+}
+html[data-site-theme="light"] .fc-row:not(.is-band) + .fc-row.is-band, html[data-site-theme="light"] .fc-chips + .fc-row.is-band { margin-top: 40px; }
+html[data-site-theme="light"] .fc-row.is-band + .fc-row:not(.is-band) { margin-top: 40px; }
+html[data-site-theme="light"] #trilha.is-band { --fc-surface: #ffffff; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 -1px 0 rgba(0, 0, 0, 0.06); }
+html[data-site-theme="light"] .fc-row.is-band .fc-row-head h2 { display: inline-flex; align-items: center; gap: 10px; }
+html[data-site-theme="light"] .fc-row.is-band:not(#trilha) .fc-row-head h2::before {
+  content: ""; width: 10px; height: 10px; border-radius: 3px; background: color-mix(in srgb, var(--fc-band) 70%, #0b0c10);
+}
+html[data-site-theme="light"] .fc-row.is-band .fc-more { color: color-mix(in srgb, var(--fc-band) 35%, #2d3039); }
+html[data-site-theme="light"] .fc-footer { margin-top: 0; padding-top: 44px; border-top: 0; background: #0f1a33; color: #aab4c8; }
+html[data-site-theme="light"] .fc-row + .fc-footer, html[data-site-theme="light"] .fc-results + .fc-footer { margin-top: 56px; }
+html[data-site-theme="light"] .fc-footer .fc-brand { color: #fff !important; }
+html[data-site-theme="light"] .fc-footer nav a, html[data-site-theme="light"] .fc-footer .fc-reset { color: #c7d0e0; }
+html[data-site-theme="light"] .fc-footer nav a:hover, html[data-site-theme="light"] .fc-footer .fc-reset:hover { color: #fff; }
+html[data-site-theme="light"] .fc-footer .fc-legal { border-top-color: rgba(255, 255, 255, 0.12); }
+html[data-site-theme="light"] .fc-footer :focus-visible { outline-color: #8fb1ff; }
+@media (max-width: 760px) {
+  html[data-site-theme="light"] .fc-billboard-art { top: 64px; left: 16px; right: 16px; bottom: auto; height: 184px; border-radius: 22px; }
+}
