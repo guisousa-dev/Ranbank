@@ -1059,23 +1059,25 @@ html[data-site-theme="light"] .fc-footer nav a:hover, html[data-site-theme="ligh
 html[data-site-theme="light"] .fc-footer .fc-legal { border-top-color: rgba(255, 255, 255, 0.12); }
 html[data-site-theme="light"] .fc-footer :focus-visible { outline-color: #8fb1ff; }
 
-/* Destaque do modo claro: um banner azul que acompanha a margem do conteúdo, com cantos arredondados,
-   ondas circulares discretas saindo do logo e o texto em branco. Nada desfocado. */
+/* Destaque (os dois temas): um banner na cor da categoria que acompanha a margem do conteúdo, com cantos arredondados,
+   a foto do curso entrando pela direita e o texto em branco. */
 html[data-site-theme="light"] .fc { background: #f3f4f7; }
 html[data-site-theme="light"] .fc-header { background: #fff; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.07); }
-html[data-site-theme="light"] .fc-billboard-art {
+.fc .fc-billboard-shade { display: none; }
+.fc .fc-header { background: #0a0a0c; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07); }
+.fc .fc-billboard-art {
   top: 96px; bottom: 16px; left: var(--fc-side); right: var(--fc-side); width: auto; height: auto;
   border-radius: 24px; -webkit-mask-image: none; mask-image: none;
   box-shadow: 0 18px 36px -22px rgba(0, 0, 0, 0.45);
   background: var(--fc-bg, #10328f);
 }
-html[data-site-theme="light"] .fc-billboard-art .fc-billboard-img { left: 36%; width: 64%; }
-html[data-site-theme="light"] .fc-billboard-art::after {
+.fc .fc-billboard-art .fc-billboard-img { left: 36%; width: 64%; }
+.fc .fc-billboard-art::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(90deg, var(--fc-bg) 0%, var(--fc-bg) 36%, color-mix(in srgb, var(--fc-bg), transparent 100%) 62%);
 }
-html[data-site-theme="light"] .fc-billboard-copy { padding: 116px calc(var(--fc-side) + 52px) 0; max-width: calc(560px + 2 * var(--fc-side) + 104px); }
-html[data-site-theme="light"] .fc-dots { left: calc(var(--fc-side) + 36px); bottom: 34px; }
+.fc .fc-billboard-copy { padding: 116px calc(var(--fc-side) + 52px) 0; max-width: calc(560px + 2 * var(--fc-side) + 104px); }
+.fc .fc-dots { left: calc(var(--fc-side) + 36px); bottom: 34px; }
 html[data-site-theme="light"] .fc-billboard-copy h1 { color: #fff; }
 html[data-site-theme="light"] .fc-billboard-meta { color: rgba(255, 255, 255, 0.88); }
 html[data-site-theme="light"] .fc-billboard-text { color: rgba(255, 255, 255, 0.8); }
@@ -1091,10 +1093,10 @@ html[data-site-theme="light"] .fc-billboard .fc-dots button::before { background
 html[data-site-theme="light"] .fc-billboard .fc-dots button.is-on::before { background: #fff; }
 html[data-site-theme="light"] .fc-billboard :focus-visible { outline-color: #7dd3fc; }
 @media (min-width: 761px) and (max-width: 1180px) {
-  html[data-site-theme="light"] .fc-billboard-art .fc-billboard-img { left: 46%; width: 54%; }
-  html[data-site-theme="light"] .fc-billboard-art::after { background: linear-gradient(90deg, var(--fc-bg) 0%, var(--fc-bg) 46%, color-mix(in srgb, var(--fc-bg), transparent 100%) 70%); }
-  html[data-site-theme="light"] .fc-billboard-copy { max-width: 72%; }
-  html[data-site-theme="light"] .fc-billboard-copy h1, html[data-site-theme="light"] .fc-billboard-copy h1.is-long { font-size: 46px; }
+  .fc .fc-billboard-art .fc-billboard-img { left: 46%; width: 54%; }
+  .fc .fc-billboard-art::after { background: linear-gradient(90deg, var(--fc-bg) 0%, var(--fc-bg) 46%, color-mix(in srgb, var(--fc-bg), transparent 100%) 70%); }
+  .fc .fc-billboard-copy { max-width: 72%; }
+  .fc .fc-billboard-copy h1, .fc .fc-billboard-copy h1.is-long { font-size: 46px; }
 }
 .fc-mark .fc-mark-light-bg { display: none; }
 html[data-site-theme="light"] :is(.fc-header, .fc-login) .fc-mark .fc-mark-dark-bg { display: none; }
