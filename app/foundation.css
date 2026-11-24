@@ -1105,10 +1105,10 @@ html[data-site-theme="light"] :is(.fc-header, .fc-login) .fc-mark .fc-mark-light
 @media (max-width: 760px) {
   .fc-billboard { height: auto; overflow: visible; padding-bottom: 2px; }
   .fc .fc-billboard-art, .fc .fc-billboard-shade { display: none; }
-  .fc-billboard-photo { display: block; position: relative; margin: 8px 16px 0; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: var(--fc-bg, #17181c); }
+  .fc-billboard-photo { display: block; position: relative; margin: 8px 16px 0; aspect-ratio: 16 / 9; border-radius: 18px 18px 0 0; overflow: hidden; background: var(--fc-bg, #17181c); }
   .fc .fc-billboard-copy {
     position: relative; left: auto; right: auto; bottom: auto; max-width: none;
-    margin: 10px 16px 0; padding: 18px 16px 16px; border-radius: 18px;
+    margin: 0 16px; padding: 18px 16px 16px; border-radius: 0 0 18px 18px; border-top: 0;
     border: 1px solid rgba(255, 255, 255, 0.14); background: #16171b; align-items: center; text-align: center;
   }
   .fc .fc-billboard-copy h1, .fc .fc-billboard-copy h1.is-long { margin-top: 6px; font-size: 26px; line-height: 1.1; }
