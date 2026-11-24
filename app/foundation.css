@@ -544,21 +544,14 @@ body:has(.fc) .rb-noncommercial-seal { display: none; }
 .fc-player-next button { overflow: hidden; }
 .fc-player-next strong, .fc-player-next small { position: relative; z-index: 1; }
 
-/* Topo: logo do RanBank no lugar da foto */
+/* Topo: a foto do curso em destaque, sumindo no fundo à esquerda e embaixo */
 .fc-billboard-art { position: absolute; right: max(0px, calc(var(--fc-side) - 48px)); top: 0; width: min(58%, 1000px); height: 100%; overflow: hidden;
-  background:
-    radial-gradient(55% 60% at 55% 48%, rgba(37, 99, 235, 0.55), rgba(37, 99, 235, 0) 70%),
-    radial-gradient(35% 40% at 75% 25%, rgba(34, 195, 238, 0.25), rgba(34, 195, 238, 0) 70%),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 64px),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 64px),
-    #0a0f1f;
+  background: var(--fc-bg, #0a0f1f);
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 40%), linear-gradient(0deg, transparent 0%, #000 30%);
   -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent 0%, #000 40%), linear-gradient(0deg, transparent 0%, #000 30%); mask-composite: intersect; }
-.fc-billboard-logo { position: absolute; left: 56%; top: 46%; width: min(440px, 62%); height: auto; transform: translate(-50%, -50%); filter: drop-shadow(0 20px 60px rgba(37, 99, 235, 0.55)); }
 
 @media (max-width: 760px) {
   .fc-billboard-art { width: 100%; -webkit-mask-image: linear-gradient(0deg, transparent 0%, #000 60%); mask-image: linear-gradient(0deg, transparent 0%, #000 60%); }
-  .fc-billboard-logo { left: 50%; top: 30%; width: min(240px, 60%); }
   .fc-billboard-copy h1.is-long { font-size: 28px; }
   .fc-card-title.is-long { font-size: 14px; }
   .fc-poster { width: 228px; }
@@ -1071,23 +1064,21 @@ html[data-site-theme="light"] .fc-footer :focus-visible { outline-color: #8fb1ff
 html[data-site-theme="light"] .fc { background: #f3f4f7; }
 html[data-site-theme="light"] .fc-header { background: #fff; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.07); }
 html[data-site-theme="light"] .fc-billboard-art {
-  --wave: rgba(255, 255, 255, 0.09);
   top: 96px; bottom: 16px; left: var(--fc-side); right: var(--fc-side); width: auto; height: auto;
   border-radius: 24px; -webkit-mask-image: none; mask-image: none;
-  box-shadow: 0 18px 36px -22px rgba(8, 26, 74, 0.6);
-  background:
-    radial-gradient(circle at calc(100% - 230px) 50%, rgba(56, 189, 248, 0.3), rgba(56, 189, 248, 0) 260px),
-    radial-gradient(circle at calc(100% - 230px) 50%, transparent 0 299px, var(--wave) 300px 301.5px, transparent 302.5px),
-    radial-gradient(circle at calc(100% - 230px) 50%, transparent 0 429px, var(--wave) 430px 431.5px, transparent 432.5px),
-    radial-gradient(circle at calc(100% - 230px) 50%, transparent 0 569px, rgba(255, 255, 255, 0.06) 570px 571.5px, transparent 572.5px),
-    linear-gradient(115deg, #0a1f5c 0%, #10328f 55%, #1a4fd0 100%);
+  box-shadow: 0 18px 36px -22px rgba(0, 0, 0, 0.45);
+  background: var(--fc-bg, #10328f);
 }
-html[data-site-theme="light"] .fc-billboard-logo { left: calc(100% - 230px); width: min(380px, 30%); }
+html[data-site-theme="light"] .fc-billboard-art .fc-billboard-img { left: 36%; width: 64%; }
+html[data-site-theme="light"] .fc-billboard-art::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, var(--fc-bg) 0%, var(--fc-bg) 36%, color-mix(in srgb, var(--fc-bg), transparent 100%) 62%);
+}
 html[data-site-theme="light"] .fc-billboard-copy { padding: 116px calc(var(--fc-side) + 52px) 0; max-width: calc(560px + 2 * var(--fc-side) + 104px); }
 html[data-site-theme="light"] .fc-dots { left: calc(var(--fc-side) + 36px); bottom: 34px; }
 html[data-site-theme="light"] .fc-billboard-copy h1 { color: #fff; }
-html[data-site-theme="light"] .fc-billboard-meta { color: #dbe5ff; }
-html[data-site-theme="light"] .fc-billboard-text { color: #c9d6f5; }
+html[data-site-theme="light"] .fc-billboard-meta { color: rgba(255, 255, 255, 0.88); }
+html[data-site-theme="light"] .fc-billboard-text { color: rgba(255, 255, 255, 0.8); }
 html[data-site-theme="light"] .fc-billboard .fc-eyebrow { color: color-mix(in srgb, var(--fc-eyebrow, #3ddc84) 80%, #fff); }
 html[data-site-theme="light"] .fc-billboard .fc-btn-light { background: #fff; color: #0c0e12 !important; }
 html[data-site-theme="light"] .fc-billboard .fc-btn-light:hover { background: #e3e8f5; }
@@ -1100,13 +1091,9 @@ html[data-site-theme="light"] .fc-billboard .fc-dots button::before { background
 html[data-site-theme="light"] .fc-billboard .fc-dots button.is-on::before { background: #fff; }
 html[data-site-theme="light"] .fc-billboard :focus-visible { outline-color: #7dd3fc; }
 @media (min-width: 761px) and (max-width: 1180px) {
-  html[data-site-theme="light"] .fc-billboard-art { background:
-    radial-gradient(circle at calc(100% - 140px) 50%, rgba(56, 189, 248, 0.3), rgba(56, 189, 248, 0) 180px),
-    radial-gradient(circle at calc(100% - 140px) 50%, transparent 0 209px, rgba(255, 255, 255, 0.09) 210px 211.5px, transparent 212.5px),
-    radial-gradient(circle at calc(100% - 140px) 50%, transparent 0 309px, rgba(255, 255, 255, 0.07) 310px 311.5px, transparent 312.5px),
-    linear-gradient(115deg, #0a1f5c 0%, #10328f 55%, #1a4fd0 100%); }
-  html[data-site-theme="light"] .fc-billboard-logo { left: calc(100% - 140px); width: 200px; }
-  html[data-site-theme="light"] .fc-billboard-copy { max-width: 64%; }
+  html[data-site-theme="light"] .fc-billboard-art .fc-billboard-img { left: 46%; width: 54%; }
+  html[data-site-theme="light"] .fc-billboard-art::after { background: linear-gradient(90deg, var(--fc-bg) 0%, var(--fc-bg) 46%, color-mix(in srgb, var(--fc-bg), transparent 100%) 70%); }
+  html[data-site-theme="light"] .fc-billboard-copy { max-width: 72%; }
   html[data-site-theme="light"] .fc-billboard-copy h1, html[data-site-theme="light"] .fc-billboard-copy h1.is-long { font-size: 46px; }
 }
 .fc-mark .fc-mark-light-bg { display: none; }

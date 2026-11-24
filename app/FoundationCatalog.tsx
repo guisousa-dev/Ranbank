@@ -1339,9 +1339,9 @@ export default function FoundationCatalog() {
     <div className="fc" id="inicio" ref={rootRef}>
       <a className="fc-skip" href="#cursos">Pular para os cursos</a>
 
-      <section className="fc-billboard" aria-labelledby="fc-featured-title">
+      <section className="fc-billboard" aria-labelledby="fc-featured-title" style={cardStyle(featured)}>
         <div className="fc-billboard-art" aria-hidden="true">
-          <img className="fc-billboard-logo" src="/ranbank-logo.svg" alt="" />
+          <CoursePhoto key={featured.id} course={featured} className="fc-billboard-img" />
         </div>
         <div className="fc-billboard-shade" aria-hidden="true" />
 
