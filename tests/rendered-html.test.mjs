@@ -454,6 +454,9 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   const notebookCss = await readFile(new URL("../app/foundation-notebook.css", import.meta.url), "utf8");
   assert.match(catalog, /<NotebookCover/);
   assert.match(catalog, /className="nb-tabs" aria-label="Módulos do curso"/);
+  // O quiz de cada módulo é uma aba entre os módulos, não um item dentro da aula.
+  assert.match(catalog, /className="is-quiz"[^>]*aria-current=\{moduleQuiz === itemIndex/);
+  assert.doesNotMatch(catalog, /className="nb-lessons"[^]{0,900}is-quiz/);
   assert.match(catalog, /useRuledPaper\(pageRef, pageKey\)/);
   assert.ok(!notebook.includes("fetch("), "o caderno não envia nada");
   assert.match(notebook, /localStorage\.setItem\(storageKey\(courseId\)/);
@@ -501,9 +504,17 @@ test("warns that the bank is fictional and switches themes with a circle from th
   assert.match(layout, /SITE_THEME_BOOT/);
   assert.match(theme, /startViewTransition/);
   assert.match(theme, /prefers-reduced-motion: reduce/);
-  assert.match(site, /switchThemeFrom\(event/);
+  const themeButton = await readFile(new URL("../app/SiteThemeButton.tsx", import.meta.url), "utf8");
+  const foundationCss = await readFile(new URL("../app/foundation.css", import.meta.url), "utf8");
+  assert.match(themeButton, /switchThemeFrom\(event/);
+  assert.match(site, /<SiteThemeButton \/>/);
   assert.match(bank, /switchThemeFrom\(event/);
   assert.match(siteCss, /html\[data-site-theme="light"\] \{/);
+  // A Fundação tem o mesmo botão no catálogo e dentro do caderno, e o catálogo também fica claro.
+  const foundationCatalog = await readFile(new URL("../app/FoundationCatalog.tsx", import.meta.url), "utf8");
+  assert.match(foundationCatalog, /<SiteThemeButton className="fc-icon-btn" \/>/);
+  assert.match(foundationCatalog, /<SiteThemeButton className="fc-player-back nb-theme" \/>/);
+  assert.match(foundationCss, /html\[data-site-theme="light"\] \.fc \{/);
 });
 
 test("shows a simple, working copy of the bank app at the top of the site", async () => {

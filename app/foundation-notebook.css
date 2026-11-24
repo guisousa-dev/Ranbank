@@ -32,7 +32,7 @@ html[data-site-theme="light"] .fc-lesson.nb-desk {
   --nb-desk: color-mix(in srgb, var(--nb-cover) 18%, #e7e2d7);
   --nb-paper: #fbf7ee;
   --nb-paper-edge: #e9e1d0;
-  --nb-rule: #d3dceb;
+  --nb-rule: #bcc0c8;
   --nb-margin: color-mix(in srgb, var(--nb-ink) 38%, transparent);
   --nb-text: #2a2b31;
   --nb-muted: #62666f;
@@ -65,6 +65,7 @@ html[data-site-theme="light"] .fc-lesson.nb-desk .fc-lesson-top { background: co
 html[data-site-theme="light"] .fc-lesson.nb-desk .fc-player-back { background: rgba(0, 0, 0, 0.07); color: #24252b; }
 html[data-site-theme="light"] .fc-lesson.nb-desk .fc-player-back:hover { background: rgba(0, 0, 0, 0.12); }
 html[data-site-theme="light"] .fc-lesson.nb-desk .fc-player-top small { color: #55585f; }
+.fc-lesson.nb-desk .nb-theme { width: 44px; padding: 0; justify-content: center; margin-left: auto; flex: none; }
 
 .nb-scroll { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; padding: 28px 20px 72px; }
 .nb { position: relative; max-width: 880px; margin: 0 auto; }
@@ -138,6 +139,7 @@ html[data-site-theme="light"] .fc-lesson.nb-desk .fc-player-top small { color: #
 .nb-tabs button[aria-current="page"] { background: var(--nb-paper); opacity: 1; transform: none; }
 .nb-tabs button[aria-current="page"] span { color: var(--nb-accent); }
 .nb-tabs .is-test { margin-left: auto; flex-basis: 120px; background: color-mix(in srgb, var(--nb-accent) 30%, var(--nb-tab)); }
+.nb-tabs .is-quiz { flex: 0 0 auto; min-width: 0; padding-inline: 12px; background: color-mix(in srgb, var(--nb-accent) 18%, var(--nb-tab)); }
 
 /* Folha */
 .nb-book { position: relative; }
@@ -358,6 +360,8 @@ html[data-site-theme="light"] .nb-page .fc-box.is-atencao { --box: #9a6408; }
 .nb-activity .nb-muted { margin-top: 10px; font-size: 14px; }
 .nb-recap li { font-family: var(--font-hand), "Segoe Print", cursive; font-size: 25px; color: var(--nb-text); }
 .nb-quiz > p { color: var(--nb-muted); }
+.nb-quiz-call { display: grid; justify-items: start; gap: 8px; }
+.nb-quiz-call p { margin: 0; }
 .nb-files a { color: var(--nb-accent); }
 
 /* Avisar erro e ouvir */

@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element -- Vinext serves the local images directly. */
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { CATEGORIES, COURSES, PHOTO_CREDITS, STARTER_PATH, categoryOf, courseById, courseImage, hasLessons, hasLongWord, partsOf, sharedTags, similarCourses } from "./foundation-courses";
 import type { CategoryId, Course } from "./foundation-courses";
@@ -13,6 +13,7 @@ import { LessonListen, LessonReport } from "./FoundationLessonExtras";
 import { CheckCard, ModuleQuizCard, NOTEBOOK_TOOLS, NotebookCover, NotebookDesk, NotebookProvider, PostIts, SortCard, WriteField, useRuledPaper } from "./FoundationNotebook";
 import { CategoryGlyph, PlayGlyph } from "./FoundationIcons";
 import { Mark } from "./FoundationBadge";
+import SiteThemeButton from "./SiteThemeButton";
 
 /*
  * Site da Fundação RanBank: catálogo de cursos, no jeito de um app de streaming.
@@ -547,6 +548,7 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
   const [finished, setFinished] = useState(false);
   const [challenge, setChallenge] = useState(false);
   const [soon, setSoon] = useState<number | null>(null);
+  const [moduleQuiz, setModuleQuiz] = useState<number | null>(null);
   const [cover, setCover] = useState(true);
   const [opening, setOpening] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -569,7 +571,7 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
   }, [index]);
 
   // A cada folha nova: volta para o topo e leva o foco ao título.
-  const pageKey = cover ? "capa" : challenge ? "prova" : finished ? "fim" : soon !== null ? `modulo-${soon}` : lessons[index].lesson.id;
+  const pageKey = cover ? "capa" : challenge ? "prova" : finished ? "fim" : soon !== null ? `modulo-${soon}` : moduleQuiz !== null ? `quiz-${moduleQuiz}` : lessons[index].lesson.id;
   useEffect(() => {
     mainRef.current?.scrollTo({ top: 0 });
     titleRef.current?.focus();
@@ -581,7 +583,7 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
     const before = document.title;
     return () => { document.title = before; };
   }, []);
-  const tabTitle = `${challenge ? "Prova" : finished ? "Curso concluído" : lessons[index].lesson.title} · ${course.title} | Fundação RanBank`;
+  const tabTitle = `${challenge ? "Prova" : finished ? "Curso concluído" : moduleQuiz !== null ? `Quiz do módulo ${moduleQuiz + 1}` : lessons[index].lesson.title} · ${course.title} | Fundação RanBank`;
   useEffect(() => { document.title = tabTitle; }, [tabTitle]);
 
   // Quanto da aula atual já foi lido (pela rolagem), de 10 em 10%.
@@ -593,7 +595,7 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
     if (pct > current.pct) latest.current.onSave({ ...current, part: index, pct, updatedAt: new Date().toISOString() });
   };
 
-  const go = (next: number) => { setFinished(false); setChallenge(false); setSoon(null); setIndex(next); };
+  const go = (next: number) => { setFinished(false); setChallenge(false); setSoon(null); setModuleQuiz(null); setIndex(next); };
   const isDone = (lessonIndex: number) => partDone(course, progress, lessonIndex);
   const missing = lessons.map((_, lessonIndex) => lessonIndex).filter((lessonIndex) => lessonIndex !== index && !isDone(lessonIndex));
   const isLast = index === lessons.length - 1;
@@ -618,11 +620,12 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
   // Prova: só nos cursos que têm perguntas, e liberada depois de todas as aulas.
   const quiz = content.quiz;
   const allDone = lessons.every((_, lessonIndex) => isDone(lessonIndex));
-  const openChallenge = () => { setFinished(false); setSoon(null); setChallenge(true); };
+  const openChallenge = () => { setFinished(false); setSoon(null); setModuleQuiz(null); setChallenge(true); };
+  const openModuleQuiz = (target: number) => { setFinished(false); setSoon(null); setChallenge(false); setModuleQuiz(target); };
   const openModule = (target: number) => {
     const first = lessons.findIndex((entry) => entry.moduleIndex === target);
     if (first >= 0) { go(moduleIndex === target ? index : first); return; }
-    setFinished(false); setChallenge(false); setSoon(target);
+    setFinished(false); setChallenge(false); setModuleQuiz(null); setSoon(target);
   };
   const saveQuiz = (result: QuizResult) => {
     const current = latest.current.progress;
@@ -634,7 +637,8 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
     window.setTimeout(() => { setCover(false); setOpening(false); }, 520);
   };
   const started = Boolean(progress?.doneLessons?.length || (progress?.part ?? 0) > 0);
-  const activeTab = challenge ? -1 : soon ?? moduleIndex;
+  const activeTab = challenge || moduleQuiz !== null ? -1 : soon ?? moduleIndex;
+  const quizModule = moduleQuiz !== null ? content.modules[moduleQuiz] : undefined;
 
   return (
     <div className={`fc-lesson nb-desk ${content.cover?.desk ? `is-${content.cover.desk}` : ""}`} role="dialog" aria-modal="true" aria-labelledby="fc-lesson-title" style={notebookStyle(course)}>
@@ -645,7 +649,8 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
             Voltar
           </button>
-          <span><strong>{course.title}</strong><small>{cover ? "Capa do caderno" : challenge ? "Prova" : `Aula ${index + 1} de ${lessons.length}`}</small></span>
+          <span><strong>{course.title}</strong><small>{cover ? "Capa do caderno" : challenge ? "Prova" : moduleQuiz !== null ? `Quiz do módulo ${moduleQuiz + 1}` : `Aula ${index + 1} de ${lessons.length}`}</small></span>
+          <SiteThemeButton className="fc-player-back nb-theme" />
         </div>
 
         <div className="nb-scroll" ref={mainRef} onScroll={onScroll}>
@@ -665,11 +670,19 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
             <div className="nb">
               <nav className="nb-tabs" aria-label="Módulos do curso">
                 {content.modules.map((item, itemIndex) => (
-                  <button key={item.title} type="button" style={{ "--i": itemIndex } as CSSProperties} aria-current={activeTab === itemIndex ? "page" : undefined} onClick={() => openModule(itemIndex)}>
-                    <span>Módulo {itemIndex + 1}</span>
-                    <b>{item.title}</b>
-                    {item.lessons.length === 0 && <span className="fc-sr"> (em preparação)</span>}
-                  </button>
+                  <Fragment key={item.title}>
+                    <button type="button" style={{ "--i": itemIndex } as CSSProperties} aria-current={activeTab === itemIndex ? "page" : undefined} onClick={() => openModule(itemIndex)}>
+                      <span>Módulo {itemIndex + 1}</span>
+                      <b>{item.title}</b>
+                      {item.lessons.length === 0 && <span className="fc-sr"> (em preparação)</span>}
+                    </button>
+                    {item.quiz && (
+                      <button type="button" className="is-quiz" style={{ "--i": itemIndex } as CSSProperties} aria-current={moduleQuiz === itemIndex ? "page" : undefined} onClick={() => openModuleQuiz(itemIndex)}>
+                        <span>Quiz</span>
+                        <b>Módulo {itemIndex + 1}</b>
+                      </button>
+                    )}
+                  </Fragment>
                 ))}
                 <button type="button" className="is-test" aria-current={challenge ? "page" : undefined} onClick={openChallenge}>
                   <span>Fim do curso</span>
@@ -734,6 +747,15 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
                       <p>Estas folhas ainda estão em branco: o módulo está em preparação. Assim que ficar pronto, as aulas aparecem aqui.</p>
                       <div><button type="button" className="nb-btn" onClick={() => go(index)}>Voltar para a aula {index + 1}</button></div>
                     </div>
+                  ) : moduleQuiz !== null && quizModule?.quiz ? (
+                    <div className="nb-article" data-ruled>
+                      <p className="nb-eyebrow" data-tight>Módulo {moduleQuiz + 1} · {quizModule.title}</p>
+                      <h2 id="fc-lesson-title" ref={titleRef} tabIndex={-1} data-tight>Quiz do módulo</h2>
+                      <ModuleQuizCard quiz={quizModule.quiz} moduleTitle={quizModule.title} />
+                      <div className="nb-nav">
+                        <button type="button" className="nb-btn is-soft" onClick={() => go(index)}>Voltar para a aula {index + 1}</button>
+                      </div>
+                    </div>
                   ) : (
                     <>
                       <nav className="nb-lessons" aria-label={`Aulas do módulo ${moduleIndex + 1}`}>
@@ -797,7 +819,13 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
                           <ul>{lesson.recap.map((item) => <li key={item}>{item}</li>)}</ul>
                         </section>
 
-                        {lastOfModule && module.quiz && <ModuleQuizCard quiz={module.quiz} moduleIndex={moduleIndex} moduleTitle={module.title} />}
+                        {lastOfModule && module.quiz && (
+                          <div className="nb-pasted nb-quiz-call">
+                            <p className="nb-tag">Fim do módulo {moduleIndex + 1}</p>
+                            <p>Confira o que ficou: {module.quiz.questions.length} perguntas sobre o módulo, com a explicação na hora.</p>
+                            <button type="button" className="nb-btn" onClick={() => openModuleQuiz(moduleIndex)}>Fazer o quiz do módulo</button>
+                          </div>
+                        )}
 
                         {lesson.files && lesson.files.length > 0 && (
                           <section className="nb-pasted nb-files" aria-labelledby="fc-files">
@@ -1338,6 +1366,7 @@ export default function FoundationCatalog() {
             <button type="button" className="fc-icon-btn" aria-label={searching ? "Fechar busca" : "Buscar cursos"} aria-expanded={searching} onClick={() => { setSearching(!searching); if (searching) setQuery(""); }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true">{searching ? <path d="M6 6l12 12M18 6 6 18" /> : <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></>}</svg>
             </button>
+            <SiteThemeButton className="fc-icon-btn" />
             <Link href="/banco" className="fc-back">Voltar ao RanBank</Link>
             {account
               ? <button type="button" className="fc-account" onClick={() => setProfileOpen(true)} aria-label={`Abrir o perfil de ${account.name}`}><span className="fc-account-avatar"><Avatar account={account} size={36} /></span><span className="fc-account-name">{account.name.split(" ")[0]}</span></button>
@@ -1346,7 +1375,7 @@ export default function FoundationCatalog() {
         </header>
 
         <div className="fc-billboard-copy">
-          <span className="fc-eyebrow" style={{ color: featuredCategory.accent }}>Comece por aqui · {featuredCategory.name}</span>
+          <span className="fc-eyebrow" style={{ "--fc-eyebrow": featuredCategory.accent } as CSSProperties}>Comece por aqui · {featuredCategory.name}</span>
           <h1 id="fc-featured-title" className={longTitle(featured)}>{featured.title}</h1>
           <p className="fc-billboard-meta">Passo {featuredIndex + 1} de {starter.length} da trilha</p>
           <p className="fc-billboard-text">{featured.hook}</p>

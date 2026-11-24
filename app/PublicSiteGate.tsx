@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- Vinext serves the local RanBank brand image directly. */
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { AnchorHTMLAttributes, CSSProperties, ReactNode } from "react";
 import { Icon } from "./SiteIcons";
 import RaniAssistant, { openRani } from "./RaniAssistant";
@@ -12,8 +12,7 @@ import { CategoryGlyph, PlayGlyph } from "./FoundationIcons";
 import type { IconName } from "./SiteIcons";
 import { FictionCard } from "./FictionNotice";
 import HeroBankPhone from "./HeroBankPhone";
-import { saveTheme, switchThemeFrom } from "./theme-switch";
-import type { ThemeName } from "./theme-switch";
+import SiteThemeButton from "./SiteThemeButton";
 
 // Vídeo de fundo da abertura. Usa só os primeiros segundos: depois entra a arte antiga do cartão, com outra bandeira.
 const HERO_CLIP_END = 3.5;
@@ -168,28 +167,6 @@ export function PublicHeader(props: { dark?: boolean }) {
       </header>
       <FictionCard />
     </>
-  );
-}
-
-// Tema do site: lido do atributo data-site-theme da página (o script do layout já aplica o tema salvo).
-const subscribeSiteTheme = (onChange: () => void) => {
-  const observer = new MutationObserver(onChange);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-site-theme"] });
-  return () => observer.disconnect();
-};
-const currentSiteTheme = (): ThemeName => (document.documentElement.dataset.siteTheme === "light" ? "light" : "dark");
-
-function SiteThemeButton() {
-  const theme = useSyncExternalStore(subscribeSiteTheme, currentSiteTheme, () => "dark" as ThemeName);
-  const next: ThemeName = theme === "dark" ? "light" : "dark";
-  return (
-    <button
-      type="button" className="rs-theme-toggle"
-      aria-label={next === "light" ? "Ativar modo claro" : "Ativar modo escuro"} title={next === "light" ? "Modo claro" : "Modo escuro"}
-      onClick={(event) => switchThemeFrom(event, () => { document.documentElement.dataset.siteTheme = next; saveTheme(next); })}
-    >
-      <Icon name={theme === "dark" ? "sun" : "moon"} size={22} />
-    </button>
   );
 }
 

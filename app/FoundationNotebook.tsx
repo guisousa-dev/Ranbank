@@ -337,8 +337,8 @@ export function PostIts({ cards }: { cards: Array<{ title: string; text: string;
   );
 }
 
-/** Quiz do módulo: cada resposta trava e já mostra a explicação. No fim, o placar e o que fazer. */
-export function ModuleQuizCard({ quiz, moduleIndex, moduleTitle }: { quiz: ModuleQuiz; moduleIndex: number; moduleTitle: string }) {
+/** Quiz do módulo (página própria, no alto da folha): cada resposta trava e já mostra a explicação. No fim, o placar. */
+export function ModuleQuizCard({ quiz, moduleTitle }: { quiz: ModuleQuiz; moduleTitle: string }) {
   const { data, setAnswer, update, earn } = useNotebook();
   const baseId = useId();
   const key = `quiz:${moduleTitle}`;
@@ -353,8 +353,7 @@ export function ModuleQuizCard({ quiz, moduleIndex, moduleTitle }: { quiz: Modul
   };
   const band = hits >= 8 ? "Você domina o módulo." : hits >= 5 ? "Bom caminho. Releia as aulas indicadas nas questões que errou." : "Vale rever as três aulas antes de seguir.";
   return (
-    <section className="nb-quiz" aria-labelledby={`${baseId}-title`} data-ruled>
-      <h3 id={`${baseId}-title`} data-tight>Quiz do Módulo {moduleIndex + 1}</h3>
+    <div className="nb-quiz" data-ruled>
       <p>{total} perguntas sobre {moduleTitle.toLowerCase()}. A resposta e a explicação aparecem na hora.</p>
       {quiz.questions.map((question, index) => {
         const chosen = picks[index];
@@ -379,7 +378,7 @@ export function ModuleQuizCard({ quiz, moduleIndex, moduleTitle }: { quiz: Modul
           </>
         )}
       </div>
-    </section>
+    </div>
   );
 }
 
