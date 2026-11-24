@@ -1374,6 +1374,8 @@ export default function FoundationCatalog() {
           </div>
         </header>
 
+        <div className="fc-billboard-photo" aria-hidden="true"><CoursePhoto key={featured.id} course={featured} /></div>
+
         <div className="fc-billboard-copy">
           <span className="fc-eyebrow" style={{ "--fc-eyebrow": featuredCategory.accent } as CSSProperties}>Comece por aqui · {featuredCategory.name}</span>
           <h1 id="fc-featured-title" className={longTitle(featured)}>{featured.title}</h1>

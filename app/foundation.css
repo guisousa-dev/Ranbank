@@ -1109,16 +1109,38 @@ html[data-site-theme="light"] .fc-billboard :focus-visible { outline-color: #7dd
   html[data-site-theme="light"] .fc-billboard-copy { max-width: 64%; }
   html[data-site-theme="light"] .fc-billboard-copy h1, html[data-site-theme="light"] .fc-billboard-copy h1.is-long { font-size: 46px; }
 }
-@media (max-width: 760px) {
-  html[data-site-theme="light"] .fc-billboard-art { top: 64px; bottom: 8px; left: 12px; right: 12px; border-radius: 20px; background:
-    radial-gradient(circle at 50% 22%, rgba(56, 189, 248, 0.3), rgba(56, 189, 248, 0) 150px),
-    radial-gradient(circle at 50% 22%, transparent 0 159px, rgba(255, 255, 255, 0.09) 160px 161.5px, transparent 162.5px),
-    radial-gradient(circle at 50% 22%, transparent 0 239px, rgba(255, 255, 255, 0.07) 240px 241.5px, transparent 242.5px),
-    linear-gradient(180deg, #1a4fd0 0%, #10328f 50%, #0a1f5c 100%); }
-  html[data-site-theme="light"] .fc-billboard-logo { left: 50%; top: 22%; width: min(200px, 56%); }
-  html[data-site-theme="light"] .fc-billboard-copy { left: 28px; right: 28px; bottom: 44px; padding: 0; max-width: none; }
-  html[data-site-theme="light"] .fc-dots { left: 50%; bottom: 10px; }
-}
 .fc-mark .fc-mark-light-bg { display: none; }
 html[data-site-theme="light"] :is(.fc-header, .fc-login) .fc-mark .fc-mark-dark-bg { display: none; }
 html[data-site-theme="light"] :is(.fc-header, .fc-login) .fc-mark .fc-mark-light-bg { display: block; }
+
+/* Destaque no celular (os dois temas): a foto do curso em cima, com cantos arredondados, e um cartão com o texto embaixo. */
+.fc-billboard-photo { display: none; }
+@media (max-width: 760px) {
+  .fc-billboard { height: auto; overflow: visible; padding-bottom: 2px; }
+  .fc .fc-billboard-art, .fc .fc-billboard-shade { display: none; }
+  .fc-billboard-photo { display: block; position: relative; margin: 8px 16px 0; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: var(--fc-bg, #17181c); }
+  .fc .fc-billboard-copy {
+    position: relative; left: auto; right: auto; bottom: auto; max-width: none;
+    margin: 10px 16px 0; padding: 18px 16px 16px; border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.14); background: #16171b; align-items: center; text-align: center;
+  }
+  .fc .fc-billboard-copy h1, .fc .fc-billboard-copy h1.is-long { margin-top: 6px; font-size: 26px; line-height: 1.1; }
+  .fc .fc-billboard-meta { margin-top: 6px !important; font-size: 13px; }
+  .fc .fc-billboard-text { display: block; margin-top: 6px !important; font-size: 15px; line-height: 1.45; }
+  .fc .fc-billboard-actions { margin-top: 14px; grid-template-columns: minmax(0, 1fr) 48px; }
+  .fc .fc-billboard-actions > :first-child { grid-column: 1 / -1; }
+  .fc .fc-dots { position: static; transform: none; justify-content: center; margin: 2px 0 0; }
+
+  html[data-site-theme="light"] .fc .fc-billboard-copy { padding: 18px 16px 16px; max-width: none; background: #fff; border-color: rgba(0, 0, 0, 0.08); box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.45); }
+  html[data-site-theme="light"] .fc .fc-billboard-copy h1 { color: #15171c; }
+  html[data-site-theme="light"] .fc .fc-billboard-meta { color: #3d424d; }
+  html[data-site-theme="light"] .fc .fc-billboard-text { color: #4a4f5a; }
+  html[data-site-theme="light"] .fc-billboard .fc-eyebrow { color: color-mix(in srgb, var(--fc-eyebrow, #3ddc84) 55%, #0b0c10); }
+  html[data-site-theme="light"] .fc-billboard .fc-btn-light { background: #15171c; color: #fff !important; }
+  html[data-site-theme="light"] .fc-billboard .fc-btn-soft { background: rgba(0, 0, 0, 0.07); color: #15171c; }
+  html[data-site-theme="light"] .fc-billboard .fc-btn-round { border-color: rgba(0, 0, 0, 0.35); color: #15171c; }
+  html[data-site-theme="light"] .fc-billboard .fc-btn-round[aria-pressed="true"] { border-color: #13834a; color: #13834a; }
+  html[data-site-theme="light"] .fc-billboard .fc-dots button::before { background: rgba(0, 0, 0, 0.22); }
+  html[data-site-theme="light"] .fc-billboard .fc-dots button.is-on::before { background: #15171c; }
+  html[data-site-theme="light"] .fc-billboard :focus-visible { outline-color: #0b7fa3; }
+}
