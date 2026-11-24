@@ -1047,10 +1047,15 @@ html[data-site-theme="light"] .fc { --fc-surface: #f3f4f7; background: linear-gr
 html[data-site-theme="light"] .fc-header { background: none; }
 html[data-site-theme="light"] .fc-billboard-shade { display: none; }
 html[data-site-theme="light"] .fc-billboard-art {
-  top: 88px; bottom: 44px; left: max(calc(var(--fc-side) + 620px), 50%); right: var(--fc-side); width: auto; height: auto;
-  border-radius: 28px; -webkit-mask-image: none; mask-image: none;
-  box-shadow: 0 20px 40px -22px rgba(11, 29, 74, 0.55), 0 0 0 1px rgba(11, 29, 74, 0.08);
+  --hero-logo-x: calc(100% - var(--fc-side) - 230px);
+  top: 72px; left: 0; right: 0; bottom: 0; width: auto; height: auto;
+  background:
+    radial-gradient(38% 75% at var(--hero-logo-x) 50%, rgba(56, 189, 248, 0.45), rgba(56, 189, 248, 0) 70%),
+    linear-gradient(90deg, #eef3fd 0, #eef3fd calc(var(--fc-side) + 540px), #a9c2f6 calc(var(--fc-side) + 720px), #2c5fdc calc(var(--fc-side) + 900px), #12317f 78%, #0b1f55 100%);
+  -webkit-mask-image: linear-gradient(0deg, transparent 0, #000 110px), linear-gradient(180deg, transparent 0, #000 56px); -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(0deg, transparent 0, #000 110px), linear-gradient(180deg, transparent 0, #000 56px); mask-composite: intersect;
 }
+html[data-site-theme="light"] .fc-billboard-logo { left: var(--hero-logo-x); width: min(420px, 30%); filter: drop-shadow(0 18px 40px rgba(8, 20, 60, 0.45)); }
 html[data-site-theme="light"] .fc-row.is-band {
   --fc-surface: color-mix(in srgb, var(--fc-band) 13%, #f8f9fb);
   margin-top: 0; padding: 30px 0 10px; background: var(--fc-surface);
@@ -1071,5 +1076,17 @@ html[data-site-theme="light"] .fc-footer nav a:hover, html[data-site-theme="ligh
 html[data-site-theme="light"] .fc-footer .fc-legal { border-top-color: rgba(255, 255, 255, 0.12); }
 html[data-site-theme="light"] .fc-footer :focus-visible { outline-color: #8fb1ff; }
 @media (max-width: 760px) {
-  html[data-site-theme="light"] .fc-billboard-art { top: 64px; left: 16px; right: 16px; bottom: auto; height: 184px; border-radius: 22px; }
+  html[data-site-theme="light"] .fc-billboard-art { top: 56px; background: radial-gradient(70% 40% at 50% 20%, rgba(56, 189, 248, 0.45), rgba(56, 189, 248, 0) 70%), linear-gradient(180deg, #0b1f55 0, #12317f 26%, #2c5fdc 36%, #a9c2f6 45%, #eef3fd 53%); -webkit-mask-image: none; mask-image: none; }
+  html[data-site-theme="light"] .fc-billboard-logo { left: 50%; top: 16%; width: min(230px, 64%); }
+}
+@media (min-width: 761px) and (max-width: 1180px) {
+  html[data-site-theme="light"] .fc-billboard-art {
+    --hero-logo-x: calc(100% - 150px);
+    background:
+      radial-gradient(40% 75% at var(--hero-logo-x) 50%, rgba(56, 189, 248, 0.45), rgba(56, 189, 248, 0) 70%),
+      linear-gradient(90deg, #eef3fd 0, #eef3fd 56%, #a9c2f6 65%, #2c5fdc 74%, #0b1f55 90%);
+  }
+  html[data-site-theme="light"] .fc-billboard-logo { width: 230px; }
+  html[data-site-theme="light"] .fc-billboard-copy { max-width: 60%; }
+  html[data-site-theme="light"] .fc-billboard-copy h1, html[data-site-theme="light"] .fc-billboard-copy h1.is-long { font-size: 50px; }
 }
