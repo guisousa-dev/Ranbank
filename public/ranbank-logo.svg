@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254" width="1254" height="1254" role="img" aria-label="RanBank">
+  <defs>
+    <linearGradient id="rb-r" x1="840" y1="250" x2="470" y2="700" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00dcf2"/>
+      <stop offset="0.38" stop-color="#0a8dff"/>
+      <stop offset="0.78" stop-color="#0861f2"/>
+      <stop offset="1" stop-color="#0a4ad8"/>
+    </linearGradient>
+    <linearGradient id="rb-fold" x1="610" y1="470" x2="790" y2="600" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#03165c" stop-opacity="0"/>
+      <stop offset="0.55" stop-color="#03165c" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#03165c" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="rb-stem" x1="410" y1="420" x2="520" y2="700" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1a86ff"/>
+      <stop offset="0.6" stop-color="#0a55e0"/>
+      <stop offset="1" stop-color="#062c8a"/>
+    </linearGradient>
+    <linearGradient id="rb-bank" x1="560" y1="0" x2="1070" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2f8cff"/>
+      <stop offset="1" stop-color="#25d8f2"/>
+    </linearGradient>
+  </defs>
+
+  <!-- R: perna separada à esquerda e o corpo com a barriga e a perna diagonal -->
+  <path fill="url(#rb-stem)" d="M400 522 L486 414 Q500 398 500 420 V695 H400 Z"/>
+  <path fill="url(#rb-r)" d="M445 248 H690 A152 152 0 0 1 720 549 L806 682 Q815 695 800 695 H704 Q694 695 688 687 L530 480 H690 A57.5 57.5 0 0 0 690 365 H520 Z"/>
+  <path fill="url(#rb-fold)" d="M445 248 H690 A152 152 0 0 1 720 549 L806 682 Q815 695 800 695 H704 Q694 695 688 687 L530 480 H690 A57.5 57.5 0 0 0 690 365 H520 Z"/>
+
+  <!-- ranbank -->
+  <g fill="none" stroke-width="25" stroke-linejoin="round" transform="translate(14 0)">
+    <g stroke="#ffffff">
+      <path d="M200 905 V853 A55 55 0 0 1 255 798 H272"/>
+      <circle cx="345" cy="845" r="47"/>
+      <path d="M392 798 V905"/>
+      <path d="M440 905 V845 A46 46 0 0 1 532 845 V905"/>
+    </g>
+    <g stroke="url(#rb-bank)">
+      <path d="M575 740 V905"/>
+      <circle cx="622" cy="845" r="47"/>
+      <circle cx="722" cy="845" r="47"/>
+      <path d="M769 798 V905"/>
+      <path d="M818 905 V845 A45 45 0 0 1 908 845 V905"/>
+      <path d="M954 740 V905"/>
+      <path d="M1046 792 L968 852 L1052 905"/>
+    </g>
+  </g>
+
+  <!-- Frase -->
+  <g fill="#19c3f0">
+    <rect x="180" y="952" width="72" height="4" rx="2"/>
+    <rect x="1030" y="952" width="72" height="4" rx="2"/>
+  </g>
+  <text x="641" y="966" text-anchor="middle" fill="#dce8ff" font-family="'Segoe UI', Arial, Helvetica, sans-serif" font-size="30" font-weight="600" letter-spacing="7">SEU FUTURO. NOSSO COMPROMISSO.</text>
+</svg>

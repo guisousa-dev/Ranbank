@@ -1119,3 +1119,6 @@ html[data-site-theme="light"] .fc-billboard :focus-visible { outline-color: #7dd
   html[data-site-theme="light"] .fc-billboard-copy { left: 28px; right: 28px; bottom: 44px; padding: 0; max-width: none; }
   html[data-site-theme="light"] .fc-dots { left: 50%; bottom: 10px; }
 }
+.fc-mark .fc-mark-light-bg { display: none; }
+html[data-site-theme="light"] :is(.fc-header, .fc-login) .fc-mark .fc-mark-dark-bg { display: none; }
+html[data-site-theme="light"] :is(.fc-header, .fc-login) .fc-mark .fc-mark-light-bg { display: block; }

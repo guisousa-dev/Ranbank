@@ -2,7 +2,12 @@
 
 /* Peças da Fundação usadas no catálogo e na página /fundacao do site do banco. */
 
-/** Só o "R" da logo do RanBank, recortado da imagem oficial (a logo não é redesenhada). */
+/** O "R" com o nome, recortado da logo em SVG. Em fundo claro (cabeçalho e login no tema claro) entra a versão com o "ran" escuro. */
 export function Mark() {
-  return <span className="fc-mark" aria-hidden="true"><img src="/ranbank-logo-transparent.png" alt="" /></span>;
+  return (
+    <span className="fc-mark" aria-hidden="true">
+      <img className="fc-mark-dark-bg" src="/ranbank-logo.svg" alt="" />
+      <img className="fc-mark-light-bg" src="/ranbank-logo-on-light.svg" alt="" />
+    </span>
+  );
 }

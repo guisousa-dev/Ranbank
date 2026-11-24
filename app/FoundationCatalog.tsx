@@ -1341,7 +1341,7 @@ export default function FoundationCatalog() {
 
       <section className="fc-billboard" aria-labelledby="fc-featured-title">
         <div className="fc-billboard-art" aria-hidden="true">
-          <img className="fc-billboard-logo" src="/ranbank-logo-transparent.png" alt="" />
+          <img className="fc-billboard-logo" src="/ranbank-logo.svg" alt="" />
         </div>
         <div className="fc-billboard-shade" aria-hidden="true" />
 
