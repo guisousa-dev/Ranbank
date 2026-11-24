@@ -1066,18 +1066,25 @@ html[data-site-theme="light"] .fc-footer nav a:hover, html[data-site-theme="ligh
 html[data-site-theme="light"] .fc-footer .fc-legal { border-top-color: rgba(255, 255, 255, 0.12); }
 html[data-site-theme="light"] .fc-footer :focus-visible { outline-color: #8fb1ff; }
 
-/* Destaque do modo claro: uma faixa azul de ponta a ponta, com bordas nítidas, logo e texto em branco. Nada desfocado. */
+/* Destaque do modo claro: um banner azul que acompanha a margem do conteúdo, com cantos arredondados,
+   ondas circulares discretas saindo do logo e o texto em branco. Nada desfocado. */
 html[data-site-theme="light"] .fc { background: #f3f4f7; }
 html[data-site-theme="light"] .fc-header { background: #fff; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.07); }
 html[data-site-theme="light"] .fc-billboard-art {
-  top: 72px; left: 0; right: 0; bottom: 0; width: auto; height: auto; -webkit-mask-image: none; mask-image: none;
+  --wave: rgba(255, 255, 255, 0.09);
+  top: 96px; bottom: 16px; left: var(--fc-side); right: var(--fc-side); width: auto; height: auto;
+  border-radius: 24px; -webkit-mask-image: none; mask-image: none;
+  box-shadow: 0 18px 36px -22px rgba(8, 26, 74, 0.6);
   background:
-    radial-gradient(34% 70% at calc(100% - var(--fc-side) - 230px) 50%, rgba(56, 189, 248, 0.32), rgba(56, 189, 248, 0) 70%),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 64px),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 64px),
-    linear-gradient(100deg, #081a4a 0%, #0f2f86 52%, #1a4fd0 100%);
+    radial-gradient(circle at calc(100% - 230px) 50%, rgba(56, 189, 248, 0.3), rgba(56, 189, 248, 0) 260px),
+    radial-gradient(circle at calc(100% - 230px) 50%, transparent 0 299px, var(--wave) 300px 301.5px, transparent 302.5px),
+    radial-gradient(circle at calc(100% - 230px) 50%, transparent 0 429px, var(--wave) 430px 431.5px, transparent 432.5px),
+    radial-gradient(circle at calc(100% - 230px) 50%, transparent 0 569px, rgba(255, 255, 255, 0.06) 570px 571.5px, transparent 572.5px),
+    linear-gradient(115deg, #0a1f5c 0%, #10328f 55%, #1a4fd0 100%);
 }
-html[data-site-theme="light"] .fc-billboard-logo { left: calc(100% - var(--fc-side) - 230px); width: min(420px, 30%); }
+html[data-site-theme="light"] .fc-billboard-logo { left: calc(100% - 230px); width: min(380px, 30%); }
+html[data-site-theme="light"] .fc-billboard-copy { padding: 116px calc(var(--fc-side) + 52px) 0; max-width: calc(560px + 2 * var(--fc-side) + 104px); }
+html[data-site-theme="light"] .fc-dots { left: calc(var(--fc-side) + 36px); bottom: 34px; }
 html[data-site-theme="light"] .fc-billboard-copy h1 { color: #fff; }
 html[data-site-theme="light"] .fc-billboard-meta { color: #dbe5ff; }
 html[data-site-theme="light"] .fc-billboard-text { color: #c9d6f5; }
@@ -1094,17 +1101,21 @@ html[data-site-theme="light"] .fc-billboard .fc-dots button.is-on::before { back
 html[data-site-theme="light"] .fc-billboard :focus-visible { outline-color: #7dd3fc; }
 @media (min-width: 761px) and (max-width: 1180px) {
   html[data-site-theme="light"] .fc-billboard-art { background:
-    radial-gradient(40% 70% at calc(100% - 150px) 50%, rgba(56, 189, 248, 0.32), rgba(56, 189, 248, 0) 70%),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 64px),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 64px),
-    linear-gradient(100deg, #081a4a 0%, #0f2f86 52%, #1a4fd0 100%); }
-  html[data-site-theme="light"] .fc-billboard-logo { left: calc(100% - 150px); width: 230px; }
-  html[data-site-theme="light"] .fc-billboard-copy { max-width: 60%; }
-  html[data-site-theme="light"] .fc-billboard-copy h1, html[data-site-theme="light"] .fc-billboard-copy h1.is-long { font-size: 50px; }
+    radial-gradient(circle at calc(100% - 140px) 50%, rgba(56, 189, 248, 0.3), rgba(56, 189, 248, 0) 180px),
+    radial-gradient(circle at calc(100% - 140px) 50%, transparent 0 209px, rgba(255, 255, 255, 0.09) 210px 211.5px, transparent 212.5px),
+    radial-gradient(circle at calc(100% - 140px) 50%, transparent 0 309px, rgba(255, 255, 255, 0.07) 310px 311.5px, transparent 312.5px),
+    linear-gradient(115deg, #0a1f5c 0%, #10328f 55%, #1a4fd0 100%); }
+  html[data-site-theme="light"] .fc-billboard-logo { left: calc(100% - 140px); width: 200px; }
+  html[data-site-theme="light"] .fc-billboard-copy { max-width: 64%; }
+  html[data-site-theme="light"] .fc-billboard-copy h1, html[data-site-theme="light"] .fc-billboard-copy h1.is-long { font-size: 46px; }
 }
 @media (max-width: 760px) {
-  html[data-site-theme="light"] .fc-billboard-art { top: 56px; background:
-    radial-gradient(70% 34% at 50% 18%, rgba(56, 189, 248, 0.32), rgba(56, 189, 248, 0) 70%),
-    linear-gradient(180deg, #1a4fd0 0%, #0f2f86 45%, #081a4a 100%); }
-  html[data-site-theme="light"] .fc-billboard-logo { left: 50%; top: 18%; width: min(220px, 60%); }
+  html[data-site-theme="light"] .fc-billboard-art { top: 64px; bottom: 8px; left: 12px; right: 12px; border-radius: 20px; background:
+    radial-gradient(circle at 50% 22%, rgba(56, 189, 248, 0.3), rgba(56, 189, 248, 0) 150px),
+    radial-gradient(circle at 50% 22%, transparent 0 159px, rgba(255, 255, 255, 0.09) 160px 161.5px, transparent 162.5px),
+    radial-gradient(circle at 50% 22%, transparent 0 239px, rgba(255, 255, 255, 0.07) 240px 241.5px, transparent 242.5px),
+    linear-gradient(180deg, #1a4fd0 0%, #10328f 50%, #0a1f5c 100%); }
+  html[data-site-theme="light"] .fc-billboard-logo { left: 50%; top: 22%; width: min(200px, 56%); }
+  html[data-site-theme="light"] .fc-billboard-copy { left: 28px; right: 28px; bottom: 44px; padding: 0; max-width: none; }
+  html[data-site-theme="light"] .fc-dots { left: 50%; bottom: 10px; }
 }
