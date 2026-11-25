@@ -1125,6 +1125,113 @@ function RcpRhythm() {
   );
 }
 
+/* Xadrez: treino da regra do quadrado ---------------------------------- */
+
+type SquareCase = { pawn: string; king: string; white: string; turn: "brancas" | "pretas" };
+/** Peão branco correndo para promover, rei preto tentando alcançar. O rei branco fica longe e não ajuda. */
+const SQUARE_CASES: SquareCase[] = [
+  { pawn: "c4", king: "h6", white: "a1", turn: "pretas" },
+  { pawn: "c4", king: "h6", white: "a1", turn: "brancas" },
+  { pawn: "a2", king: "h5", white: "h1", turn: "pretas" },
+  { pawn: "e4", king: "c7", white: "h1", turn: "brancas" },
+  { pawn: "f5", king: "b6", white: "h1", turn: "brancas" },
+  { pawn: "g3", king: "b4", white: "a8", turn: "brancas" },
+];
+const FILES = "abcdefgh";
+const cell = (name: string) => ({ file: FILES.indexOf(name[0]), rank: Number(name[1]) });
+
+/** Aplica a regra do quadrado: de onde o quadrado começa, até onde vai e se o rei entra nele. */
+function squareOf(item: SquareCase) {
+  const pawn = cell(item.pawn);
+  const king = cell(item.king);
+  const fromStart = pawn.rank === 2;
+  const start = (fromStart ? 3 : pawn.rank) + (item.turn === "brancas" ? 1 : 0);
+  const side = 8 - start;
+  const reaches = Math.max(Math.abs(king.file - pawn.file), 8 - king.rank) <= side + 1;
+  const direction = king.file >= pawn.file ? 1 : -1;
+  const files = [pawn.file, Math.min(7, Math.max(0, pawn.file + direction * side))].sort((a, b) => a - b);
+  return { pawn, king, fromStart, start, side, reaches, files };
+}
+
+function RuleOfSquare() {
+  const { data, update, setAnswer, earn } = useNotebook();
+  const key = "ferramenta:regra-do-quadrado";
+  const picks = (data.answers[key] as Record<number, 0 | 1> | undefined) ?? {};
+  const answered = Object.keys(picks).length;
+  const [step, setStep] = useState(() => Math.min(answered, SQUARE_CASES.length - 1));
+  const item = SQUARE_CASES[step];
+  const square = squareOf(item);
+  const correct = square.reaches ? 0 : 1;
+  const pick = picks[step];
+  const hits = SQUARE_CASES.filter((entry, index) => picks[index] === (squareOf(entry).reaches ? 0 : 1)).length;
+  const finished = answered === SQUARE_CASES.length;
+  const labels = ["O rei alcança", "O peão promove"] as const;
+  const choose = (side: 0 | 1) => {
+    const next = update<Record<number, 0 | 1>>(key, (previous) => ({ ...previous, [step]: side }));
+    const nextHits = SQUARE_CASES.filter((entry, index) => next[index] === (squareOf(entry).reaches ? 0 : 1)).length;
+    if (Object.keys(next).length === SQUARE_CASES.length && nextHits >= 5) earn("quadrado-certo");
+  };
+  const inSquare = (file: number, rank: number) => pick !== undefined && rank >= square.start && file >= square.files[0] && file <= square.files[1];
+  const pieceAt = (name: string) => (name === item.pawn ? "♙" : name === item.king ? "♚" : name === item.white ? "♔" : "");
+  const corner = `${FILES[square.files[0] === square.pawn.file ? square.files[1] : square.files[0]]}8`;
+  const explain = [
+    square.fromStart ? `O peão ainda está na casa inicial e pode andar duas casas, então conta como se estivesse em ${item.pawn[0]}3.` : "",
+    item.turn === "brancas" ? "Como é a vez das brancas, o peão anda antes: o quadrado começa uma casa à frente." : "",
+    `O quadrado vai de ${item.pawn[0]}${square.start} a ${item.pawn[0]}8, na coluna do peão, e se abre até ${corner}.`,
+    square.reaches ? "O rei preto entra no quadrado no lance dele e alcança o peão." : "O rei preto não consegue entrar no quadrado: o peão chega à oitava fileira e vira dama.",
+  ].filter(Boolean).join(" ");
+  return (
+    <div className="nb-pasted nb-tool nb-square">
+      <p className="nb-tag">Treino da regra do quadrado</p>
+      <p className="nb-muted">Posição {step + 1} de {SQUARE_CASES.length}. O rei branco está longe e não ajuda o peão.</p>
+      <div className="nb-square-stage">
+        <div className="nb-chess" role="img" aria-label={`Peão branco em ${item.pawn}, rei preto em ${item.king}, rei branco em ${item.white}. Vez das ${item.turn}.${pick !== undefined ? ` O quadrado vai de ${item.pawn[0]}${square.start} a ${item.pawn[0]}8 e se abre até ${corner}.` : ""}`}>
+          {[8, 7, 6, 5, 4, 3, 2, 1].map((rank) => (
+            <div key={rank} className="nb-chess-row" aria-hidden="true">
+              <small>{rank}</small>
+              {[...FILES].map((letter, file) => {
+                const name = `${letter}${rank}`;
+                const piece = pieceAt(name);
+                return (
+                  <span key={name} className={`${(file + rank) % 2 === 1 ? "is-dark" : "is-light"}${inSquare(file, rank) ? " is-square" : ""}`}>
+                    {piece && <b className={piece === "♚" ? "is-black" : "is-white"}>{piece}{"︎"}</b>}
+                  </span>
+                );
+              })}
+            </div>
+          ))}
+          <div className="nb-chess-row is-files" aria-hidden="true"><small />{[...FILES].map((letter) => <small key={letter}>{letter}</small>)}</div>
+        </div>
+        <div className="nb-square-side">
+          <p><strong>Vez das {item.turn}.</strong> O rei preto alcança o peão, ou o peão promove?</p>
+          <div className="nb-sort-buttons" role="group" aria-label="Sua resposta">
+            {labels.map((label, side) => (
+              <button key={label} type="button" aria-pressed={pick === side} disabled={pick !== undefined}
+                className={pick === undefined ? "" : side === correct ? "is-right" : pick === side ? "is-wrong" : ""}
+                onClick={() => choose(side as 0 | 1)}>{label}</button>
+            ))}
+          </div>
+          {pick !== undefined && (
+            <p className={`nb-feedback ${pick === correct ? "is-right" : "is-wrong"}`} role="status">
+              <strong>{pick === correct ? "Certo." : `${labels[correct]}.`}</strong> {explain}
+            </p>
+          )}
+          <div className="nb-square-nav">
+            {step > 0 && <button type="button" className="nb-btn is-soft" onClick={() => setStep(step - 1)}>Anterior</button>}
+            {pick !== undefined && step < SQUARE_CASES.length - 1 && <button type="button" className="nb-btn" onClick={() => setStep(step + 1)}>Próxima posição</button>}
+          </div>
+          {finished && (
+            <div className="nb-score">
+              <p><strong>Você acertou {hits} de {SQUARE_CASES.length}.</strong></p>
+              <button type="button" className="nb-btn is-soft" onClick={() => { setAnswer(key, {}); setStep(0); }}>Refazer</button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export const NOTEBOOK_TOOLS = {
   "diagnostico-financeiro": Diagnostic,
   "gasto-formiga": AntSpending,
@@ -1135,4 +1242,5 @@ export const NOTEBOOK_TOOLS = {
   comparador: PriceCompare,
   "juros-compostos": CompoundGrowth,
   "ritmo-rcp": RcpRhythm,
+  "regra-do-quadrado": RuleOfSquare,
 } as const;

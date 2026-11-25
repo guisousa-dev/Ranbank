@@ -46,7 +46,7 @@ export type Block =
   | { cards: Array<{ title: string; text: string; tag?: string }> };
 
 /** Ferramentas interativas das aulas. Calculam tudo no navegador e não enviam nada. */
-export type LessonTool = "custo-impressao-3d" | "diagnostico-financeiro" | "gasto-formiga" | "prioridades" | "simulacao-lia" | "orcamento" | "parcelas" | "comparador" | "juros-compostos" | "ritmo-rcp";
+export type LessonTool = "custo-impressao-3d" | "diagnostico-financeiro" | "gasto-formiga" | "prioridades" | "simulacao-lia" | "orcamento" | "parcelas" | "comparador" | "juros-compostos" | "ritmo-rcp" | "regra-do-quadrado";
 
 /**
  * "Pare e pense": uma pergunta com a resposta na hora. `answer` é o índice da opção certa (0, 1, 2...).

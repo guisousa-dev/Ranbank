@@ -378,6 +378,21 @@ html[data-site-theme="light"] .nb-page .fc-box.is-atencao { --box: #9a6408; }
 .nb-rcp-count b { font-size: 18px; }
 .nb-rcp-sound { display: flex; gap: 8px; align-items: center; cursor: pointer; }
 .nb-rcp-sound input { width: 18px; height: 18px; accent-color: var(--nb-accent); }
+.nb-square-stage { display: grid; grid-template-columns: minmax(0, 300px) 1fr; gap: 22px; align-items: start; }
+.nb-chess { display: grid; width: 100%; max-width: 300px; }
+.nb-chess-row { display: grid; grid-template-columns: 16px repeat(8, 1fr); }
+.nb-chess-row small { display: grid; place-items: center; color: var(--nb-muted); font-size: 12px; }
+.nb-chess-row.is-files small { padding-top: 2px; }
+.nb-chess-row span { position: relative; display: grid; place-items: center; aspect-ratio: 1; }
+.nb-chess-row span.is-light { background: #ecd9b9; }
+.nb-chess-row span.is-dark { background: #b58b62; }
+.nb-chess-row span.is-square::after { content: ""; position: absolute; inset: 0; background: rgba(46, 160, 90, .45); box-shadow: inset 0 0 0 1px rgba(20, 90, 50, .35); }
+.nb-chess-row b { position: relative; z-index: 1; font-size: clamp(20px, 6vw, 30px); line-height: 1; font-weight: 400; font-variant-emoji: text; color: #15161a; }
+.nb-chess-row b.is-white { text-shadow: 0 0 1px #fff, 0 0 2px #fff; }
+.nb-square-side { display: grid; gap: 10px; align-content: start; }
+.nb-square-side p { margin: 0; }
+.nb-square-nav { display: flex; gap: 10px; flex-wrap: wrap; }
+.nb-square-nav:empty { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .nb-rcp-press span.is-pushed { animation: none; }
   .nb-rcp-marker { transition: none; }
@@ -485,6 +500,8 @@ html[data-site-theme="light"] .nb-sheet .fc-btn-soft:hover { background: rgba(25
   .nb-fields { grid-template-columns: 1fr 1fr; }
   .nb-fields.is-four { grid-template-columns: 1fr 1fr; }
   .nb-rcp-stage { grid-template-columns: 1fr; justify-items: center; }
+  .nb-square-stage { grid-template-columns: 1fr; justify-items: center; }
+  .nb-square-side { width: 100%; }
   .nb-rcp-readout { width: 100%; }
   .nb-fields label:first-child { grid-column: 1 / -1; }
   .nb-ledger { font-size: 13.5px; }

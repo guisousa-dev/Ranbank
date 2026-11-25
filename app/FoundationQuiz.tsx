@@ -11,7 +11,8 @@ import { Mark } from "./FoundationBadge";
  * Prova final de um curso e o certificado de conclusão.
  * A roleta é dividida pelos módulos do curso e tem o tema do curso (veja THEMES): na Impressora 3D é um
  * carretel de filamento com o bico da impressora; na Educação financeira, uma moeda; em Primeiros socorros,
- * um kit com a cruz verde (a cruz vermelha é um emblema protegido e não pode ser usada).
+ * um kit com a cruz verde (a cruz vermelha é um emblema protegido e não pode ser usada); no Xadrez,
+ * um tabuleiro com o cavalo no meio.
  * Cada partida sorteia QUIZ_RULES.total perguntas, equilibradas entre os módulos.
  * Quem acerta QUIZ_RULES.pass ganha o certificado, que fica salvo junto com o progresso do curso.
  * O certificado mostra só o nome de quem fez o curso, nunca o de quem preparou as aulas.
@@ -20,11 +21,12 @@ import { Mark } from "./FoundationBadge";
 const MODULE_COLORS = ["#8fb1ff", "#3ddc84", "#f5b83d", "#f2a7d8", "#c9a7ff", "#7fe0e0"];
 
 /** Tema da roleta e do certificado. `wheel` é o desenho; `name` completa a frase "Gire ...". */
-type Theme = { wheel: "carretel" | "moeda" | "kit" | "roleta"; name: string };
+type Theme = { wheel: "carretel" | "moeda" | "kit" | "tabuleiro" | "roleta"; name: string };
 const THEMES: Record<string, Theme> = {
   "impressora-3d": { wheel: "carretel", name: "o carretel" },
   "educacao-financeira": { wheel: "moeda", name: "a moeda" },
   "primeiros-socorros": { wheel: "kit", name: "a roleta do kit" },
+  xadrez: { wheel: "tabuleiro", name: "o tabuleiro" },
 };
 const DEFAULT_THEME: Theme = { wheel: "roleta", name: "a roleta" };
 const themeOf = (courseId: string) => THEMES[courseId] ?? DEFAULT_THEME;
@@ -85,6 +87,7 @@ function Spool({ count, rotation, onStop, kind = "carretel" }: { count: number; 
   if (kind === "carretel") for (let r = 44; r <= 86; r += 3.5) rings.push(r);
   const coin = kind === "moeda";
   const kit = kind === "kit";
+  const board = kind === "tabuleiro";
   return (
     <svg className="fq-spool" viewBox="-104 -122 208 228" aria-hidden="true">
       <g className="fq-rotor" style={{ transform: `rotate(${rotation}deg)` }} onTransitionEnd={onStop}>
@@ -94,6 +97,7 @@ function Spool({ count, rotation, onStop, kind = "carretel" }: { count: number; 
           return <line key={k} x1={x0} y1={y0} x2={x1} y2={y1} stroke="#8a6420" strokeWidth="1.4" />;
         })}
         {coin && <circle r="89" fill="#e8bb5a" />}
+        {board && Array.from({ length: 32 }, (_, k) => <path key={k} d={sector(88, 97, k * 11.25, (k + 1) * 11.25)} fill={k % 2 ? "#b58b62" : "#ecd9b9"} />)}
         {Array.from({ length: count }, (_, m) => <path key={m} d={sector(40, 88, m * step, (m + 1) * step)} fill={MODULE_COLORS[m % MODULE_COLORS.length]} />)}
         {rings.map((r) => <circle key={r} r={r} fill="none" stroke="rgba(0,0,0,.22)" strokeWidth=".8" />)}
         {Array.from({ length: count }, (_, m) => {
@@ -116,6 +120,11 @@ function Spool({ count, rotation, onStop, kind = "carretel" }: { count: number; 
             <circle r="40" fill="#e8bb5a" stroke="#8a6420" strokeWidth="1.5" />
             <circle r="34" fill="none" stroke="#b08431" strokeWidth="1" strokeDasharray="2 2.5" />
             <text textAnchor="middle" dominantBaseline="central" fontWeight="800" fontSize="24" fill="#7a5413">R$</text>
+          </>
+        ) : board ? (
+          <>
+            <circle r="40" fill="#14161c" stroke="#ecd9b9" strokeWidth="2" />
+            <text textAnchor="middle" dominantBaseline="central" y="2" fontSize="44" fill="#ecd9b9">{"♞︎"}</text>
           </>
         ) : kit ? (
           <>
@@ -159,6 +168,23 @@ function CoinStacks() {
       }))}
       <path d="M-70 -18 C-30 -4 10 -24 40 -30 L52 -32" fill="none" stroke="currentColor" strokeOpacity=".5" strokeWidth="1.6" strokeLinecap="round" />
       <path d="M44 -38 L56 -32 L46 -23" fill="none" stroke="currentColor" strokeOpacity=".5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** Tabuleiro em perspectiva com um cavalo, no mesmo traço do cubo. */
+function ChessBoard() {
+  const n = 6, size = 24;
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      <g transform="translate(-72 40)">
+        {Array.from({ length: n * n }, (_, k) => {
+          const x = k % n, y = Math.floor(k / n);
+          return <rect key={k} x={x * size} y={y * size * 0.5} width={size} height={size * 0.5} fill="currentColor" fillOpacity={(x + y) % 2 ? ".22" : ".06"} />;
+        })}
+        <rect width={n * size} height={n * size * 0.5} fill="none" stroke="currentColor" strokeOpacity=".6" />
+      </g>
+      <text x="0" y="34" textAnchor="middle" fontSize="92" fill="currentColor" fillOpacity=".55">{"♞︎"}</text>
     </svg>
   );
 }
@@ -218,6 +244,8 @@ function Seal({ kind }: { kind: Theme["wheel"] }) {
         <text textAnchor="middle" dominantBaseline="central" fontWeight="800" fontSize="20" fill="#8fb1ff">R$</text>
       ) : kind === "kit" ? (
         <path d="M-5 -16 H5 V-5 H16 V5 H5 V16 H-5 V5 H-16 V-5 H-5Z" fill="#8fb1ff" />
+      ) : kind === "tabuleiro" ? (
+        <text textAnchor="middle" dominantBaseline="central" y="1" fontSize="30" fill="#8fb1ff">{"♞︎"}</text>
       ) : (
         <path d="M-12 1 L-3 10 L13 -9" fill="none" stroke="#8fb1ff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
       )}
@@ -232,7 +260,7 @@ function Certificate({ course, modules, lessonsCount, name, hits, date, code, ve
   const kind = themeOf(course.id).wheel;
   return (
     <div className="fq-paper" role="img" aria-label={`Certificado de conclusão do curso ${course.title}${name ? `, em nome de ${name}` : ""}`}>
-      {kind !== "roleta" && <div className="fq-p-cube">{kind === "moeda" ? <CoinStacks /> : kind === "kit" ? <FirstAidKit /> : <PrintedCube />}</div>}
+      {kind !== "roleta" && <div className="fq-p-cube">{kind === "moeda" ? <CoinStacks /> : kind === "kit" ? <FirstAidKit /> : kind === "tabuleiro" ? <ChessBoard /> : <PrintedCube />}</div>}
       <div className="fq-p-seal"><Seal kind={kind} /></div>
       <div className="fq-p-in">
         <div className="fq-p-top">
