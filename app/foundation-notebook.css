@@ -409,6 +409,25 @@ html[data-site-theme="light"] .nb-page .fc-box.is-atencao { --box: #9a6408; }
 .nb-matrix-tasks li:last-child { border-bottom: 0; }
 .nb-matrix-tasks li > p:first-child::before { content: counter(nb-matrix) ". "; font-weight: 700; color: var(--nb-accent); }
 .nb-matrix-choices { display: grid; grid-template-columns: 1fr 1fr; }
+/* Pare, respire, escolha */
+.nb-breath { display: grid; gap: 14px; }
+.nb-breath-scale { display: grid; gap: 6px; font-size: 16px; }
+.nb-breath-scale b { color: var(--nb-accent); font-size: 18px; }
+.nb-breath-scale input { width: 100%; max-width: 360px; accent-color: var(--nb-accent); }
+.nb-breath-stage { display: grid; grid-template-columns: 150px 1fr; gap: 22px; align-items: center; }
+.nb-breath-ball {
+  width: 150px; height: 150px; border-radius: 50%; transform: scale(.5);
+  background: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--nb-accent) 55%, transparent), color-mix(in srgb, var(--nb-accent) 22%, transparent));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--nb-accent) 40%, transparent);
+  transition-property: transform; transition-timing-function: ease-in-out;
+}
+.nb-breath-ball.is-in { transform: scale(1); }
+.nb-breath-text { display: grid; gap: 4px; }
+.nb-breath-text strong { font-size: 20px; }
+.nb-breath-text span { color: var(--nb-muted); font-size: 15.5px; }
+.nb-breath-actions { display: flex; gap: 10px; }
+.nb-breath .nb-muted { margin: 0; }
+@media (max-width: 520px) { .nb-breath-stage { grid-template-columns: 110px 1fr; gap: 14px; } .nb-breath-ball { width: 110px; height: 110px; } }
 /* Caça ao golpe */
 .nb-scam-list { margin: 0; padding: 0 !important; list-style: none !important; display: grid; gap: 18px; }
 .nb-scam-msg { max-width: 560px; padding: 12px 14px; border-radius: 14px; border: 1.5px solid var(--nb-card-line); background: var(--nb-card); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }

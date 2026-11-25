@@ -1460,6 +1460,92 @@ function ScamHunt() {
   );
 }
 
+/** "Pare, respire, escolha" do Autodesenvolvimento: 5 respirações (puxar em 4 s, soltar em 6 s) e a tensão antes e depois. */
+const BREATH_IN = 4;
+const BREATH_OUT = 6;
+const BREATH_ROUNDS = 5;
+const BREATH_TOTAL = BREATH_ROUNDS * (BREATH_IN + BREATH_OUT);
+type BreathSaved = { before?: number; after?: number; done?: boolean };
+
+function BreathPause() {
+  const { data, update, earn } = useNotebook();
+  const key = "ferramenta:respiracao";
+  const saved = (data.answers[key] as BreathSaved | undefined) ?? {};
+  const [elapsed, setElapsed] = useState<number | null>(null);
+  const clock = useRef<number | null>(null);
+  const running = elapsed !== null;
+  const start = (value: number | null) => { clock.current = value; setElapsed(value); };
+
+  useEffect(() => {
+    if (!running) return;
+    const timer = window.setInterval(() => {
+      const next = (clock.current ?? 0) + 1;
+      if (next < BREATH_TOTAL) { clock.current = next; setElapsed(next); return; }
+      clock.current = null;
+      setElapsed(null);
+      update<BreathSaved>(key, (previous) => ({ ...previous, done: true }));
+      earn("respira-fundo");
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [running, update, earn]);
+
+  const cycle = (elapsed ?? 0) % (BREATH_IN + BREATH_OUT);
+  const inhale = running && cycle < BREATH_IN;
+  const round = Math.floor((elapsed ?? 0) / (BREATH_IN + BREATH_OUT)) + 1;
+  const left = inhale ? BREATH_IN - cycle : BREATH_IN + BREATH_OUT - cycle;
+  const setScore = (field: "before" | "after", value: number) => update<BreathSaved>(key, (previous) => ({ ...previous, [field]: value }));
+  const before = saved.before ?? 5;
+
+  return (
+    <div className="nb-pasted nb-tool nb-breath">
+      <p className="nb-tag">Pare, respire, escolha</p>
+      <label className="nb-breath-scale">
+        <span><strong>Pare.</strong> De 0 a 10, quanta tensão você sente agora? <b>{before}</b></span>
+        <input type="range" min={0} max={10} value={before} disabled={running} onChange={(event) => setScore("before", Number(event.target.value))} />
+      </label>
+      <div className="nb-breath-stage">
+        <div className={`nb-breath-ball ${inhale ? "is-in" : ""}`} style={{ transitionDuration: `${inhale ? BREATH_IN : BREATH_OUT}s` }} aria-hidden="true" />
+        <div className="nb-breath-text" role="status" aria-live="polite">
+          {running ? (
+            <>
+              <strong>{inhale ? "Puxe o ar pelo nariz" : "Solte pela boca, devagar"}</strong>
+              <span>{left} · respiração {round} de {BREATH_ROUNDS}</span>
+            </>
+          ) : (
+            <>
+              <strong>Respire.</strong>
+              <span>Puxe o ar contando até {BREATH_IN} e solte contando até {BREATH_OUT}, {BREATH_ROUNDS} vezes.</span>
+            </>
+          )}
+        </div>
+      </div>
+      <div className="nb-breath-actions">
+        {running ? (
+          <button type="button" className="nb-btn is-soft" onClick={() => start(null)}>Parar</button>
+        ) : (
+          <button type="button" className="nb-btn" onClick={() => start(0)}>{saved.done ? "Respirar de novo" : "Começar a respirar"}</button>
+        )}
+      </div>
+      {saved.done && !running && (
+        <>
+          <label className="nb-breath-scale">
+            <span>E agora, de 0 a 10? <b>{saved.after ?? before}</b></span>
+            <input type="range" min={0} max={10} value={saved.after ?? before} onChange={(event) => setScore("after", Number(event.target.value))} />
+          </label>
+          {saved.after !== undefined && (
+            <p className={`nb-feedback ${saved.after < before ? "is-right" : ""}`} role="status">
+              {saved.after < before
+                ? <><strong>Sua tensão caiu de {before} para {saved.after}.</strong> Soltar o ar devagar ajuda o corpo a desacelerar.</>
+                : <><strong>Tudo bem se a nota mudou pouco.</strong> É uma habilidade que melhora com treino, como qualquer hábito.</>}
+            </p>
+          )}
+          <p className="nb-muted"><strong>Nomeie:</strong> diga para você mesmo &quot;estou sentindo ______&quot;. <strong>Escolha:</strong> qual é o menor próximo passo que você consegue dar agora?</p>
+        </>
+      )}
+    </div>
+  );
+}
+
 export const NOTEBOOK_TOOLS = {
   "diagnostico-financeiro": Diagnostic,
   "gasto-formiga": AntSpending,
@@ -1473,4 +1559,5 @@ export const NOTEBOOK_TOOLS = {
   "regra-do-quadrado": RuleOfSquare,
   "matriz-eisenhower": EisenhowerMatrix,
   "caca-ao-golpe": ScamHunt,
+  respiracao: BreathPause,
 } as const;
