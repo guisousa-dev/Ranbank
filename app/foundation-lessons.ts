@@ -31,18 +31,50 @@ export const BOX_LABEL: Record<BoxKind, string> = { exemplo: "Exemplo", pratica:
  * Um pedaço do texto da aula: parágrafo, lista, quadro de destaque, tabela ou imagem.
  * Imagem: fica em public/images/fundacao/aulas/<id do curso>/. O `alt` descreve o que a imagem mostra
  * (e repete o texto escrito nela), para quem usa leitor de tela. Nunca mostrar nome de quem fez o curso.
+ * Vídeo: um vídeo do YouTube no meio do tópico, sobre o assunto daquele tópico (o texto continua completo sem ele).
  * Ferramenta: um exercício interativo dentro da aula. Cada uma tem o seu componente em FoundationCatalog.tsx.
  */
 export type Block =
   | string
   | { list: string[]; ordered?: boolean }
-  | { box: BoxKind; text: string }
+  | { box: BoxKind; text: string; title?: string }
   | { table: { caption: string; head: string[]; rows: string[][] } }
   | { image: string; alt: string }
-  | { tool: LessonTool };
+  | { video: LessonVideo & { title: string } }
+  | { tool: LessonTool }
+  | { check: Check }
+  | { sort: Sort }
+  | { write: string }
+  | { cards: Array<{ title: string; text: string; tag?: string }> };
+
+/** Vídeo do YouTube. `minutes` entra no tempo da aula. */
+export type LessonVideo = { youtubeId: string; minutes: number };
 
 /** Ferramentas interativas das aulas. Calculam tudo no navegador e não enviam nada. */
-export type LessonTool = "custo-impressao-3d";
+export type LessonTool = "custo-impressao-3d" | "diagnostico-financeiro" | "gasto-formiga" | "prioridades" | "simulacao-lia" | "orcamento" | "parcelas" | "comparador" | "juros-compostos" | "ritmo-rcp" | "regra-do-quadrado" | "matriz-eisenhower" | "caca-ao-golpe" | "respiracao" | "estante";
+
+/**
+ * "Pare e pense": uma pergunta com a resposta na hora. `answer` é o índice da opção certa (0, 1, 2...).
+ * As opções aparecem na ordem escrita, com A), B), C).
+ */
+export type Check = { question: string; options: string[]; answer: number; why: string };
+
+/**
+ * Separar em dois grupos (mito ou verdade, necessidade ou desejo). Cada item mostra a explicação depois da escolha.
+ * `sticker`: figurinha que a pessoa ganha ao terminar com pelo menos `min` acertos.
+ */
+export type Sort = {
+  title: string;
+  labels: [string, string];
+  items: Array<{ text: string; answer: 0 | 1; why: string }>;
+  sticker?: { id: string; min: number };
+};
+
+/** Quiz do módulo: aparece no fim da última aula do módulo, com a explicação de cada resposta na hora. */
+export type ModuleQuiz = { questions: Check[]; sticker?: { id: string; min: number } };
+
+/** Figurinha que a pessoa cola no caderno ao cumprir uma etapa. Fica só no aparelho. */
+export type Sticker = { id: string; name: string; how: string };
 
 export type Lesson = {
   /** Nome curto e sem acento, usado no endereço da aula. */
@@ -53,11 +85,11 @@ export type Lesson = {
   /** "Nesta aula você vai": de 2 a 4 itens. */
   goals: string[];
   /** Vídeo no YouTube (não listado). Toda aula com vídeo tem o mesmo conteúdo em texto logo abaixo. */
-  video?: { youtubeId: string; minutes: number };
+  video?: LessonVideo;
   /** De 3 a 5 tópicos curtos. */
   sections: Array<{ title: string; body: Block[] }>;
   /** Atividade para fazer no fim. A resposta fica escondida até a pessoa pedir. */
-  activity: { title: string; steps: string[]; answer?: string; note?: string };
+  activity: { title: string; steps: string[]; answer?: string; note?: string; fields?: string[] };
   /** Resumo em 3 pontos. */
   recap: [string, string, string];
   /** Material para baixar (PDF, por exemplo), sempre com o tamanho. */
@@ -68,10 +100,20 @@ export type Lesson = {
  * Um módulo do curso. Alguns cursos juntam o trabalho de duas pessoas (ex.: Hardware + Software):
  * cada uma fica com um módulo. Módulo ainda sem aulas (lessons: []) aparece como "em preparação".
  */
-export type Module = { title: string; lessons: Lesson[] };
+export type Module = { title: string; lessons: Lesson[]; quiz?: ModuleQuiz };
+
+/**
+ * Capa do caderno do curso. Sem capa definida, o caderno usa as cores da categoria.
+ * `color`: cor da capa. `ink`: cor dos títulos e destaques na folha clara (precisa de bom contraste com o creme).
+ * `glow`: a mesma ideia na folha escura. `desk`: desenho da mesa em volta do caderno.
+ */
+export type NotebookCover = { color: string; ink: string; glow: string; desk?: "mesa-rosa" };
 
 export type CourseContent = {
   modules: Module[];
+  cover?: NotebookCover;
+  /** Figurinhas do curso, na ordem em que aparecem na capa. */
+  stickers?: Sticker[];
   /** Aviso que aparece no pé de todas as aulas do curso. */
   note?: string;
   /** Aviso no topo de todas as aulas, enquanto o conteúdo espera a revisão de um especialista. Tirar depois da revisão. */
@@ -139,8 +181,12 @@ const words = (text: string) => text.split(/\s+/).filter(Boolean).length;
 const blockText = (block: Block): string => {
   if (typeof block === "string") return block;
   if ("list" in block) return block.list.join(" ");
-  if ("box" in block) return block.text;
-  if ("image" in block || "tool" in block) return "";
+  if ("box" in block) return [block.title ?? "", block.text].join(" ");
+  if ("image" in block || "tool" in block || "video" in block) return "";
+  if ("check" in block) return [block.check.question, ...block.check.options].join(" ");
+  if ("sort" in block) return [block.sort.title, ...block.sort.items.map((item) => item.text)].join(" ");
+  if ("write" in block) return block.write;
+  if ("cards" in block) return block.cards.map((card) => `${card.title}: ${card.text}`).join(" ");
   return [block.table.caption, ...block.table.head, ...block.table.rows.flat()].join(" ");
 };
 
@@ -156,7 +202,13 @@ export function lessonSpeech(lesson: Lesson) {
   ].filter((text) => text.trim());
 }
 
-/** Tempo da aula em minutos: leitura (cerca de 150 palavras por minuto, com calma) mais o vídeo. */
+/** Todos os vídeos da aula: o do começo e os que estão dentro dos tópicos. */
+export function lessonVideos(lesson: Lesson): LessonVideo[] {
+  const inside = lesson.sections.flatMap((section) => section.body.flatMap((block) => (typeof block === "object" && "video" in block ? [block.video] : [])));
+  return lesson.video ? [lesson.video, ...inside] : inside;
+}
+
+/** Tempo da aula em minutos: leitura (cerca de 150 palavras por minuto, com calma) mais os vídeos. */
 export function lessonMinutes(lesson: Lesson) {
   const text = [
     ...lesson.goals,
@@ -165,5 +217,5 @@ export function lessonMinutes(lesson: Lesson) {
     lesson.activity.answer ?? "",
     ...lesson.recap,
   ].join(" ");
-  return Math.max(3, Math.round(words(text) / 150) + 2) + (lesson.video?.minutes ?? 0);
+  return Math.max(3, Math.round(words(text) / 150) + 2) + lessonVideos(lesson).reduce((total, video) => total + video.minutes, 0);
 }

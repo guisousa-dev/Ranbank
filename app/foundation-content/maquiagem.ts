@@ -2,10 +2,18 @@
 // Segue o padrão de app/foundation-lessons.ts. Linguagem neutra: maquiagem é para quem quiser.
 
 import type { CourseContent } from "../foundation-lessons";
+import { PROVA_MAQUIAGEM } from "./maquiagem-prova";
 
 export const MAQUIAGEM: CourseContent = {
   note: "Se tiver pele sensível, alergia ou alguma doença de pele, teste cada produto antes num pedaço pequeno da pele e, na dúvida, fale com um dermatologista.",
   closing: "Agora você sabe preparar a pele, escolher o tom certo, fazer uma maquiagem rápida e uma produção para festa, e cuidar dos seus produtos. Maquiagem é treino e expressão: teste, erre, tire e faça de novo. Não existe um jeito certo de ser você.",
+  quiz: PROVA_MAQUIAGEM,
+  stickers: [
+    { id: "necessaire-em-dia", name: "Necessaire em dia", how: "Acertou 7 ou mais em \"Pode usar ou descarte?\"." },
+    { id: "mestre-do-modulo-1", name: "Pele pronta", how: "Acertou 8 ou mais no quiz do Módulo 1." },
+    { id: "mestre-do-modulo-2", name: "Mão na técnica", how: "Acertou 8 ou mais no quiz do Módulo 2." },
+    { id: "mestre-do-modulo-3", name: "Pincel limpo", how: "Acertou 8 ou mais no quiz do Módulo 3." },
+  ],
   modules: [
     {
       title: "A pele em primeiro lugar",
@@ -65,6 +73,21 @@ export const MAQUIAGEM: CourseContent = {
           recap: ["Conhecer o tipo de pele ajuda a escolher os produtos.", "Limpar, hidratar e proteger do sol antes de maquiar.", "Sempre tire a maquiagem antes de dormir."],
         },
       ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-1", min: 8 },
+        questions: [
+          { question: "No teste do lenço, o óleo apareceu só na testa, no nariz e no queixo. Qual é o tipo de pele?", options: ["Oleosa", "Mista", "Seca", "Normal"], answer: 1, why: "Óleo só na zona T indica pele mista." },
+          { question: "Depois de lavar o rosto, quanto tempo a aula manda esperar para fazer o teste do lenço?", options: ["Dez minutos.", "Meia hora.", "Duas horas.", "Uma hora."], answer: 3, why: "Lave com sabonete suave, não passe nada e espere uma hora." },
+          { question: "Para pele oleosa, o que a tabela recomenda procurar?", options: ["Produtos \"oil free\" e com acabamento matte.", "Bases com acabamento iluminado.", "Hidratantes mais ricos e cremosos.", "Pular o hidratante e passar só pó compacto por cima."], answer: 0, why: "Acabamento iluminado e hidratantes mais ricos são para a pele seca." },
+          { question: "Pele oleosa também deve usar hidratante?", options: ["Não: o hidratante piora o brilho.", "Sim, de preferência em gel.", "Só no inverno, em creme.", "Só se ele tiver FPS alto."], answer: 1, why: "A hidratação vale até para a pele oleosa, com hidratante em gel." },
+          { question: "Qual é a ordem da preparação da pele, segundo a aula?", options: ["Primer, limpeza, hidratação e protetor solar.", "Limpeza, primer, protetor solar e hidratação.", "Hidratação, limpeza, primer e protetor solar.", "Limpeza, hidratação, protetor solar e primer."], answer: 3, why: "O primer é o último passo, e é opcional." },
+          { question: "Quando passar protetor solar, segundo a aula?", options: ["Só em dias de sol forte.", "Só quando for à praia ou à piscina.", "Todos os dias, mesmo nublado.", "Só quando a base não tiver FPS."], answer: 2, why: "Pode ser um hidratante que já tenha FPS." },
+          { question: "O que o primer faz, segundo a aula?", options: ["Substitui o protetor solar nos dias nublados.", "Ajuda a maquiagem a durar mais e disfarça poros.", "Limpa a pele e tira o resto de sabonete antes da base.", "Tira a oleosidade da pele de vez."], answer: 1, why: "Ele é opcional: entra depois do protetor solar." },
+          { question: "Como a aula manda tirar o rímel?", options: ["Segurar o algodão úmido uns segundos antes de deslizar.", "Esfregar o algodão seco com força até sair tudo dos cílios.", "Lavar só com sabonete e água bem quente, de olhos abertos.", "Passar hidratante e esperar o rímel soltar."], answer: 0, why: "O demaquilante solta o rímel, sem esfregar com força." },
+          { question: "O que fazer depois de passar o demaquilante?", options: ["Dormir: a pele já está limpa.", "Passar primer para proteger a pele durante a noite toda.", "Lavar o rosto com sabonete e passar hidratante.", "Passar protetor solar para a noite."], answer: 2, why: "O demaquilante tira a maquiagem; o sabonete e o hidratante fecham a limpeza." },
+          { question: "Onde testar um produto novo antes de usar?", options: ["Direto no rosto, numa área pequena da bochecha.", "Na palma da mão, que é mais resistente.", "Na pálpebra, que é mais sensível.", "Atrás da orelha ou dentro do braço."], answer: 3, why: "Espere um dia: se coçar, arder ou ficar vermelho, não use." },
+        ],
+      },
     },
     {
       title: "Técnicas",
@@ -230,6 +253,21 @@ export const MAQUIAGEM: CourseContent = {
           recap: ["Primer, camadas finas e pó selam uma pele que dura.", "Olho esfumado: transição no côncavo e escuro no canto externo.", "Escolha um destaque e finalize com fixador."],
         },
       ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-2", min: 8 },
+        questions: [
+          { question: "O que é o subtom?", options: ["O quanto a pele é clara ou escura.", "A cor que fica \"por baixo\" da pele.", "O acabamento da base, matte ou iluminado.", "A cor da pele depois de bronzeada."], answer: 1, why: "O quanto a pele é clara ou escura é o tom." },
+          { question: "Na luz do dia, as veias do seu pulso parecem azuladas, e o prateado fica melhor em você. Qual é o subtom provável?", options: ["Quente", "Neutro", "Depende do tom", "Frio"], answer: 3, why: "Veias azuladas e joias prateadas são pistas de subtom frio." },
+          { question: "Onde a aula manda testar a cor da base?", options: ["Nas costas da mão, que tem tom parecido.", "No pulso, por dentro, perto das veias.", "Na lateral do rosto, perto do maxilar.", "Na testa, perto da raiz do cabelo."], answer: 2, why: "E olhar na luz do dia, perto de uma janela." },
+          { question: "Que cor neutraliza a vermelhidão e as espinhas?", options: ["Verde", "Salmão", "Lilás", "Laranja"], answer: 0, why: "Salmão e laranja são para olheiras; lilás, para pele sem viço." },
+          { question: "Onde a aula manda aplicar o blush?", options: ["No alto das bochechas, rumo às têmporas.", "No meio da bochecha, em círculo, sem sorrir.", "Embaixo das maçãs, como um contorno.", "Perto do nariz, para dar cor ao centro."], answer: 0, why: "Sorria e aplique na parte mais alta das bochechas, esfumando." },
+          { question: "Qual é o objetivo da maquiagem do dia a dia, segundo a aula?", options: ["Cobrir tudo com uma base de alta cobertura.", "Parecer descansado, sem parecer maquiado.", "Destacar olhos e boca ao mesmo tempo.", "Usar o máximo de produtos em 10 minutos."], answer: 1, why: "No dia a dia, natural é a regra." },
+          { question: "Por que não compartilhar rímel, lápis de olho e batom?", options: ["Porque o produto acaba bem mais rápido quando é dividido.", "Porque cada pessoa precisa de uma cor diferente.", "Porque a validade depois de aberto cai pela metade.", "Porque passam bactérias e vírus de uma pessoa a outra."], answer: 3, why: "Como os da conjuntivite e da herpes." },
+          { question: "No olho esfumado, onde vai a sombra de transição?", options: ["No canto interno do olho, para iluminar.", "No côncavo, a dobrinha acima do olho.", "Na linha dos cílios de baixo.", "Embaixo da sobrancelha."], answer: 1, why: "A sombra mais escura vai no canto externo, num \"V\" deitado." },
+          { question: "Por que a aula sugere fazer os olhos antes da pele?", options: ["Para a base secar enquanto isso.", "Porque a sombra gruda melhor na pele sem base nenhuma.", "Para limpar sombra caída sem estragar a base.", "Para o primer agir por mais tempo."], answer: 2, why: "Se cair sombra no rosto, é só limpar." },
+          { question: "Onde vai o iluminador, segundo a aula?", options: ["Onde a luz bate, como a ponta do nariz.", "Embaixo das maçãs do rosto e do maxilar.", "Nas laterais da testa, rente ao cabelo.", "Só nas pálpebras, por cima da sombra."], answer: 0, why: "Topo das maçãs, ponta do nariz, arco do cupido e canto interno dos olhos. Embaixo das maçãs e nas laterais da testa vai o contorno." },
+        ],
+      },
     },
     {
       title: "Cuidados com os produtos",
@@ -269,6 +307,23 @@ export const MAQUIAGEM: CourseContent = {
                   ["Pó, blush e sombras em pó", "Até 24 meses"],
                 ] } },
                 { box: "chave", text: "Cheiro diferente, mudança de cor ou de textura, ou separação do produto: jogue fora, mesmo dentro da validade." },
+                {
+                  sort: {
+                    title: "Pode usar ou descarte? Olhe o tempo de aberto e o estado de cada produto.",
+                    labels: ["Pode usar", "Descarte"],
+                    items: [
+                      { text: "Rímel aberto há 8 meses", answer: 1, why: "Rímel dura cerca de 3 a 6 meses depois de aberto." },
+                      { text: "Pó compacto aberto há 1 ano, bem fechado e seco", answer: 0, why: "Pó, blush e sombras em pó duram até 24 meses." },
+                      { text: "Base dentro da validade, mas com cheiro diferente", answer: 1, why: "Cheiro diferente: jogue fora, mesmo dentro da validade." },
+                      { text: "Batom aberto há 10 meses, sem mudança", answer: 0, why: "Batom e lápis duram de 12 a 24 meses." },
+                      { text: "Delineador líquido aberto há 7 meses", answer: 1, why: "Delineador líquido dura cerca de 3 a 6 meses, como o rímel." },
+                      { text: "Corretivo líquido aberto há 4 meses, sem mudança", answer: 0, why: "Base e corretivo líquidos duram de 6 a 12 meses." },
+                      { text: "Base que separou dentro da embalagem", answer: 1, why: "Separação do produto é sinal para jogar fora." },
+                      { text: "Sombra em pó aberta há 18 meses, sem mudança", answer: 0, why: "Sombras em pó duram até 24 meses." },
+                    ],
+                    sticker: { id: "necessaire-em-dia", min: 7 },
+                  },
+                },
               ],
             },
             {
@@ -297,6 +352,21 @@ export const MAQUIAGEM: CourseContent = {
           recap: ["Esponja depois de cada uso; pincéis de cremosos toda semana.", "O potinho aberto com 6M ou 12M mostra quantos meses o produto dura.", "Guarde longe de calor e umidade e nunca dilua o produto."],
         },
       ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-3", min: 8 },
+        questions: [
+          { question: "Com que frequência lavar a esponja de maquiagem?", options: ["Toda semana.", "A cada duas semanas.", "Depois de cada uso.", "Uma vez por mês."], answer: 2, why: "Pincéis de cremosos, toda semana; de pó e sombra, a cada duas semanas." },
+          { question: "Com que frequência lavar os pincéis de pó e sombra?", options: ["A cada duas semanas.", "Depois de cada uso.", "Toda semana.", "Uma vez por mês."], answer: 0, why: "Os de base e corretivo, que pegam produto cremoso, são toda semana." },
+          { question: "Por que o pincel não pode secar em pé, com as cerdas para cima?", options: ["Porque as cerdas perdem a cor e o formato.", "A água desce no cabo e solta a cola.", "Porque junta poeira e bactérias nas cerdas.", "Porque demora mais para secar."], answer: 1, why: "Seque deitado ou com as cerdas para baixo." },
+          { question: "O que quer dizer \"12M\" no desenho do potinho aberto?", options: ["Que o produto vence em 12 meses, fechado ou aberto.", "Que pode ser usado 12 vezes por mês.", "Que tem 12 mililitros de produto.", "Que dura 12 meses depois de aberto."], answer: 3, why: "É diferente da data de validade da embalagem." },
+          { question: "Qual destes costuma vencer primeiro depois de aberto?", options: ["Batom", "Pó compacto", "Rímel", "Lápis"], answer: 2, why: "Rímel e delineador líquido duram cerca de 3 a 6 meses." },
+          { question: "Quanto tempo a base líquida dura, em média, depois de aberta?", options: ["3 a 6 meses", "12 a 24 meses", "Até 24 meses", "6 a 12 meses"], answer: 3, why: "O mesmo vale para o corretivo líquido." },
+          { question: "Sua base está na validade, mas mudou de cheiro. O que fazer?", options: ["Usar até acabar: está na validade.", "Jogar fora.", "Misturar com um pouco de água.", "Guardar na geladeira até voltar ao normal."], answer: 1, why: "Cheiro, cor ou textura diferente: jogue fora, mesmo na validade." },
+          { question: "Por que não colocar água no rímel para ele render?", options: ["Porque isso contamina o produto.", "Porque o rímel fica grosso demais.", "Porque muda a cor do rímel.", "Porque estraga a escovinha."], answer: 0, why: "Água e saliva contaminam o rímel e a base." },
+          { question: "Por que apontar os lápis com frequência?", options: ["Para o traço ficar mais fino e preciso.", "Para o lápis durar mais tempo.", "Porque a ponta velha muda de cor.", "Porque a ponta nova é mais higiênica."], answer: 3, why: "Está nas dicas de como guardar a maquiagem." },
+          { question: "Na hora de lavar o pincel, o que se molha?", options: ["Só as cerdas, com a ponta para baixo.", "O pincel inteiro, cabo e cerdas juntos.", "Só o cabo, para tirar a sujeira de fora.", "As cerdas viradas para cima, na torneira."], answer: 0, why: "Em água morna, para a água não entrar no cabo." },
+        ],
+      },
     },
   ],
 };

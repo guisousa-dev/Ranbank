@@ -9,6 +9,12 @@ export const IMPRESSORA_3D: CourseContent = {
   note: "A impressora tem peças que passam de 200 °C e partes que se mexem sozinhas. Use sempre com alguém que conhece a máquina por perto, e nunca toque no bico ou na mesa enquanto estão quentes.",
   closing: "Agora você conhece o caminho completo: escolher o material, desenhar ou baixar o modelo, fatiar, imprimir, corrigir falhas e calcular o preço. A melhor forma de aprender é imprimir, errar e ajustar. Comece pequeno e vá aumentando o desafio.",
   quiz: DESAFIO_IMPRESSORA_3D,
+  stickers: [
+    { id: "regra-dos-45", name: "Olho de fatiador", how: "Acertou 7 ou mais em \"Precisa de suporte?\"." },
+    { id: "mestre-do-modulo-1", name: "Mão na máquina", how: "Acertou 8 ou mais no quiz do Módulo 1." },
+    { id: "mestre-do-modulo-2", name: "Do desenho à mesa", how: "Acertou 8 ou mais no quiz do Módulo 2." },
+    { id: "mestre-do-modulo-3", name: "Peça pronta", how: "Acertou 8 ou mais no quiz do Módulo 3." },
+  ],
   modules: [
     {
       title: "A máquina e os materiais",
@@ -169,6 +175,21 @@ export const IMPRESSORA_3D: CourseContent = {
           recap: ["PLA para começar, PETG para força e umidade, ABS e ASA para calor, TPU para flexibilidade.", "Filamento úmido estraga a impressão: guarde fechado, com sílica gel.", "Ambiente ventilado, tomada própria e alguém sempre por perto."],
         },
       ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-1", min: 8 },
+        questions: [
+          { question: "Na impressão FDM, qual é a espessura típica de cada camada, segundo a aula?", options: ["0,02 mm", "2 mm", "0,4 mm", "0,2 mm"], answer: 3, why: "Uns 0,2 mm, a espessura de duas folhas de papel. 0,4 mm é o tamanho do bico mais comum." },
+          { question: "Qual parte puxa o filamento do rolo e empurra para o bico?", options: ["O hotend", "A extrusora", "O dissipador", "O termistor"], answer: 1, why: "É um motor com engrenagens. O hotend é a parte quente, que derrete o plástico." },
+          { question: "Qual é a vantagem da extrusora direct drive, segundo a aula?", options: ["Deixa a cabeça da impressora mais leve e rápida.", "Controla melhor o fio e facilita o flexível.", "Dispensa o tubo e a ventoinha do dissipador.", "Usa um bico maior, de 0,8 mm, por padrão."], answer: 1, why: "Cabeça mais leve e rápida é a vantagem da Bowden." },
+          { question: "Para que serve a garganta (heatbreak) do hotend?", options: ["Separar a parte fria da parte quente.", "Medir a temperatura do bloco.", "Esquentar o bloco aquecedor.", "Esfriar a peça que está sendo impressa."], answer: 0, why: "Quem mede é o termistor; quem esquenta é o cartucho aquecedor." },
+          { question: "Por que a ventoinha do dissipador fica sempre ligada?", options: ["Para esfriar a peça mais rápido a cada camada.", "Para a mesa não passar da temperatura certa.", "Para o plástico não derreter antes da hora.", "Para tirar o cheiro do plástico."], answer: 2, why: "Se o calor subir demais, o plástico amolece antes do bloco e entope o caminho." },
+          { question: "Na primeira camada, as linhas saíram redondas, separadas e soltam com a unha. O que fazer?", options: ["Descer o bico um pouco.", "Subir o bico um pouco.", "Aumentar o preenchimento.", "Trocar o filamento."], answer: 0, why: "É bico alto demais. Bico baixo demais deixa a camada transparente e com riscos." },
+          { question: "Qual filamento a aula indica para uma peça que precisa dobrar, como uma capinha?", options: ["PLA", "PETG", "ABS", "TPU"], answer: 3, why: "O TPU é emborrachado: imprima devagar, de preferência em direct drive." },
+          { question: "Por que o PLA não é bom para uma peça que fica dentro do carro, no sol?", options: ["Porque amolece no calor.", "Porque solta cheiro forte quando esquenta.", "Porque absorve a água da chuva.", "Porque só imprime em impressora fechada."], answer: 0, why: "O PLA é o mais fácil de imprimir, mas amolece no calor." },
+          { question: "A impressão começou a fazer estalos de pipoca e a peça saiu cheia de fiapos. Do que desconfiar primeiro?", options: ["Bico alto demais.", "Mesa fria.", "Filamento úmido.", "Preenchimento baixo."], answer: 2, why: "O filamento absorve a umidade do ar. Guarde fechado, com sílica gel." },
+          { question: "Você sentiu cheiro de queimado e viu fumaça saindo da impressora. O que fazer?", options: ["Abrir a máquina para achar o problema.", "Baixar a temperatura pela tela e esperar.", "Esperar a impressão terminar e conferir.", "Desligar no botão e tirar da tomada."], answer: 3, why: "E não abra a máquina quente." },
+        ],
+      },
     },
     {
       title: "Do desenho à impressão",
@@ -298,6 +319,23 @@ export const IMPRESSORA_3D: CourseContent = {
                   ["Árvore (tree)", "Galhos que tocam só os pontos necessários", "Figuras, bichos e formas arredondadas. Gasta menos plástico."],
                 ] } },
                 "A distância entre o suporte e a peça (distância Z) fica perto da altura de uma camada, cerca de 0,2 mm. Assim o suporte segura, mas solta fácil depois.",
+                {
+                  sort: {
+                    title: "Precisa de suporte? Lembre da regra dos 45°.",
+                    labels: ["Sai sem suporte", "Precisa de suporte"],
+                    items: [
+                      { text: "Parede inclinada 30° em relação à vertical", answer: 0, why: "Até uns 45°, cada camada se apoia um pouco na de baixo." },
+                      { text: "Aba que sai na horizontal, no ar", answer: 1, why: "Passa muito dos 45°: a camada não tem onde se apoiar." },
+                      { text: "Ponte curta ligando duas colunas", answer: 0, why: "Pontes curtas, de um lado a outro, costumam sair sem suporte." },
+                      { text: "Chaveiro plano, deitado na mesa", answer: 0, why: "Nada fica no ar." },
+                      { text: "Braço esticado de um boneco, na horizontal", answer: 1, why: "O braço fica no ar, bem mais deitado que 45°." },
+                      { text: "Rampa inclinada 40° em relação à vertical", answer: 0, why: "Ainda está dentro dos 45°." },
+                      { text: "Parte deitada a 70° da vertical", answer: 1, why: "Mais deitada que 45° precisa de suporte." },
+                      { text: "Cogumelo com o chapéu mais largo que o cabo", answer: 1, why: "A borda do chapéu fica no ar, sem apoio embaixo." },
+                    ],
+                    sticker: { id: "regra-dos-45", min: 7 },
+                  },
+                },
                 { box: "pratica", text: "Antes de ligar o suporte, tente girar a peça. Muitas vezes uma posição diferente elimina o suporte e deixa o acabamento melhor." },
               ],
             },
@@ -328,6 +366,21 @@ export const IMPRESSORA_3D: CourseContent = {
           recap: ["O fatiador transforma o desenho em G-code para a sua impressora.", "Camada de 0,20 mm, 15 a 20% de preenchimento e a parte plana na mesa servem para quase tudo.", "Suporte só passando de 45°; árvore para formas arredondadas, normal para planas."],
         },
       ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-2", min: 8 },
+        questions: [
+          { question: "Qual formato guarda a forma, as cores e as configurações de impressão num arquivo só?", options: ["STL", "OBJ", "3MF", "G-code"], answer: 2, why: "O STL guarda só a forma; o G-code é a receita criada pelo fatiador." },
+          { question: "Por que um G-code feito para uma impressora não serve em outra?", options: ["É a receita para aquela máquina específica.", "Porque o G-code expira depois de uma impressão.", "Porque cada impressora só lê arquivos STL.", "Porque o G-code não guarda a forma da peça."], answer: 0, why: "STL, OBJ e 3MF são o desenho; o G-code é a receita para uma impressora." },
+          { question: "Num site de modelos prontos, o que a aula manda conferir antes de vender a peça?", options: ["O número de downloads.", "A licença do modelo.", "O tamanho do arquivo.", "A data de publicação."], answer: 1, why: "Alguns modelos são só para uso pessoal e não podem ser vendidos." },
+          { question: "Um pino tem 8 mm. Pela folga da aula, que tamanho de furo desenhar?", options: ["8,0 mm", "7,8 mm", "8,3 mm", "9,0 mm"], answer: 2, why: "O furo precisa ser de 0,2 a 0,4 mm maior que o pino." },
+          { question: "No Tinkercad, como se faz um furo numa peça?", options: ["Apagando um pedaço da caixa com a ferramenta borracha.", "Exportando em STL e marcando o furo no fatiador.", "Diminuindo a altura da forma até zero.", "Transformando uma forma em \"Furo\" e encaixando."], answer: 3, why: "Depois, selecione tudo e agrupe para virar uma peça só." },
+          { question: "Qual altura de camada a tabela indica para a maioria das peças?", options: ["0,12 mm", "0,28 mm", "0,40 mm", "0,20 mm"], answer: 3, why: "0,12 mm é para miniaturas; 0,28 mm, para rascunhos e peças grandes." },
+          { question: "Uma peça vai fazer força. Quantas paredes a aula recomenda?", options: ["Uma só.", "Duas.", "Três ou quatro.", "Dez ou mais."], answer: 2, why: "Duas paredes servem para peças decorativas." },
+          { question: "Que preenchimento resolve a maioria das peças?", options: ["15 a 20%", "5 a 10%", "50 a 60%", "100%"], answer: 0, why: "Mais de 50% só em peças que vão sofrer muita força." },
+          { question: "Uma figura de bicho, cheia de curvas, precisa de suporte. Qual tipo a aula indica?", options: ["Normal (grade)", "Jangada (raft)", "Borda (brim)", "Árvore (tree)"], answer: 3, why: "Toca só os pontos necessários e gasta menos plástico. O normal é para superfícies planas." },
+          { question: "Para que serve a borda (brim)?", options: ["Para o bico começar a soltar plástico.", "Segurar os cantos contra o descolamento.", "Para sustentar as partes que ficam no ar.", "Para deixar a última camada mais lisa."], answer: 1, why: "A linha em volta, sem encostar na peça, é a saia (skirt)." },
+        ],
+      },
     },
     {
       title: "Problemas, acabamento e custos",
@@ -480,6 +533,21 @@ export const IMPRESSORA_3D: CourseContent = {
           recap: ["Acabamento é por etapas: tirar suporte, lixar do grosso ao fino, primer e pintura.", "Custo = material + energia + desgaste; o preço ainda soma a sua margem.", "Um bom projeto resolve um problema real e mostra o caminho, inclusive os erros."],
         },
       ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-3", min: 8 },
+        questions: [
+          { question: "Os cantos de uma caixa levantaram e ela entortou. Qual destes ajustes está na aula?", options: ["Ativar a borda (brim) no fatiador.", "Aumentar a retração.", "Baixar a temperatura da mesa em 10 °C.", "Imprimir perto da janela, para ventilar."], answer: 0, why: "Também: limpar a mesa, conferir o nivelamento e subir a mesa em 5 °C." },
+          { question: "Por que aparecem fiapos entre partes separadas da peça?", options: ["A mesa está fria demais para o material.", "Plástico escorre do bico no movimento.", "O preenchimento está baixo demais.", "O bico está alto demais."], answer: 1, why: "A retração puxa o filamento de volta antes do movimento." },
+          { question: "Qual retração a aula indica, em geral, para uma impressora Bowden?", options: ["0,5 a 2 mm", "8 a 10 mm", "Nenhuma", "2 a 6 mm"], answer: 3, why: "De 0,5 a 2 mm é para a direct drive." },
+          { question: "Você quer acabar com os fiapos. Qual é a dica de método da aula?", options: ["Mudar tudo de uma vez para ganhar bastante tempo.", "Trocar o bico e o filamento juntos.", "Imprimir a peça inteira a cada ajuste.", "Mudar uma coisa por vez e testar pequeno."], answer: 3, why: "Se mudar tudo junto, você não descobre o que resolveu." },
+          { question: "Na puxada a frio com PLA, até que temperatura deixar o bico esfriar antes de puxar?", options: ["Uns 90 °C", "Uns 30 °C", "Uns 150 °C", "Uns 200 °C"], answer: 0, why: "A ponta do fio sai com a sujeira de dentro." },
+          { question: "A peça saiu com buracos e a extrusora deu estalos. Que nome a aula dá a isso?", options: ["Warping", "Stringing", "Sub-extrusão", "Sobre-extrusão"], answer: 2, why: "Está saindo menos plástico do que deveria." },
+          { question: "Como a aula manda trocar o bico?", options: ["Com o hotend frio, para não queimar a mão.", "Quente, segurando o bloco com uma chave.", "Com a impressora ligada, imprimindo.", "Arrancando com alicate, sem segurar o bloco."], answer: 1, why: "Com o bico frio, o plástico de dentro trava a rosca." },
+          { question: "Com que frequência lubrificar o fuso do eixo Z?", options: ["A cada impressão", "Toda semana", "Todo mês", "Uma vez por ano"], answer: 2, why: "Toda semana: correias e poeira dos eixos. A cada impressão: limpar a mesa." },
+          { question: "Depois de lixar fino, qual é o passo antes da pintura?", options: ["Massa plástica", "Lixa 120", "Vapor de acetona", "Primer"], answer: 3, why: "O primer mostra os defeitos que faltam e ajuda a tinta a grudar." },
+          { question: "Uma impressão de 4 horas numa máquina de 250 W, com o kWh a R$ 1,00. Quanto custa a energia?", options: ["R$ 1,00", "R$ 10,00", "R$ 0,25", "R$ 4,00"], answer: 0, why: "0,25 kW × 4 h × R$ 1,00 = R$ 1,00." },
+        ],
+      },
     },
   ],
 };

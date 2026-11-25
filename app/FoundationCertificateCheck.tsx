@@ -72,7 +72,7 @@ export default function FoundationCertificateCheck() {
               <dl>
                 <div><dt>Nome</dt><dd>{state.data.name}</dd></div>
                 <div><dt>Curso</dt><dd>{state.data.course}</dd></div>
-                <div><dt>Desafio final</dt><dd>{state.data.hits} {state.data.hits === 1 ? "acerto" : "acertos"}</dd></div>
+                <div><dt>Prova final</dt><dd>{state.data.hits} {state.data.hits === 1 ? "acerto" : "acertos"}</dd></div>
                 <div><dt>Concluído em</dt><dd>{new Date(state.data.issuedAt).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" })}</dd></div>
                 <div><dt>Código</dt><dd className="fq-p-code">{state.data.code}</dd></div>
               </dl>
