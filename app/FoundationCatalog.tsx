@@ -539,6 +539,28 @@ function LessonBlock({ block }: { block: Block }) {
   );
 }
 
+/**
+ * Abas do caderno: com mais abas que espaço, a roda do mouse rola a fila para o lado
+ * e a aba aberta sempre fica à vista (sem mexer na rolagem da página).
+ */
+function tabStrip(nav: HTMLElement | null) {
+  if (!nav || nav.dataset.strip) return;
+  nav.dataset.strip = "1";
+  nav.addEventListener("wheel", (event) => {
+    if (nav.scrollWidth <= nav.clientWidth || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+    nav.scrollLeft += event.deltaY;
+    event.preventDefault();
+  }, { passive: false });
+  const showCurrent = () => {
+    const tab = nav.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!tab) return;
+    if (tab.offsetLeft < nav.scrollLeft) nav.scrollLeft = tab.offsetLeft - 8;
+    else if (tab.offsetLeft + tab.offsetWidth > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = tab.offsetLeft + tab.offsetWidth - nav.clientWidth + 8;
+  };
+  new MutationObserver(showCurrent).observe(nav, { subtree: true, attributeFilter: ["aria-current"] });
+  requestAnimationFrame(showCurrent);
+}
+
 /** Cores do caderno: a capa do curso (foundation-content) ou, sem capa, as cores da categoria. */
 const notebookStyle = (course: Course) => {
   const category = categoryOf(course.category);
@@ -685,7 +707,7 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
             </div>
           ) : (
             <div className="nb">
-              <nav className="nb-tabs" aria-label="Módulos do curso">
+              <nav className="nb-tabs" aria-label="Módulos do curso" ref={tabStrip}>
                 {content.modules.map((item, itemIndex) => (
                   <Fragment key={item.title}>
                     <button type="button" style={{ "--i": itemIndex } as CSSProperties} aria-current={activeTab === itemIndex ? "page" : undefined} onClick={() => openModule(itemIndex)}>

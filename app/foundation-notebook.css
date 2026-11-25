@@ -125,8 +125,9 @@ html[data-site-theme="light"] .fc-lesson.nb-desk .fc-player-top small { color: #
 @keyframes nb-toast { from { transform: translateY(16px) scale(.96); opacity: 0; } }
 
 /* Abas dos módulos */
-.nb-tabs { position: relative; z-index: 1; display: flex; gap: 6px; margin: 0 12px -2px 70px; overflow-x: auto; scrollbar-width: none; }
-.nb-tabs::-webkit-scrollbar { display: none; }
+.nb-tabs { position: relative; z-index: 1; display: flex; gap: 6px; margin: 0 12px -2px 70px; overflow-x: auto; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--nb-text) 30%, transparent) transparent; }
+.nb-tabs::-webkit-scrollbar { height: 6px; }
+.nb-tabs::-webkit-scrollbar-thumb { border-radius: 999px; background: color-mix(in srgb, var(--nb-text) 30%, transparent); }
 .nb-tabs button {
   flex: 0 1 170px; min-width: 112px; min-height: 52px; padding: 8px 14px 10px; border: 0; border-radius: 12px 12px 0 0;
   display: grid; align-content: center; gap: 1px; text-align: left; cursor: pointer;
@@ -282,6 +283,16 @@ html[data-site-theme="light"] .nb-page .fc-box.is-atencao { --box: #9a6408; }
 .nb-options button.is-wrong, .nb-sort-buttons button.is-wrong { border-color: var(--nb-wrong); background: color-mix(in srgb, var(--nb-wrong) 10%, transparent); }
 .nb-options button.is-right b { background: var(--nb-right); color: #fff; }
 .nb-options button.is-wrong b { background: var(--nb-wrong); color: #fff; }
+/* Marca-texto: ao responder, a certa ganha um traço verde e a errada um vermelho na metade de baixo de cada linha. */
+.nb-options button:is(.is-right, .is-wrong) > span:not(.fc-sr) {
+  width: fit-content;
+  background-image: linear-gradient(transparent 52%, var(--nb-marker) 52%, var(--nb-marker) 94%, transparent 94%);
+  background-size: 100% 1lh; background-repeat: repeat-y;
+  animation: nb-marker .5s ease-out both;
+}
+.nb-options button.is-right > span:not(.fc-sr) { --nb-marker: color-mix(in srgb, var(--nb-right) 30%, transparent); }
+.nb-options button.is-wrong > span:not(.fc-sr) { --nb-marker: color-mix(in srgb, var(--nb-wrong) 26%, transparent); }
+@keyframes nb-marker { from { background-size: 0 1lh; } }
 .nb-feedback { margin-top: 10px; padding: 10px 14px; border-radius: 10px; font-size: 16px; line-height: 1.5 !important; background: color-mix(in srgb, var(--nb-accent) 8%, transparent); }
 .nb-feedback.is-right { background: color-mix(in srgb, var(--nb-right) 12%, transparent); }
 .nb-feedback.is-right strong { color: var(--nb-right); }
