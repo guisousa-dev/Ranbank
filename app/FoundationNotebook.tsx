@@ -342,10 +342,19 @@ export function PostIts({ cards }: { cards: Array<{ title: string; text: string;
 }
 
 /** Quiz do módulo (página própria, no alto da folha): cada resposta trava e já mostra a explicação. No fim, o placar. */
+/** Assinatura curta de um texto (hash djb2 em base 36), para saber se as perguntas mudaram. */
+function signature(text: string) {
+  let hash = 5381;
+  for (let i = 0; i < text.length; i++) hash = ((hash << 5) + hash + text.charCodeAt(i)) | 0;
+  return (hash >>> 0).toString(36);
+}
+
 export function ModuleQuizCard({ quiz, moduleTitle }: { quiz: ModuleQuiz; moduleTitle: string }) {
   const { data, setAnswer, update, earn } = useNotebook();
   const baseId = useId();
-  const key = `quiz:${moduleTitle}`;
+  // A chave leva uma assinatura das perguntas: se elas forem reescritas, o quiz recomeça em vez de mostrar
+  // respostas antigas marcadas em perguntas novas.
+  const key = `quiz:${moduleTitle}:${signature(quiz.questions.map((question) => question.question).join("|"))}`;
   const picks = (data.answers[key] as Record<number, number> | undefined) ?? {};
   const total = quiz.questions.length;
   const answered = Object.keys(picks).length;
