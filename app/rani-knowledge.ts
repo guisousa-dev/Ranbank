@@ -148,7 +148,7 @@ const INTENTS: Intent[] = [
   {
     topic: "Fundação RanBank",
     keywords: ["fundacao", "fundacao ranbank", "curso", "cursos", "aulas", "orientacao", "orientacoes", "escola", "aprender com voces", "proximos passos do projeto"],
-    site: { text: "A Fundação RanBank tem um site com o catálogo de cursos: educação financeira, gestão de tempo, xadrez, futebol, impressora 3D e outros. Todos os cursos já têm aulas em texto, e quem termina os cursos de Autodesenvolvimento, Educação financeira, Futebol, Gestão de tempo, Hardware e sistema operacional, Impressora 3D, Jogos, Primeiros socorros ou Xadrez ainda pode fazer a prova final e ganhar o certificado.", link: { label: "Ver os cursos", href: "/fundacao/cursos" } },
+    site: { text: "A Fundação RanBank tem um site com o catálogo de cursos: educação financeira, gestão de tempo, xadrez, futebol, impressora 3D e outros. Todos os cursos já têm aulas em texto, e quem termina os cursos de Autodesenvolvimento, Educação financeira, Futebol, Gestão de tempo, Hardware e sistema operacional, Impressora 3D, Jogos, Literatura, Primeiros socorros ou Xadrez ainda pode fazer a prova final e ganhar o certificado.", link: { label: "Ver os cursos", href: "/fundacao/cursos" } },
   },
   {
     topic: "Parcerias",

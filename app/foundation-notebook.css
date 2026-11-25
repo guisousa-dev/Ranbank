@@ -410,6 +410,16 @@ html[data-site-theme="light"] .nb-page .fc-box.is-atencao { --box: #9a6408; }
 .nb-matrix-tasks li > p:first-child::before { content: counter(nb-matrix) ". "; font-weight: 700; color: var(--nb-accent); }
 .nb-matrix-choices { display: grid; grid-template-columns: 1fr 1fr; }
 /* Pare, respire, escolha */
+.nb-shelf { display: flex; align-items: flex-end; gap: 6px; min-height: 172px; margin: 10px 0 14px; padding: 12px 14px 0; overflow-x: auto; border-bottom: 10px solid #8a6a46; border-radius: 4px; background: color-mix(in srgb, #8a6a46 10%, transparent); }
+.nb-shelf-book { flex: 0 0 auto; width: 46px; padding: 12px 0; border: 0; border-radius: 4px 4px 1px 1px; color: #fff; font: 600 13px/1.15 inherit; writing-mode: vertical-rl; transform: rotate(180deg); cursor: pointer; box-shadow: inset 5px 0 0 rgba(0, 0, 0, .18), inset -2px 0 0 rgba(255, 255, 255, .15); transition: transform .15s; }
+.nb-shelf-book:hover, .nb-shelf-book[aria-pressed="true"] { transform: rotate(180deg) translateY(8px); }
+.nb-shelf-book[aria-pressed="true"] { outline: 3px solid var(--nb-accent); outline-offset: 2px; }
+.nb-shelf-book.is-read::after { content: "•"; margin-top: 6px; font-size: 14px; opacity: .85; }
+.nb-book-card { padding: 14px 16px; border: 1px solid; border-left-width: 5px; border-radius: 10px; }
+.nb-book-title { margin: 0; }
+.nb-book-title span { opacity: .7; }
+.nb-book-meta { margin: 4px 0 10px; font-size: 13px; opacity: .7; }
+.nb-book-quote { margin: 0 0 12px; padding-left: 12px; border-left: 2px solid currentColor; font-style: italic; opacity: .9; }
 .nb-breath { display: grid; gap: 14px; }
 .nb-breath-scale { display: grid; gap: 6px; font-size: 16px; }
 .nb-breath-scale b { color: var(--nb-accent); font-size: 18px; }

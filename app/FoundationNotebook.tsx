@@ -1546,6 +1546,53 @@ function BreathPause() {
   );
 }
 
+/** Estante da Literatura: as 5 obras do curso, todas em domínio público, com o começo de cada uma e o link para ler inteira. */
+type ShelfBook = { title: string; author: string; year: string; kind: string; movement: string; modules: string; opening: string; href: string; color: string; height: number };
+const SHELF_BOOKS: ShelfBook[] = [
+  { title: "Missa do Galo", author: "Machado de Assis", year: "1893", kind: "Conto", movement: "Realismo", modules: "Módulos 1 e 3", opening: "Nunca pude entender a conversação que tive com uma senhora, há muitos anos, contava eu dezessete, ela trinta.", href: "https://pt.wikisource.org/wiki/Missa_do_galo", color: "#7a2e3a", height: 118 },
+  { title: "Dom Casmurro", author: "Machado de Assis", year: "1899", kind: "Romance", movement: "Realismo", modules: "Módulos 1 e 2", opening: "Uma noite destas, vindo da cidade para o Engenho Novo, encontrei no trem da Central um rapaz aqui do bairro…", href: "https://pt.wikisource.org/wiki/Dom_Casmurro", color: "#24476b", height: 150 },
+  { title: "O Cortiço", author: "Aluísio Azevedo", year: "1890", kind: "Romance", movement: "Naturalismo", modules: "Módulos 1 e 3", opening: "João Romão foi, dos treze aos vinte e cinco anos, empregado de um vendeiro que enriqueceu…", href: "https://pt.wikisource.org/wiki/O_Corti%C3%A7o", color: "#7a5a1f", height: 140 },
+  { title: "Uma Lágrima de Mulher", author: "Aluísio Azevedo", year: "1879", kind: "Romance", movement: "Romantismo", modules: "Módulo 2", opening: "Numa das formosas ilhas de Lipari, branquejava solitária uma casinha térrea, meio encravada nos rochedos…", href: "https://pt.wikisource.org/wiki/Uma_L%C3%A1grima_de_Mulher", color: "#3d6b4a", height: 160 },
+  { title: "Vidas Secas", author: "Graciliano Ramos", year: "1938", kind: "Romance", movement: "Modernismo", modules: "Módulos 2 e 3", opening: "Na planície avermelhada os juazeiros alargavam duas manchas verdes.", href: "https://pt.wikisource.org/wiki/Vidas_Secas", color: "#a0522d", height: 128 },
+];
+
+function Shelf() {
+  const { data, update, earn } = useNotebook();
+  const key = "ferramenta:estante";
+  const opened = (data.answers[key] as number[] | undefined) ?? [];
+  const [pick, setPick] = useState<number | null>(null);
+  const open = (index: number) => {
+    setPick(index);
+    const next = update<number[]>(key, (previous = []) => (previous.includes(index) ? previous : [...previous, index]));
+    if (next.length === SHELF_BOOKS.length) earn("estante-completa");
+  };
+  const book = pick === null ? null : SHELF_BOOKS[pick];
+  return (
+    <div className="nb-pasted nb-tool nb-shelf-tool">
+      <p className="nb-tag">A estante do curso</p>
+      <p className="nb-muted">As cinco obras do curso estão em domínio público: dá para ler todas de graça. Toque num livro para ver como ele começa.</p>
+      <div className="nb-shelf" role="group" aria-label="Livros da estante">
+        {SHELF_BOOKS.map((item, index) => (
+          <button key={item.title} type="button" className={`nb-shelf-book ${opened.includes(index) ? "is-read" : ""}`} aria-pressed={pick === index}
+            style={{ background: item.color, height: item.height }} onClick={() => open(index)}>
+            {item.title}
+          </button>
+        ))}
+      </div>
+      {book ? (
+        <div className="nb-book-card" style={{ borderColor: book.color }}>
+          <p className="nb-book-title"><strong>{book.title}</strong> <span>{book.author}, {book.year}</span></p>
+          <p className="nb-book-meta">{book.kind} · {book.movement} · {book.modules}</p>
+          <blockquote className="nb-book-quote">&ldquo;{book.opening}&rdquo;</blockquote>
+          <a className="nb-btn" href={book.href} target="_blank" rel="noopener noreferrer">Ler o livro inteiro</a>
+        </div>
+      ) : (
+        <p className="nb-muted">{opened.length ? `Você já abriu ${opened.length} de ${SHELF_BOOKS.length} livros.` : "Nenhum livro aberto ainda."}</p>
+      )}
+    </div>
+  );
+}
+
 export const NOTEBOOK_TOOLS = {
   "diagnostico-financeiro": Diagnostic,
   "gasto-formiga": AntSpending,
@@ -1560,4 +1607,5 @@ export const NOTEBOOK_TOOLS = {
   "matriz-eisenhower": EisenhowerMatrix,
   "caca-ao-golpe": ScamHunt,
   respiracao: BreathPause,
+  estante: Shelf,
 } as const;
