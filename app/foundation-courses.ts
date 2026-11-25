@@ -114,7 +114,7 @@ export const PHOTO_CREDITS: Record<string, { by: string; url: string }> = {
   "hardware-so": { by: "Alexandre Debiève", url: "https://unsplash.com/photos/FO7JIlwjOtU" },
   "xadrez": { by: "Randy Fath", url: "https://unsplash.com/photos/G1yhU1Ej-9A" },
   "domino": { by: "Ryan Quintal", url: "https://unsplash.com/photos/Ecp0vf3f_aw" },
-  "jogos": { by: "Nik Korba", url: "https://unsplash.com/photos/3WceTBlUoMs" },
+  "jogos": { by: "Javier Martínez", url: "https://unsplash.com/photos/hUD0PUczwJQ" },
   "futebol": { by: "Wesley Tingey", url: "https://unsplash.com/photos/dKCKiC0BQtU" },
   "autodesenvolvimento": { by: "Cathryn Lavery", url: "https://unsplash.com/photos/fMD_Cru6OTk" },
   "maquiagem": { by: "Rosa Rafael", url: "https://unsplash.com/photos/pxax5WuM7eY" },
