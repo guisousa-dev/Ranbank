@@ -344,6 +344,20 @@ html[data-site-theme="light"] .nb-page .fc-box.is-atencao { --box: #9a6408; }
 .nb-budget-lines input { min-width: 0; min-height: 44px; padding: 0 12px; border: 1.5px solid var(--nb-card-line); border-radius: 10px; background: var(--nb-paper); color: var(--nb-text); font: inherit; font-size: 17px; }
 .nb-budget-lines input:focus-visible { outline: 2px solid var(--nb-accent); outline-offset: 1px; }
 .nb-budget > .nb-btn { margin-top: 14px; }
+.nb-installment-group { display: grid; gap: 10px; }
+.nb-installments { display: grid; gap: 6px; }
+.nb-installments-plot { position: relative; display: grid; grid-template-columns: repeat(12, 1fr); align-items: end; gap: 6px; height: 170px; padding-top: 4px; border-bottom: 1.5px solid var(--nb-card-line); }
+.nb-installments-bar { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+.nb-installments-bar i { display: block; background: var(--nb-accent); }
+.nb-installments-bar i:first-child { border-radius: 6px 6px 0 0; }
+.nb-installments-bar.is-over i:not(.is-new) { background: var(--nb-wrong); }
+.nb-installments-limit { position: absolute; left: 0; right: 0; height: 0; border-top: 2px dashed var(--nb-muted); pointer-events: none; }
+.nb-installments-limit em { position: absolute; right: 0; bottom: 4px; padding: 0 6px; border-radius: 6px; background: var(--nb-card); color: var(--nb-muted); font-size: 13px; font-style: normal; font-weight: 600; }
+.nb-installments-axis { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; text-align: center; color: var(--nb-muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.nb-installments-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--nb-muted); }
+.nb-installments-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.nb-installments-legend i { width: 14px; height: 14px; border-radius: 4px; background: var(--nb-accent); }
+.nb-installments .is-new, .nb-installments-legend .is-new { background: repeating-linear-gradient(135deg, var(--nb-accent) 0 4px, color-mix(in srgb, var(--nb-accent) 35%, transparent) 4px 8px); }
 .nb-sums { display: grid; gap: 0; margin: 14px 0 0; }
 .nb-sums div { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--nb-card-line); }
 .nb-sums dt { color: var(--nb-muted); }

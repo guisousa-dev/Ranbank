@@ -17,6 +17,8 @@ export const EDUCACAO_FINANCEIRA: CourseContent = {
     { id: "mestre-do-modulo-1", name: "Mestre do módulo", how: "Acertou 8 ou mais no quiz do Módulo 1." },
     { id: "orcamento-fechado", name: "Conta fechada", how: "Montou um orçamento sem faltar dinheiro e com algo para as metas." },
     { id: "mestre-do-modulo-2", name: "Orçamento na mão", how: "Acertou 8 ou mais no quiz do Módulo 2." },
+    { id: "parcela-que-cabe", name: "Parcela que cabe", how: "Testou uma compra nova sem passar de 20% da renda em nenhum mês." },
+    { id: "mestre-do-modulo-3", name: "Crédito sob controle", how: "Acertou 8 ou mais no quiz do Módulo 3." },
   ],
   modules: [
     {
@@ -714,7 +716,239 @@ export const EDUCACAO_FINANCEIRA: CourseContent = {
         ],
       },
     },
-    { title: "Crédito e dívidas", lessons: [] },
+    {
+      title: "Crédito e dívidas",
+      lessons: [
+        {
+          id: "credito-e-juros",
+          title: "Crédito e juros",
+          summary: "O que é crédito, como os juros crescem e como comparar o custo real de um empréstimo.",
+          goals: ["Entender que crédito é dinheiro adiantado, não renda extra", "Ver como os juros compostos fazem uma dívida crescer", "Comparar empréstimos pelo CET"],
+          sections: [
+            {
+              title: "Crédito não é dinheiro a mais",
+              body: [
+                "Crédito é usar agora um dinheiro que você vai pagar depois, conforme um contrato. Cartão de crédito, cheque especial, empréstimo, financiamento e crediário de loja são formas de crédito.",
+                "Ele pode ajudar: comprar uma geladeira que quebrou, financiar um estudo, atravessar um aperto. O problema é tratar o crédito como se fosse renda. Todo real usado vai sair da sua renda dos próximos meses, quase sempre com um custo a mais: os juros.",
+                { box: "chave", title: "Ponto-chave", text: "O limite do cartão ou do cheque especial não é seu dinheiro: é quanto o banco aceita adiantar. Quem usa o limite como se fosse salário está gastando a renda do futuro." },
+              ],
+            },
+            {
+              title: "Juros: o preço do dinheiro no tempo",
+              body: [
+                "Juros são o valor cobrado por usar um dinheiro que não é seu, ou o valor que você recebe quando empresta o seu (por exemplo, ao investir). Em quase toda dívida, os juros são compostos: cada mês, eles são calculados sobre o valor que já cresceu. São juros sobre juros.",
+                {
+                  table: {
+                    caption: "Uma dívida de R$ 1.000 a 5% ao mês, sem nenhum pagamento",
+                    head: ["Depois de", "Juros simples (só sobre os R$ 1.000)", "Juros compostos (juros sobre juros)"],
+                    rows: [
+                      ["1 mês", "R$ 1.050", "R$ 1.050"],
+                      ["6 meses", "R$ 1.300", "R$ 1.340"],
+                      ["12 meses", "R$ 1.600", "R$ 1.796"],
+                      ["24 meses", "R$ 2.200", "R$ 3.225"],
+                    ],
+                  },
+                },
+                "No começo a diferença é pequena. Com o tempo, ela dispara. É por isso que uma dívida esquecida cresce tão rápido, e é a mesma força que, a seu favor, faz um investimento render (Módulo 5).",
+              ],
+            },
+            {
+              title: "Os tipos de crédito e o custo de cada um",
+              body: [
+                {
+                  table: {
+                    caption: "Do mais barato ao mais caro (em geral)",
+                    head: ["Crédito", "Como funciona", "Custo"],
+                    rows: [
+                      ["Consignado", "A parcela é descontada direto do salário ou do benefício", "Entre os juros mais baixos, porque o risco para o banco é menor"],
+                      ["Financiamento", "Para um bem específico, como carro ou casa, que fica como garantia", "Baixo a médio, mas por muitos anos"],
+                      ["Empréstimo pessoal", "Valor na conta, pago em parcelas fixas", "Médio a alto"],
+                      ["Cheque especial", "Limite que entra quando a conta fica negativa", "Alto: por regra, no máximo 8% ao mês"],
+                      ["Rotativo do cartão", "O que fica sem pagar na fatura", "Entre os mais altos do mercado, em geral acima de 10% ao mês"],
+                    ],
+                  },
+                },
+                { box: "atencao", title: "Compare pelo CET", text: "A taxa de juros não conta tudo. O CET (Custo Efetivo Total) soma juros, tarifas, seguros e impostos, e o banco é obrigado a informar. Dois empréstimos com a mesma taxa podem ter CETs bem diferentes. Compare também o valor total que você vai pagar, e não só se a parcela cabe." },
+                {
+                  check: {
+                    question: "Dois empréstimos têm a mesma taxa de juros, mas um deles tem seguro e tarifa embutidos. O que mostra o custo real para comparar?",
+                    options: ["O valor da parcela de cada um.", "O CET de cada um.", "O prazo em meses de cada um."],
+                    answer: 1,
+                    why: "O CET junta juros, tarifas, seguros e impostos. A parcela pode ser menor só porque o prazo é maior, e o prazo sozinho não diz quanto você paga no total.",
+                  },
+                },
+              ],
+            },
+          ],
+          activity: {
+            title: "Meus créditos",
+            steps: ["Liste os créditos que você usa ou já usou. Se não usa nenhum, pense em alguém da família ou num exemplo."],
+            fields: [
+              "Quais tipos de crédito eu uso (cartão, cheque especial, crediário, empréstimo...):",
+              "Qual deles tem os juros mais altos:",
+              "Uma situação em que o crédito me ajudou e uma em que ele me atrapalhou:",
+            ],
+            answer: "Repare se o crédito mais usado é também o mais caro, como o rotativo do cartão ou o cheque especial. É o mais comum, e é por onde vale começar a mudar.",
+          },
+          recap: [
+            "Crédito é renda do futuro usada agora, quase sempre com juros.",
+            "Juros compostos são juros sobre juros: a dívida cresce cada vez mais rápido.",
+            "Compare empréstimos pelo CET e pelo valor total pago, não só pela parcela.",
+          ],
+        },
+        {
+          id: "cartao-de-credito",
+          title: "Cartão de crédito sem susto",
+          summary: "Fatura, limite, pagamento mínimo e parcelas que se acumulam: como usar o cartão a seu favor.",
+          goals: ["Entender fechamento, vencimento e o melhor dia de compra", "Saber o que acontece quando se paga só o mínimo", "Enxergar o peso das parcelas somadas nos próximos meses"],
+          sections: [
+            {
+              title: "Como a fatura funciona",
+              body: [
+                "Tudo o que você compra no cartão durante o mês entra numa fatura. Ela tem duas datas:",
+                {
+                  cards: [
+                    { title: "Fechamento", text: "Até esse dia, as compras entram na fatura atual. Depois dele, vão para a próxima." },
+                    { title: "Vencimento", text: "O dia de pagar. Costuma ser cerca de 7 a 10 dias depois do fechamento." },
+                  ],
+                },
+                { box: "exemplo", title: "O melhor dia de compra", text: "A fatura de Leo fecha no dia 5 e vence no dia 15. Uma compra no dia 6 só entra na próxima fatura, que vence no dia 15 do mês seguinte: quase 40 dias para pagar. Uma compra no dia 4 vence já no dia 15, em 11 dias." },
+                "Use o cartão como meio de pagamento, não como renda extra: anote cada compra no dia, como no Módulo 2, para a fatura não ser uma surpresa.",
+              ],
+            },
+            {
+              title: "Pagar só o mínimo",
+              body: [
+                "A fatura mostra um pagamento mínimo, bem menor que o total. Pagar só o mínimo não é ficar em dia: o que sobra entra no crédito rotativo, um dos juros mais caros do mercado.",
+                { box: "exemplo", title: "A fatura da Ana", text: "A fatura de Ana veio de R$ 1.000 e ela pagou o mínimo, R$ 150. Os R$ 850 restantes entram no rotativo e, com juros de cerca de 13% ao mês, viram mais de R$ 960 na fatura seguinte, antes de qualquer compra nova." },
+                "Pela regra atual, o rotativo só pode ser usado até a fatura seguinte. Depois disso, o banco precisa oferecer o parcelamento do saldo, também com juros. Desde 2024, os juros e encargos do rotativo e do parcelamento da fatura não podem passar do valor da dívida original, mas mesmo assim uma dívida de R$ 850 pode chegar a R$ 1.700.",
+                { box: "atencao", title: "Se não der para pagar tudo", text: "Pague o máximo que puder, não só o mínimo, e pare de usar o cartão até organizar o orçamento. Se a fatura não cabe de jeito nenhum, procure o banco para negociar antes do vencimento: o parcelamento costuma sair mais barato que o rotativo." },
+              ],
+            },
+            {
+              title: "Parcelas que se acumulam",
+              body: [
+                "\"Sem juros\" não quer dizer \"sem custo\". Cada parcela ocupa um pedaço da renda dos próximos meses. Sozinha, parece leve; somadas, as parcelas deixam pouco espaço para o resto.",
+                { box: "exemplo", title: "As parcelas da Júlia", text: "Júlia tem três parcelas: R$ 120 (faltam 2 meses), R$ 80 (faltam 5) e R$ 150 (faltam 10). Hoje ela paga R$ 350 por mês. No terceiro mês, a primeira acaba e sobram R$ 230. Só no décimo primeiro mês a renda fica livre de parcelas." },
+                "Antes de parcelar, pergunte: somando com o que já tenho, quanto fica comprometido em cada um dos próximos meses? E veja se há desconto à vista: às vezes ele é maior do que parece.",
+                "Teste na linha do tempo abaixo. A renda é a do Diego, R$ 2.200, e a linha de alerta é 20% da renda, a parte de metas e dívidas da divisão 50-30-20.",
+                { tool: "parcelas" },
+              ],
+            },
+          ],
+          activity: {
+            title: "O raio-x do meu cartão",
+            steps: ["Abra a fatura do seu cartão (ou use um exemplo) e responda."],
+            fields: [
+              "Dia de fechamento, dia de vencimento e o meu melhor dia de compra:",
+              "Quantas parcelas eu tenho e quanto elas somam por mês:",
+              "Em que mês a última parcela termina:",
+              "Uma regra que vou seguir no cartão daqui para a frente:",
+            ],
+            answer: "Uma boa regra é simples e concreta: \"pago sempre o total da fatura\", \"não faço parcela nova enquanto tiver três ativas\" ou \"anoto cada compra no dia\". Se as parcelas somadas passam de um quinto da renda, segure as novas até algumas acabarem.",
+          },
+          recap: [
+            "Comprar logo depois do fechamento dá mais prazo; anote cada compra no dia.",
+            "Pagar só o mínimo joga o resto no rotativo, um dos juros mais altos que existem.",
+            "Parcelas somadas ocupam a renda futura: olhe o mês a mês antes de parcelar.",
+          ],
+        },
+        {
+          id: "saindo-das-dividas",
+          title: "Saindo das dívidas",
+          summary: "Organizar as dívidas, decidir o que pagar primeiro, negociar e fugir dos golpes.",
+          goals: ["Montar a lista das dívidas", "Decidir a ordem de pagamento", "Negociar com segurança e reconhecer golpes"],
+          sections: [
+            {
+              title: "Primeiro, a lista",
+              body: [
+                "Dívida que não se olha cresce. O primeiro passo é colocar todas no papel, com cinco informações: com quem é, quanto falta, os juros ao mês, o valor da parcela e se está em dia ou atrasada.",
+                {
+                  table: {
+                    caption: "As dívidas do Wesley (renda de R$ 2.000)",
+                    head: ["Dívida", "Quanto falta", "Juros", "Situação"],
+                    rows: [
+                      ["Rotativo do cartão", "R$ 1.200", "cerca de 13% ao mês", "Pagando o mínimo"],
+                      ["Cheque especial", "R$ 400", "8% ao mês", "Conta negativa há 2 meses"],
+                      ["Conta de luz", "R$ 180", "Multa e juros de atraso", "Atrasada, com aviso de corte"],
+                      ["Crediário da loja", "4 × R$ 90", "Sem juros", "Em dia"],
+                    ],
+                  },
+                },
+                "Só de juros, o rotativo custa a Wesley cerca de R$ 156 por mês (13% de R$ 1.200), e o cheque especial mais R$ 32. É dinheiro que não diminui a dívida.",
+              ],
+            },
+            {
+              title: "A ordem de pagamento",
+              body: [
+                {
+                  ordered: true,
+                  list: [
+                    "Primeiro, as contas essenciais com risco de corte ou despejo: luz, água, aluguel. Sem elas, a vida para.",
+                    "Depois, as dívidas de juros mais altos, como rotativo e cheque especial. Cada mês delas custa caro.",
+                    "Por último, as de juros baixos ou sem juros que estão em dia, como o crediário do Wesley: basta mantê-las em dia.",
+                  ],
+                },
+                "Uma estratégia possível é trocar uma dívida cara por uma mais barata: por exemplo, um empréstimo pessoal ou consignado a 4% ao mês para quitar o rotativo de 13%. Só funciona com uma condição: parar de usar o cartão até o orçamento estar organizado. Senão, em poucos meses a pessoa tem as duas dívidas.",
+                {
+                  check: {
+                    question: "Pela ordem da aula, qual dívida Wesley deve resolver primeiro?",
+                    options: ["O rotativo do cartão, que tem os juros mais altos.", "A conta de luz atrasada, pelo risco de corte.", "O crediário da loja, para limpar o nome mais rápido."],
+                    answer: 1,
+                    why: "Contas essenciais com risco de corte vêm primeiro: sem luz, a vida para. Em seguida vem o rotativo, que tem os juros mais altos. O crediário está em dia e sem juros, então basta continuar pagando.",
+                  },
+                },
+              ],
+            },
+            {
+              title: "Negociar com segurança",
+              body: [
+                {
+                  list: [
+                    "Procure o credor pelos canais oficiais: o aplicativo, o site ou a agência. Mutirões de renegociação organizados por órgãos oficiais também costumam ter boas condições.",
+                    "Antes de aceitar, pergunte o CET e o valor total que vai pagar, não só a parcela.",
+                    "Só aceite uma parcela que caiba no orçamento. Um acordo quebrado costuma piorar a dívida.",
+                    "Peça tudo por escrito e guarde os comprovantes.",
+                  ],
+                },
+                { box: "atencao", title: "Golpes comuns", text: "Ninguém do banco pede senha, código recebido por SMS ou que você faça um Pix para \"cancelar uma compra\". Se receber uma ligação assim, desligue e ligue você mesmo para o número que está no verso do cartão ou no aplicativo. Desconfie também de quem cobra para \"limpar o seu nome\": a negociação é feita direto com o credor." },
+                "Se as dívidas já passaram do que é possível pagar sem faltar o básico, a lei do superendividamento permite uma renegociação conjunta de todas elas. O Procon e a Defensoria Pública da sua cidade orientam de graça.",
+              ],
+            },
+          ],
+          activity: {
+            title: "Meu plano para as dívidas",
+            steps: ["Se você não tem dívidas, use as do Wesley e monte o plano dele."],
+            fields: [
+              "A lista das dívidas (com quem, quanto falta, juros e situação):",
+              "A ordem em que vou pagar e por quê:",
+              "Uma dívida que vale negociar e o que vou perguntar antes de aceitar:",
+            ],
+            answer: "Para o Wesley: primeiro a conta de luz (R$ 180), pelo risco de corte. Depois o rotativo (13% ao mês), negociando o parcelamento com o banco ou trocando por um crédito mais barato, e o cheque especial (8% ao mês). O crediário segue em dia. Em qualquer negociação: perguntar o CET e o valor total, aceitar só parcela que cabe no orçamento e parar de usar o cartão até organizar as contas.",
+          },
+          recap: [
+            "Coloque todas as dívidas no papel: com quem, quanto, juros e situação.",
+            "Primeiro as essenciais com risco de corte, depois as de juros mais altos.",
+            "Negocie pelos canais oficiais, olhe o CET e nunca passe senha ou código.",
+          ],
+        },
+      ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-3", min: 8 },
+        questions: [
+          { question: "Uma dívida de R$ 1.000 cresce 5% ao mês, com juros sobre juros, durante 12 meses, sem nenhum pagamento. Quanto ela vira, aproximadamente?", options: ["R$ 1.050", "R$ 1.600", "R$ 1.796", "R$ 2.200"], answer: 2, why: "Com juros compostos, cada mês os 5% são calculados sobre o valor que já cresceu: chega a cerca de R$ 1.796. R$ 1.600 seria com juros simples, só sobre os R$ 1.000 iniciais." },
+          { question: "Maria tem renda de R$ 1.800 e um limite de R$ 3.000 no cartão. O que a aula diz sobre esse limite?", options: ["É quanto ela pode gastar por mês com segurança.", "É crédito: o que ela usar vai sair da renda dos próximos meses.", "Pode servir de reserva de emergência, já que está sempre disponível.", "Usar o limite todo todo mês ajuda a aumentá-lo no futuro."], answer: 1, why: "O limite é quanto o banco aceita adiantar, não dinheiro dela. Tratar o limite como renda ou como reserva é gastar o futuro, quase sempre com juros." },
+          { question: "A fatura de Ana veio de R$ 1.000 e ela pagou o mínimo, R$ 150. O que acontece com os R$ 850 restantes?", options: ["Passam para a próxima fatura sem custo, se ela pagar em dia.", "São parcelados pelo banco sem juros adicionais.", "Ficam bloqueados no limite até ela quitar, sem juros.", "Entram no rotativo, com juros entre os mais altos do mercado."], answer: 3, why: "O que fica sem pagar entra no rotativo, com juros em geral acima de 10% ao mês. Na fatura seguinte, os R$ 850 já passam de R$ 960, antes de qualquer compra nova." },
+          { question: "Bruno precisa de R$ 2.000. O banco A oferece 12 × R$ 230. O banco B anuncia \"a menor parcela\": 18 × R$ 175. O que ele deve concluir?", options: ["O B sai R$ 390 mais caro no total; ele deve comparar o CET e o total pago.", "O B é melhor, porque a parcela menor cabe mais fácil no orçamento.", "Os dois custam parecido, porque a diferença de parcela é só R$ 55.", "O A é pior, porque pagar mais por mês aperta o orçamento à toa."], answer: 0, why: "No A ele paga R$ 2.760 no total; no B, R$ 3.150. A parcela menor veio de um prazo maior. A aula manda comparar o CET e o valor total, não só se a parcela cabe." },
+          { question: "Em geral, qual destas formas de crédito tem os juros mais altos?", options: ["Consignado.", "Empréstimo pessoal.", "Cheque especial.", "Rotativo do cartão."], answer: 3, why: "O rotativo costuma passar de 10% ao mês. O cheque especial também é caro, mas tem um teto de 8% ao mês. O consignado está entre os mais baratos, porque a parcela sai direto do salário." },
+          { question: "A fatura de Leo fecha no dia 5 e vence no dia 15. Para ter o maior prazo para pagar uma compra, em que dia ele deveria comprar?", options: ["No dia 4.", "No dia 6.", "No dia 14.", "No dia 15."], answer: 1, why: "No dia 6 a fatura já fechou: a compra vai para a próxima, que vence no dia 15 do mês seguinte, quase 40 dias depois. No dia 4 ela ainda entra na fatura que vence em 11 dias." },
+          { question: "Júlia tem três parcelas: R$ 120 (faltam 2 meses), R$ 80 (faltam 5) e R$ 150 (faltam 10). Quanto estará comprometido no terceiro mês?", options: ["R$ 230", "R$ 350", "R$ 150", "R$ 200"], answer: 0, why: "A parcela de R$ 120 termina depois do segundo mês. No terceiro, continuam R$ 80 + R$ 150 = R$ 230. R$ 350 é o total de hoje." },
+          { question: "Wesley tem rotativo (13% ao mês), cheque especial (8% ao mês), conta de luz atrasada com aviso de corte e um crediário sem juros em dia. O que ele deve resolver primeiro?", options: ["O rotativo do cartão, que tem os juros mais altos.", "O cheque especial, para a conta parar de ficar negativa.", "A conta de luz, pelo risco de corte.", "O crediário, para não sujar o nome."], answer: 2, why: "Primeiro vêm as contas essenciais com risco de corte. Depois, as de juros mais altos, começando pelo rotativo. O crediário está em dia e sem juros: basta continuar pagando." },
+          { question: "Wesley conseguiu um empréstimo a 4% ao mês para quitar o rotativo de 13%. O que a aula diz que é indispensável para isso dar certo?", options: ["Parar de usar o cartão até organizar o orçamento.", "Pegar um valor maior que a dívida, para sobrar um pouco.", "Escolher o prazo mais longo, para a parcela ficar mínima.", "Continuar pagando o mínimo do cartão por segurança."], answer: 0, why: "Trocar dívida cara por barata só funciona se a cara não voltar. Se ele continuar usando o cartão, em poucos meses terá o empréstimo e um rotativo novo. Prazo longo demais aumenta o total pago." },
+          { question: "Alguém liga dizendo ser da central do banco, fala de uma compra suspeita e pede o código que chegou por SMS para cancelar. O que fazer?", options: ["Passar o código, já que é para cancelar a compra.", "Desligar e ligar para o número do verso do cartão ou do aplicativo.", "Pedir que a pessoa confirme o seu CPF antes de passar o código.", "Passar só parte do código, por segurança."], answer: 1, why: "Banco nenhum pede senha ou código por telefone. Saber o seu CPF não prova nada: golpistas costumam ter esses dados. O caminho seguro é você ligar para o número oficial." },
+        ],
+      },
+    },
     { title: "Consumo consciente", lessons: [] },
     { title: "Poupança e investimentos", lessons: [] },
   ],

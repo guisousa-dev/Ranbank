@@ -464,7 +464,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   assert.match(notebookCss, /prefers-reduced-motion: reduce/);
   // Educação financeira: 5 módulos de 3 aulas; o Módulo 1 está pronto e os outros aparecem em preparação.
   const finance = Object.values(await import(new URL("../app/foundation-content/educacao-financeira.ts", import.meta.url).href))[0];
-  assert.deepEqual(finance.modules.map((module) => module.lessons.length), [3, 3, 0, 0, 0]);
+  assert.deepEqual(finance.modules.map((module) => module.lessons.length), [3, 3, 3, 0, 0]);
   assert.equal(finance.modules[0].quiz.questions.length, 10);
   for (const part of finance.modules.filter((item) => item.quiz)) {
     assert.equal(part.quiz.questions.length, 10, part.title);

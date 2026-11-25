@@ -735,10 +735,119 @@ function Budget() {
   );
 }
 
+/* Linha do tempo das parcelas (Módulo 3) ------------------------------------ */
+
+const INSTALLMENT_ROWS = 3;
+const INSTALLMENT_MONTHS = 12;
+const INSTALLMENT_LIMIT = 0.2;
+type Installment = { what?: string; value?: string; months?: string };
+/** As parcelas da Júlia, do texto da aula, mais uma compra nova para testar. */
+const JULIA = { income: "2200", rows: [{ what: "Celular", value: "120", months: "2" }, { what: "Tênis", value: "80", months: "5" }, { what: "Geladeira", value: "150", months: "10" }], extra: { what: "Fone de ouvido", value: "130", months: "6" } };
+
+const installmentOf = (row: Installment | undefined) => ({ value: toNumber(row?.value ?? ""), months: Math.min(Math.round(toNumber(row?.months ?? "")), 120) });
+const committedIn = (rows: Array<Installment | undefined>, month: number) => rows.reduce((sum, row) => {
+  const { value, months } = installmentOf(row);
+  return month < months ? sum + value : sum;
+}, 0);
+
+function Installments() {
+  const { data, update, setAnswer, earn } = useNotebook();
+  const baseId = useId();
+  const key = "ferramenta:parcelas";
+  type Saved = { income?: string; rows?: Installment[]; extra?: Installment };
+  const saved = (data.answers[key] as Saved | undefined) ?? {};
+  const income = toNumber(saved.income ?? "");
+  const rows = Array.from({ length: INSTALLMENT_ROWS }, (_, index) => saved.rows?.[index]);
+  const extra = installmentOf(saved.extra);
+  const hasExtra = extra.value > 0 && extra.months > 0;
+  const limit = income * INSTALLMENT_LIMIT;
+  const months = Array.from({ length: INSTALLMENT_MONTHS }, (_, month) => ({ old: committedIn(rows, month), extra: month < extra.months ? extra.value : 0 }));
+  const totals = months.map((month) => month.old + month.extra);
+  const peak = Math.max(0, ...totals);
+  const peakMonth = totals.indexOf(peak);
+  const longest = Math.max(0, ...[...rows, saved.extra].map((row) => {
+    const { value, months: count } = installmentOf(row);
+    return value > 0 ? count : 0;
+  }));
+  const over = totals.filter((total) => limit > 0 && total > limit).length;
+  const scale = Math.max(peak, limit, 1) * 1.15;
+  const ready = income > 0 && peak > 0;
+  const check = (next: Saved) => {
+    const nextIncome = toNumber(next.income ?? "");
+    const nextExtra = installmentOf(next.extra);
+    if (nextIncome <= 0 || nextExtra.value <= 0 || nextExtra.months <= 0) return;
+    const all = [...Array.from({ length: INSTALLMENT_ROWS }, (_, index) => next.rows?.[index]), next.extra];
+    const nextPeak = Math.max(...Array.from({ length: INSTALLMENT_MONTHS }, (_, month) => committedIn(all, month)));
+    if (nextPeak <= nextIncome * INSTALLMENT_LIMIT) earn("parcela-que-cabe");
+  };
+  const setIncome = (text: string) => check(update<Saved>(key, (previous) => ({ ...previous, income: text })));
+  const setRow = (index: number, field: keyof Installment, text: string) => check(update<Saved>(key, (previous) => {
+    const nextRows = [...(previous?.rows ?? [])];
+    nextRows[index] = { ...nextRows[index], [field]: text };
+    return { ...previous, rows: nextRows };
+  }));
+  const setExtra = (field: keyof Installment, text: string) => check(update<Saved>(key, (previous) => ({ ...previous, extra: { ...previous?.extra, [field]: text } })));
+  const fields = (row: Installment | undefined, id: string, change: (field: keyof Installment, text: string) => void, placeholder: string) => (
+    <div className="nb-fields">
+      <label htmlFor={`${id}-what`}>O que é<input id={`${id}-what`} value={row?.what ?? ""} placeholder={placeholder} onChange={(event) => change("what", event.target.value)} /></label>
+      <label htmlFor={`${id}-value`}>Parcela (R$)<input id={`${id}-value`} inputMode="decimal" value={row?.value ?? ""} placeholder="0" onChange={(event) => change("value", event.target.value)} /></label>
+      <label htmlFor={`${id}-months`}>Meses que faltam<input id={`${id}-months`} inputMode="numeric" value={row?.months ?? ""} placeholder="0" onChange={(event) => change("months", event.target.value)} /></label>
+    </div>
+  );
+  const chartLabel = `Parcelas por mês nos próximos ${INSTALLMENT_MONTHS} meses: ${totals.map((total, month) => `mês ${month + 1}, ${brl(total)}`).join("; ")}. Limite de alerta: ${brl(limit)}.`;
+  return (
+    <div className="nb-pasted nb-tool nb-budget">
+      <p className="nb-tag">Linha do tempo das parcelas</p>
+      <div className="nb-fields is-single">
+        <label htmlFor={`${baseId}-income`}>Renda líquida do mês (R$)<input id={`${baseId}-income`} inputMode="decimal" value={saved.income ?? ""} placeholder="2.200" onChange={(event) => setIncome(event.target.value)} /></label>
+      </div>
+      <fieldset className="nb-budget-group nb-installment-group">
+        <legend>Parcelas que já tenho</legend>
+        {rows.map((row, index) => <div key={index}>{fields(row, `${baseId}-${index}`, (field, text) => setRow(index, field, text), ["Celular", "Tênis", "Geladeira"][index])}</div>)}
+      </fieldset>
+      <fieldset className="nb-budget-group nb-installment-group is-new">
+        <legend>Compra nova que estou pensando</legend>
+        {fields(saved.extra, `${baseId}-extra`, setExtra, "Fone de ouvido")}
+      </fieldset>
+      <div aria-live="polite">
+        {!ready ? <p className="nb-muted">Preencha a renda e pelo menos uma parcela para ver a linha do tempo.</p> : (
+          <div className="nb-result">
+            <div className="nb-installments" role="img" aria-label={chartLabel}>
+              <div className="nb-installments-plot">
+                {limit > 0 && <span className="nb-installments-limit" style={{ bottom: `${(limit / scale) * 100}%` }}><em>20% da renda: {brl(limit)}</em></span>}
+                {months.map((month, index) => (
+                  <span key={index} className={`nb-installments-bar${totals[index] > limit ? " is-over" : ""}`}>
+                    {month.extra > 0 && <i className="is-new" style={{ height: `${(month.extra / scale) * 100}%` }} />}
+                    {month.old > 0 && <i style={{ height: `${(month.old / scale) * 100}%` }} />}
+                  </span>
+                ))}
+              </div>
+              <div className="nb-installments-axis" aria-hidden="true">{months.map((_, index) => <small key={index}>{index + 1}</small>)}</div>
+            </div>
+            <p className="nb-installments-legend" aria-hidden="true"><span><i /> Parcelas que já tenho</span>{hasExtra && <span><i className="is-new" /> Compra nova</span>}</p>
+            <p className="nb-result-total">
+              <strong>{brl(totals[0])} por mês</strong> · {Math.round((totals[0] / income) * 100)}% da renda hoje{hasExtra ? ", com a compra nova" : ""}
+            </p>
+            <p>
+              O mês mais pesado é o mês {peakMonth + 1}, com {brl(peak)}.{" "}
+              {longest > INSTALLMENT_MONTHS ? `As parcelas vão além de ${INSTALLMENT_MONTHS} meses: a renda só fica livre no mês ${longest + 1}.` : `A renda fica livre de parcelas no mês ${longest + 1}.`}
+            </p>
+            {over > 0
+              ? <p>Em {over === 1 ? "1 mês" : `${over} meses`} as parcelas passam de 20% da renda. {hasExtra ? "Vale esperar algumas acabarem, dar uma entrada maior ou procurar um desconto à vista." : "Segure as compras novas até algumas parcelas acabarem."}</p>
+              : <p>As parcelas não passam de 20% da renda em nenhum mês.{hasExtra ? " Ainda assim, confira se há desconto à vista antes de parcelar." : " Teste uma compra nova embaixo para ver como ela muda a linha."}</p>}
+          </div>
+        )}
+      </div>
+      <button type="button" className="nb-btn is-soft" onClick={() => setAnswer(key, { income: JULIA.income, rows: JULIA.rows.map((row) => ({ ...row })), extra: { ...JULIA.extra } })}>Ver as parcelas da Júlia</button>
+    </div>
+  );
+}
+
 export const NOTEBOOK_TOOLS = {
   "diagnostico-financeiro": Diagnostic,
   "gasto-formiga": AntSpending,
   prioridades: Priorities,
   "simulacao-lia": TemptationMonth,
   orcamento: Budget,
+  parcelas: Installments,
 } as const;
