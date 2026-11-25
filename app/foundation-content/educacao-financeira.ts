@@ -3,9 +3,11 @@
 // Segue o padrão de app/foundation-lessons.ts.
 
 import type { CourseContent } from "../foundation-lessons";
+import { PROVA_EDUCACAO_FINANCEIRA } from "./educacao-financeira-prova";
 
 export const EDUCACAO_FINANCEIRA: CourseContent = {
   note: "Material educativo. As informações sobre crédito e investimentos são introdutórias e não são recomendação de contratar ou aplicar em nada.",
+  quiz: PROVA_EDUCACAO_FINANCEIRA,
   closing: "Educação financeira se constrói aos poucos. Você não precisa mudar tudo de uma vez: comece com uma atitude possível, acompanhe e ajuste sempre que precisar.",
   cover: { color: "#d99b9e", ink: "#94535b", glow: "#f2bcc0", desk: "mesa-rosa" },
   stickers: [

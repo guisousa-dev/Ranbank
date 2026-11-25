@@ -8,14 +8,24 @@ import type { QuizQuestion, QuizResult } from "./foundation-lessons";
 import { Mark } from "./FoundationBadge";
 
 /*
- * Desafio final de um curso e o certificado de conclusão.
- * A roleta é um carretel de filamento dividido pelos módulos do curso; o ponteiro é o bico da impressora.
+ * Prova final de um curso e o certificado de conclusão.
+ * A roleta é dividida pelos módulos do curso e tem o tema do curso (veja THEMES): na Impressora 3D é um
+ * carretel de filamento com o bico da impressora; na Educação financeira, uma moeda.
  * Cada partida sorteia QUIZ_RULES.total perguntas, equilibradas entre os módulos.
  * Quem acerta QUIZ_RULES.pass ganha o certificado, que fica salvo junto com o progresso do curso.
  * O certificado mostra só o nome de quem fez o curso, nunca o de quem preparou as aulas.
  */
 
-const MODULE_COLORS = ["#8fb1ff", "#3ddc84", "#f5b83d", "#f2a7d8"];
+const MODULE_COLORS = ["#8fb1ff", "#3ddc84", "#f5b83d", "#f2a7d8", "#c9a7ff", "#7fe0e0"];
+
+/** Tema da roleta e do certificado. `wheel` é o desenho; `name` completa a frase "Gire ...". */
+type Theme = { wheel: "carretel" | "moeda" | "roleta"; name: string };
+const THEMES: Record<string, Theme> = {
+  "impressora-3d": { wheel: "carretel", name: "o carretel" },
+  "educacao-financeira": { wheel: "moeda", name: "a moeda" },
+};
+const DEFAULT_THEME: Theme = { wheel: "roleta", name: "a roleta" };
+const themeOf = (courseId: string) => THEMES[courseId] ?? DEFAULT_THEME;
 const LETTERS = "ABCD";
 const RING = 2 * Math.PI * 44; // circunferência do anel do resultado (r = 44)
 
@@ -67,14 +77,20 @@ function sector(r0: number, r1: number, a0: number, a1: number) {
   return `M${x0} ${y0}A${r1} ${r1} 0 ${large} 1 ${x1} ${y1}L${x2} ${y2}A${r0} ${r0} 0 ${large} 0 ${x3} ${y3}Z`;
 }
 
-function Spool({ count, rotation, onStop }: { count: number; rotation: number; onStop?: () => void }) {
+function Spool({ count, rotation, onStop, kind = "carretel" }: { count: number; rotation: number; onStop?: () => void; kind?: Theme["wheel"] }) {
   const step = 360 / count;
   const rings = [];
-  for (let r = 44; r <= 86; r += 3.5) rings.push(r);
+  if (kind === "carretel") for (let r = 44; r <= 86; r += 3.5) rings.push(r);
+  const coin = kind === "moeda";
   return (
     <svg className="fq-spool" viewBox="-104 -122 208 228" aria-hidden="true">
       <g className="fq-rotor" style={{ transform: `rotate(${rotation}deg)` }} onTransitionEnd={onStop}>
-        <circle r="98" fill="#1b1e26" stroke="rgba(255,255,255,.12)" strokeWidth="1.2" />
+        <circle r="98" fill={coin ? "#c9973a" : "#1b1e26"} stroke={coin ? "#8a6420" : "rgba(255,255,255,.12)"} strokeWidth="1.2" />
+        {coin && Array.from({ length: 90 }, (_, k) => {
+          const [x0, y0] = polar(91, k * 4), [x1, y1] = polar(97.5, k * 4);
+          return <line key={k} x1={x0} y1={y0} x2={x1} y2={y1} stroke="#8a6420" strokeWidth="1.4" />;
+        })}
+        {coin && <circle r="89" fill="#e8bb5a" />}
         {Array.from({ length: count }, (_, m) => <path key={m} d={sector(40, 88, m * step, (m + 1) * step)} fill={MODULE_COLORS[m % MODULE_COLORS.length]} />)}
         {rings.map((r) => <circle key={r} r={r} fill="none" stroke="rgba(0,0,0,.22)" strokeWidth=".8" />)}
         {Array.from({ length: count }, (_, m) => {
@@ -86,16 +102,55 @@ function Spool({ count, rotation, onStop }: { count: number; rotation: number; o
           const [x, y] = polar(64, angle);
           return <text key={m} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontWeight="700" fontSize="15" fill="rgba(5,10,25,.78)" transform={`rotate(${angle} ${x} ${y})`}>{m + 1}</text>;
         })}
-        <circle r="40" fill="#14161c" stroke="rgba(255,255,255,.14)" />
-        {[0, 1, 2].map((k) => { const [x, y] = polar(25, k * 120 + 60); return <circle key={k} cx={x} cy={y} r="6.5" fill="#0f1013" />; })}
-        <circle r="9" fill="#0f1013" stroke="rgba(255,255,255,.18)" />
+        {kind === "carretel" ? (
+          <>
+            <circle r="40" fill="#14161c" stroke="rgba(255,255,255,.14)" />
+            {[0, 1, 2].map((k) => { const [x, y] = polar(25, k * 120 + 60); return <circle key={k} cx={x} cy={y} r="6.5" fill="#0f1013" />; })}
+            <circle r="9" fill="#0f1013" stroke="rgba(255,255,255,.18)" />
+          </>
+        ) : coin ? (
+          <>
+            <circle r="40" fill="#e8bb5a" stroke="#8a6420" strokeWidth="1.5" />
+            <circle r="34" fill="none" stroke="#b08431" strokeWidth="1" strokeDasharray="2 2.5" />
+            <text textAnchor="middle" dominantBaseline="central" fontWeight="800" fontSize="24" fill="#7a5413">R$</text>
+          </>
+        ) : (
+          <>
+            <circle r="40" fill="#14161c" stroke="rgba(255,255,255,.14)" />
+            <circle r="9" fill="#d9dde6" />
+          </>
+        )}
       </g>
-      <g transform="translate(0,-104)">
-        <rect x="-15" y="-18" width="30" height="13" rx="2.5" fill="#d9dde6" />
-        <rect x="-11" y="-5" width="22" height="6" fill="#aab1bf" />
-        <path d="M-9 1 H9 L3 13 H-3 Z" fill="#f4f5f7" />
-        <circle cx="0" cy="14.5" r="2" fill="#f5b83d" />
-      </g>
+      {kind === "carretel" ? (
+        <g transform="translate(0,-104)">
+          <rect x="-15" y="-18" width="30" height="13" rx="2.5" fill="#d9dde6" />
+          <rect x="-11" y="-5" width="22" height="6" fill="#aab1bf" />
+          <path d="M-9 1 H9 L3 13 H-3 Z" fill="#f4f5f7" />
+          <circle cx="0" cy="14.5" r="2" fill="#f5b83d" />
+        </g>
+      ) : (
+        <path d="M-12 -118 H12 L0 -92 Z" fill="#f4f5f7" stroke="#0f1013" strokeWidth="2" strokeLinejoin="round" />
+      )}
+    </svg>
+  );
+}
+
+/** Pilhas de moedas, desenhadas como o cubo: só com a cor do curso. */
+function CoinStacks() {
+  const stacks = [{ x: -44, n: 4 }, { x: 0, n: 7 }, { x: 44, n: 10 }];
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      {stacks.map(({ x, n }) => Array.from({ length: n }, (_, k) => {
+        const y = 112 - k * 10;
+        return (
+          <g key={`${x}-${k}`}>
+            <path d={`M${x - 20} ${y} V${y + 6} A20 6 0 0 0 ${x + 20} ${y + 6} V${y}`} fill="currentColor" fillOpacity=".14" stroke="currentColor" strokeOpacity=".5" strokeWidth=".8" />
+            <ellipse cx={x} cy={y} rx="20" ry="6" fill="currentColor" fillOpacity={k === n - 1 ? ".22" : ".08"} stroke="currentColor" strokeOpacity=".6" strokeWidth=".8" />
+          </g>
+        );
+      }))}
+      <path d="M-70 -18 C-30 -4 10 -24 40 -30 L52 -32" fill="none" stroke="currentColor" strokeOpacity=".5" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M44 -38 L56 -32 L46 -23" fill="none" stroke="currentColor" strokeOpacity=".5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -123,7 +178,7 @@ function PrintedCube() {
   );
 }
 
-function Seal() {
+function Seal({ kind }: { kind: Theme["wheel"] }) {
   return (
     <svg viewBox="-60 -60 120 120" aria-hidden="true">
       <defs><path id="fq-seal-ring" d="M0,-41 A41,41 0 1,1 -0.01,-41" /></defs>
@@ -131,13 +186,19 @@ function Seal() {
       <circle r="51" fill="none" stroke="#06210f" strokeDasharray="2 3" />
       <circle r="31" fill="#0c1735" />
       <text fontSize="8.6" fontWeight="700" fill="#06210f" letterSpacing="1.2">
-        <textPath href="#fq-seal-ring" textLength="252" lengthAdjust="spacing">FUNDAÇÃO RANBANK · DESAFIO FINAL APROVADO ·</textPath>
+        <textPath href="#fq-seal-ring" textLength="252" lengthAdjust="spacing">FUNDAÇÃO RANBANK · PROVA FINAL APROVADA ·</textPath>
       </text>
-      <g fill="none" stroke="#8fb1ff" strokeWidth="1.6" strokeLinejoin="round">
-        <path d="M0 -15 L14 -7 L0 1 L-14 -7Z" />
-        <path d="M-14 -7 V9 L0 17 V1 M14 -7 V9 L0 17" />
-        <path d="M-14 -1 L0 7 L14 -1 M-14 4 L0 12 L14 4" strokeWidth=".9" opacity=".7" />
-      </g>
+      {kind === "carretel" ? (
+        <g fill="none" stroke="#8fb1ff" strokeWidth="1.6" strokeLinejoin="round">
+          <path d="M0 -15 L14 -7 L0 1 L-14 -7Z" />
+          <path d="M-14 -7 V9 L0 17 V1 M14 -7 V9 L0 17" />
+          <path d="M-14 -1 L0 7 L14 -1 M-14 4 L0 12 L14 4" strokeWidth=".9" opacity=".7" />
+        </g>
+      ) : kind === "moeda" ? (
+        <text textAnchor="middle" dominantBaseline="central" fontWeight="800" fontSize="20" fill="#8fb1ff">R$</text>
+      ) : (
+        <path d="M-12 1 L-3 10 L13 -9" fill="none" stroke="#8fb1ff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      )}
     </svg>
   );
 }
@@ -146,10 +207,11 @@ function Certificate({ course, modules, lessonsCount, name, hits, date, code, ve
   course: Course; modules: string[]; lessonsCount: number; name: string; hits: number; date: string; code: string; verified: boolean;
 }) {
   const when = new Date(date).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+  const kind = themeOf(course.id).wheel;
   return (
     <div className="fq-paper" role="img" aria-label={`Certificado de conclusão do curso ${course.title}${name ? `, em nome de ${name}` : ""}`}>
-      <div className="fq-p-cube"><PrintedCube /></div>
-      <div className="fq-p-seal"><Seal /></div>
+      {kind !== "roleta" && <div className="fq-p-cube">{kind === "moeda" ? <CoinStacks /> : <PrintedCube />}</div>}
+      <div className="fq-p-seal"><Seal kind={kind} /></div>
       <div className="fq-p-in">
         <div className="fq-p-top">
           <span className="fq-p-mark"><Mark /></span>
@@ -162,7 +224,7 @@ function Certificate({ course, modules, lessonsCount, name, hits, date, code, ve
           <div className="fq-p-lbl">concluiu o curso livre</div>
           <div className={`fq-p-course ${course.title.length > 18 ? "is-long" : ""}`}>{course.title}</div>
           <div className="fq-p-desc">
-            {lessonsCount} aulas em {modules.length} módulos: {modules.join(" · ")}. Aprovação no desafio final com <b>{hits} de {QUIZ_RULES.total}</b> acertos.
+            {lessonsCount} aulas em {modules.length} módulos: {modules.join(" · ")}. Aprovação na prova final com <b>{hits} de {QUIZ_RULES.total}</b> acertos.
           </div>
         </div>
         <div className="fq-p-foot">
@@ -213,6 +275,7 @@ export function FinalChallenge({ course, modules, questions, lessonsCount, resul
 
   const total = game?.seq.length ?? Math.min(QUIZ_RULES.total, questions.length);
   const color = (m: number) => MODULE_COLORS[m % MODULE_COLORS.length];
+  const theme = themeOf(course.id);
 
   // Foco: em cada tela nova, vai para o título ou para o botão principal.
   useEffect(() => {
@@ -377,9 +440,9 @@ export function FinalChallenge({ course, modules, questions, lessonsCount, resul
       <div className="fq">
         <div className="fq-intro">
           <div className="fq-intro-copy">
-            <p className="fc-lesson-eyebrow">Desafio final</p>
+            <p className="fc-lesson-eyebrow">Prova final</p>
             <h2 ref={headingRef} tabIndex={-1}>Mostre o que você aprendeu</h2>
-            <p className="fq-lead">Gire o carretel para sortear o módulo e responda à pergunta que cair. São {total} perguntas tiradas das {lessonsCount} aulas. Acerte {QUIZ_RULES.pass} para ganhar o certificado.</p>
+            <p className="fq-lead">Gire {theme.name} para sortear o módulo e responda à pergunta que cair. São {total} perguntas tiradas das {lessonsCount} aulas. Acerte {QUIZ_RULES.pass} para ganhar o certificado.</p>
             <ul className="fq-facts">
               <li><b>{total}</b> perguntas</li>
               <li><b>{QUIZ_RULES.pass}</b> acertos para passar</li>
@@ -392,14 +455,14 @@ export function FinalChallenge({ course, modules, questions, lessonsCount, resul
             </label>
             {result && result.tries > 0 && <p className="fq-record">Seu recorde: {result.best} de {QUIZ_RULES.total} em {result.tries} {result.tries === 1 ? "partida" : "partidas"}.</p>}
             <div className="fq-actions">
-              <button type="button" className="fc-btn fc-btn-light" onClick={start}>Começar o desafio</button>
+              <button type="button" className="fc-btn fc-btn-light" onClick={start}>Começar a prova</button>
               {result?.passed
                 ? <button type="button" className="fc-btn fc-btn-soft" onClick={() => setPhase("cert")}>Ver meu certificado</button>
                 : <button type="button" className="fc-btn fc-btn-soft" onClick={onBack}>Revisar as aulas</button>}
             </div>
           </div>
           <div className="fq-intro-art">
-            <Spool count={modules.length} rotation={0} />
+            <Spool count={modules.length} rotation={0} kind={theme.wheel} />
             <ul className="fq-legend">
               {modules.map((title, m) => <li key={title}><i style={{ background: color(m) }} />{m + 1}. {title}</li>)}
             </ul>
@@ -428,10 +491,10 @@ export function FinalChallenge({ course, modules, questions, lessonsCount, resul
 
         {phase === "spin" ? (
           <div className="fq-stage fq-spin">
-            <Spool count={modules.length} rotation={rotation} onStop={stopSpin} />
+            <Spool count={modules.length} rotation={rotation} onStop={stopSpin} kind={theme.wheel} />
             <div className="fq-drawn" aria-live="polite">
               <small>Pergunta {game.index + 1} de {total}</small>
-              <strong>{landed === null ? (spinning ? "Girando..." : "Gire o carretel") : modules[landed]}</strong>
+              <strong>{landed === null ? (spinning ? "Girando..." : `Gire ${theme.name}`) : modules[landed]}</strong>
             </div>
             <button type="button" ref={actionRef} className="fc-btn fc-btn-light" onClick={spin} disabled={spinning || landed !== null}>Girar</button>
           </div>
@@ -498,7 +561,7 @@ export function FinalChallenge({ course, modules, questions, lessonsCount, resul
               <div><b>{game.hits}</b><small>de {total}</small></div>
             </div>
             <div>
-              <span className={`fq-pill ${pass ? "is-ok" : "is-bad"}`}>{pass ? "Aprovado no desafio" : `Faltaram ${QUIZ_RULES.pass - game.hits}`}</span>
+              <span className={`fq-pill ${pass ? "is-ok" : "is-bad"}`}>{pass ? "Aprovado na prova" : `Faltaram ${QUIZ_RULES.pass - game.hits}`}</span>
               <h2 ref={headingRef} tabIndex={-1}>{pass ? "Mandou bem!" : "Quase lá. Revise e tente de novo."}</h2>
               <p className="fq-lead">
                 {pass

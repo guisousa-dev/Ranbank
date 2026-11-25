@@ -413,6 +413,10 @@ html[data-site-theme="light"] .nb-page .fc-box.is-atencao { --box: #9a6408; }
 
 /* Prova e tela de conclusão dentro da folha */
 .nb-sheet { margin: -24px -12px 0 -40px; border-radius: 10px; background: #111317; color: #f4f5f7; line-height: 1.5; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25); }
+/* A prova é uma folha escura colada no caderno: título e botão claro não usam a tinta do caderno, que some no fundo escuro do tema claro. */
+.nb-page .nb-sheet h2 { color: #fff; }
+html[data-site-theme="light"] .nb-sheet .fc-btn-soft { background: rgba(255, 255, 255, 0.16); color: #fff; }
+html[data-site-theme="light"] .nb-sheet .fc-btn-soft:hover { background: rgba(255, 255, 255, 0.26); }
 .nb-page .fc-player-end { padding: 8px 0 0; line-height: 1.5; }
 .nb-page .fc-player-end h2 { line-height: 1.1; padding: 0; }
 .nb-page .fc-player-end > p { color: var(--nb-muted); }

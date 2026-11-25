@@ -412,7 +412,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   const rani = await readFile(new URL("../app/rani-knowledge.ts", import.meta.url), "utf8");
   const raniFoundation = rani.slice(rani.indexOf('topic: "Fundação RanBank"'), rani.indexOf('topic: "Parcerias"'));
   if (raniFoundation.includes("Todos os cursos já têm aulas")) assert.equal(ids.length, (catalogCourses.match(/learn: \[/g) ?? []).length, "a Rani diz que todos os cursos têm aulas");
-  assert.deepEqual(quizCourses, ["impressora-3d"], "atualize o texto da Rani sobre desafio final e certificado");
+  assert.deepEqual(quizCourses, ["educacao-financeira", "impressora-3d"], "atualize o texto da Rani sobre a prova final e o certificado");
   // Imagens das aulas: toda imagem existe em public/ e tem descrição (alt) para leitor de tela.
   const images = [...allContent.matchAll(/\{ image: "([^"]+)", alt: "((?:[^"\\]|\\.)*)" \}/g)];
   assert.ok(images.length >= 20, "as aulas têm imagens");
@@ -462,10 +462,12 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   assert.match(notebook, /localStorage\.setItem\(storageKey\(courseId\)/);
   assert.match(notebookCss, /html\[data-site-theme="light"\] \.fc-lesson\.nb-desk \{/);
   assert.match(notebookCss, /prefers-reduced-motion: reduce/);
-  // Educação financeira: 5 módulos de 3 aulas; o Módulo 1 está pronto e os outros aparecem em preparação.
+  // Educação financeira: 5 módulos de 3 aulas, cada um com quiz de 10 perguntas, e a prova final com pelo menos 2 perguntas por módulo.
   const finance = Object.values(await import(new URL("../app/foundation-content/educacao-financeira.ts", import.meta.url).href))[0];
   assert.deepEqual(finance.modules.map((module) => module.lessons.length), [3, 3, 3, 3, 3]);
-  assert.equal(finance.modules[0].quiz.questions.length, 10);
+  assert.ok(finance.modules.every((item) => item.quiz), "todo módulo tem quiz");
+  for (let index = 0; index < finance.modules.length; index++) assert.ok(finance.quiz.filter((question) => question.module === index).length >= 2, `prova: módulo ${index + 1}`);
+  for (const question of finance.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
   for (const part of finance.modules.filter((item) => item.quiz)) {
     assert.equal(part.quiz.questions.length, 10, part.title);
     for (const question of part.quiz.questions) assert.ok(question.answer < question.options.length && question.options.length === 4, question.question);
