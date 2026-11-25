@@ -12,7 +12,7 @@ import { Mark } from "./FoundationBadge";
  * A roleta é dividida pelos módulos do curso e tem o tema do curso (veja THEMES): na Impressora 3D é um
  * carretel de filamento com o bico da impressora; na Educação financeira, uma moeda; em Primeiros socorros,
  * um kit com a cruz verde (a cruz vermelha é um emblema protegido e não pode ser usada); no Xadrez,
- * um tabuleiro com o cavalo no meio; em Gestão de tempo, um relógio.
+ * um tabuleiro com o cavalo no meio; em Gestão de tempo, um relógio; em Hardware e sistema operacional, um cooler.
  * Cada partida sorteia QUIZ_RULES.total perguntas, equilibradas entre os módulos.
  * Quem acerta QUIZ_RULES.pass ganha o certificado, que fica salvo junto com o progresso do curso.
  * O certificado mostra só o nome de quem fez o curso, nunca o de quem preparou as aulas.
@@ -21,13 +21,14 @@ import { Mark } from "./FoundationBadge";
 const MODULE_COLORS = ["#8fb1ff", "#3ddc84", "#f5b83d", "#f2a7d8", "#c9a7ff", "#7fe0e0"];
 
 /** Tema da roleta e do certificado. `wheel` é o desenho; `name` completa a frase "Gire ...". */
-type Theme = { wheel: "carretel" | "moeda" | "kit" | "tabuleiro" | "relogio" | "roleta"; name: string };
+type Theme = { wheel: "carretel" | "moeda" | "kit" | "tabuleiro" | "relogio" | "cooler" | "roleta"; name: string };
 const THEMES: Record<string, Theme> = {
   "impressora-3d": { wheel: "carretel", name: "o carretel" },
   "educacao-financeira": { wheel: "moeda", name: "a moeda" },
   "primeiros-socorros": { wheel: "kit", name: "a roleta do kit" },
   xadrez: { wheel: "tabuleiro", name: "o tabuleiro" },
   "gestao-tempo": { wheel: "relogio", name: "o relógio" },
+  "hardware-so": { wheel: "cooler", name: "o cooler" },
 };
 const DEFAULT_THEME: Theme = { wheel: "roleta", name: "a roleta" };
 const themeOf = (courseId: string) => THEMES[courseId] ?? DEFAULT_THEME;
@@ -90,10 +91,17 @@ function Spool({ count, rotation, onStop, kind = "carretel" }: { count: number; 
   const kit = kind === "kit";
   const board = kind === "tabuleiro";
   const clock = kind === "relogio";
+  const fan = kind === "cooler";
   return (
     <svg className="fq-spool" viewBox="-104 -122 208 228" aria-hidden="true">
+      {fan && (
+        <g>
+          <rect x="-103" y="-103" width="206" height="206" rx="20" fill="#2a2d36" stroke="#11131a" strokeWidth="2" />
+          {[[-84, -84], [84, -84], [-84, 84], [84, 84]].map(([x, y]) => <circle key={`${x}${y}`} cx={x} cy={y} r="6" fill="#11131a" stroke="#565c6b" />)}
+        </g>
+      )}
       <g className="fq-rotor" style={{ transform: `rotate(${rotation}deg)` }} onTransitionEnd={onStop}>
-        <circle r="98" fill={coin ? "#c9973a" : kit || clock ? "#f4f5f7" : "#1b1e26"} stroke={coin ? "#8a6420" : kit ? "#1a8f4c" : clock ? "#2a2d36" : "rgba(255,255,255,.12)"} strokeWidth={kit || clock ? 3 : 1.2} />
+        <circle r="98" fill={coin ? "#c9973a" : kit || clock ? "#f4f5f7" : fan ? "#14161c" : "#1b1e26"} stroke={coin ? "#8a6420" : kit ? "#1a8f4c" : clock ? "#2a2d36" : "rgba(255,255,255,.12)"} strokeWidth={kit || clock ? 3 : 1.2} />
         {coin && Array.from({ length: 90 }, (_, k) => {
           const [x0, y0] = polar(91, k * 4), [x1, y1] = polar(97.5, k * 4);
           return <line key={k} x1={x0} y1={y0} x2={x1} y2={y1} stroke="#8a6420" strokeWidth="1.4" />;
@@ -134,6 +142,14 @@ function Spool({ count, rotation, onStop, kind = "carretel" }: { count: number; 
             <line x1="0" y1="0" x2="0" y2="-26" stroke="#2a2d36" strokeWidth="3.2" strokeLinecap="round" />
             <line x1="0" y1="0" x2="16" y2="9" stroke="#2a2d36" strokeWidth="3.2" strokeLinecap="round" />
             <circle r="3.5" fill="#e0533d" />
+          </>
+        ) : fan ? (
+          <>
+            <circle r="40" fill="#14161c" stroke="#565c6b" strokeWidth="1.5" />
+            {Array.from({ length: 7 }, (_, k) => (
+              <path key={k} d="M0 -6 C8 -14 20 -24 34 -18 C30 -8 18 -2 4 2Z" fill="#3a3f4c" stroke="#6b7282" strokeWidth=".8" transform={`rotate(${k * (360 / 7)})`} />
+            ))}
+            <circle r="10" fill="#d9dde6" stroke="#11131a" strokeWidth="1.5" />
           </>
         ) : board ? (
           <>
@@ -196,6 +212,22 @@ function Hourglass() {
       <path d="M-26 8 C-18 22 -4 30 0 42 C4 30 18 22 26 8Z" fill="currentColor" fillOpacity=".3" />
       <path d="M0 45 V104" stroke="currentColor" strokeOpacity=".35" strokeDasharray="2 3" />
       <path d="M-34 110 C-30 92 -12 84 0 82 C12 84 30 92 34 110Z" fill="currentColor" fillOpacity=".3" />
+    </svg>
+  );
+}
+
+/** Processador visto de cima, com os pinos em volta, no mesmo traço do cubo. */
+function Chip() {
+  const pins = [-36, -18, 0, 18, 36];
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      <g transform="translate(0 45)" stroke="currentColor" strokeOpacity=".5" strokeWidth="3" strokeLinecap="round">
+        {pins.map((p) => <path key={`t${p}`} d={`M${p} -62 V-50 M${p} 50 V62 M-62 ${p} H-50 M50 ${p} H62`} />)}
+      </g>
+      <rect x="-50" y="-5" width="100" height="100" rx="8" fill="currentColor" fillOpacity=".1" stroke="currentColor" strokeOpacity=".6" />
+      <rect x="-30" y="15" width="60" height="60" rx="4" fill="currentColor" fillOpacity=".18" stroke="currentColor" strokeOpacity=".45" />
+      <path d="M-40 5 L-34 5 L-40 11Z" fill="currentColor" fillOpacity=".5" />
+      <text x="0" y="46" textAnchor="middle" dominantBaseline="central" fontWeight="800" fontSize="18" fill="currentColor" fillOpacity=".55" letterSpacing="2">CPU</text>
     </svg>
   );
 }
@@ -276,6 +308,12 @@ function Seal({ kind }: { kind: Theme["wheel"] }) {
         <g fill="none" stroke="#8fb1ff" strokeWidth="2.4" strokeLinecap="round"><circle r="15" /><path d="M0 -9 V0 L7 5" /></g>
       ) : kind === "tabuleiro" ? (
         <text textAnchor="middle" dominantBaseline="central" y="1" fontSize="30" fill="#8fb1ff">{"♞︎"}</text>
+      ) : kind === "cooler" ? (
+        <g fill="none" stroke="#8fb1ff" strokeWidth="1.8" strokeLinecap="round">
+          <rect x="-11" y="-11" width="22" height="22" rx="2.5" />
+          <rect x="-5" y="-5" width="10" height="10" rx="1" fill="#8fb1ff" fillOpacity=".35" />
+          <path d="M-5 -11 V-16 M0 -11 V-16 M5 -11 V-16 M-5 11 V16 M0 11 V16 M5 11 V16 M-11 -5 H-16 M-11 0 H-16 M-11 5 H-16 M11 -5 H16 M11 0 H16 M11 5 H16" />
+        </g>
       ) : (
         <path d="M-12 1 L-3 10 L13 -9" fill="none" stroke="#8fb1ff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
       )}
@@ -290,7 +328,7 @@ function Certificate({ course, modules, lessonsCount, name, hits, date, code, ve
   const kind = themeOf(course.id).wheel;
   return (
     <div className="fq-paper" role="img" aria-label={`Certificado de conclusão do curso ${course.title}${name ? `, em nome de ${name}` : ""}`}>
-      {kind !== "roleta" && <div className="fq-p-cube">{kind === "moeda" ? <CoinStacks /> : kind === "kit" ? <FirstAidKit /> : kind === "tabuleiro" ? <ChessBoard /> : kind === "relogio" ? <Hourglass /> : <PrintedCube />}</div>}
+      {kind !== "roleta" && <div className="fq-p-cube">{kind === "moeda" ? <CoinStacks /> : kind === "kit" ? <FirstAidKit /> : kind === "tabuleiro" ? <ChessBoard /> : kind === "relogio" ? <Hourglass /> : kind === "cooler" ? <Chip /> : <PrintedCube />}</div>}
       <div className="fq-p-seal"><Seal kind={kind} /></div>
       <div className="fq-p-in">
         <div className="fq-p-top">

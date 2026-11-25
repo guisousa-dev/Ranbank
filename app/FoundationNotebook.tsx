@@ -1312,6 +1312,154 @@ function EisenhowerMatrix() {
   );
 }
 
+/**
+ * Caça ao golpe: mensagens fictícias divididas em trechos. Quem joga toca nos trechos suspeitos e confere.
+ * Uma mensagem fica "limpa" quando todos os sinais foram marcados e nenhum trecho a mais. A última é verdadeira,
+ * para lembrar que nem toda mensagem é golpe.
+ */
+type ScamPart = { text: string; flag?: string };
+type ScamMessage = { channel: string; from: string; parts: ScamPart[]; verdict: string };
+const SCAM_MESSAGES: ScamMessage[] = [
+  {
+    channel: "SMS", from: "28555",
+    parts: [
+      { text: "BANCO IPÊ: " },
+      { text: "sua conta será bloqueada hoje às 18h", flag: "Pressa: o golpe quer que você aja antes de pensar." },
+      { text: " por movimentação suspeita. Regularize em " },
+      { text: "bancoipe-regulariza.com/conta", flag: "Link: não é o endereço oficial. Use o aplicativo do banco ou digite você mesmo o endereço." },
+      { text: " e " },
+      { text: "informe o código que vai chegar por SMS.", flag: "Código: o código do SMS é só seu. Banco nenhum pede." },
+    ],
+    verdict: "É golpe: pressa, link estranho e pedido de código na mesma mensagem.",
+  },
+  {
+    channel: "WhatsApp", from: "Número desconhecido",
+    parts: [
+      { text: "Oi, mãe! Meu celular caiu na água e esse é meu número novo.", flag: "Número novo: confirme por outro caminho, ligando para o número antigo ou para alguém da família." },
+      { text: " Tô sem acesso ao app do banco. " },
+      { text: "Preciso pagar uma conta ainda hoje, é urgente!", flag: "Pressa: a urgência é para você não parar e conferir." },
+      { text: " " },
+      { text: "Me faz um Pix de R$ 950? Amanhã te devolvo.", flag: "Pedido de dinheiro: o objetivo do golpe é sempre dinheiro, senha ou dados." },
+      { text: " Beijo!" },
+    ],
+    verdict: "É golpe, o do \"número novo\". Antes de qualquer Pix, ligue para o número antigo da pessoa.",
+  },
+  {
+    channel: "E-mail", from: "premios@sorteio-oficial-brasil.net",
+    parts: [
+      { text: "Parabéns! Você foi sorteado", flag: "Prêmio de um sorteio de que você nem participou: bom demais para ser verdade." },
+      { text: " e ganhou uma TV de 55 polegadas. " },
+      { text: "Para receber, pague só o frete de R$ 29,90", flag: "Pedido de dinheiro: prêmio de verdade não cobra para ser entregue." },
+      { text: " e " },
+      { text: "envie uma foto do seu documento.", flag: "Documento: nunca mande foto de documento para quem você não conhece." },
+      { text: " " },
+      { text: "A promoção acaba em 30 minutos!", flag: "Pressa de novo: o prazo curto é para você não pensar." },
+    ],
+    verdict: "É golpe: prêmio inesperado, cobrança, pedido de documento e pressa.",
+  },
+  {
+    channel: "E-mail", from: "secretaria@escolaipe.edu.br",
+    parts: [
+      { text: "Olá, Maria. A rematrícula para 2027 está aberta até 15 de dezembro." },
+      { text: " Você pode fazer na secretaria, de segunda a sexta, das 8h às 17h," },
+      { text: " ou no portal que você já usa, digitando o endereço de sempre." },
+      { text: " Em caso de dúvida, ligue para o telefone que está no seu boletim." },
+    ],
+    verdict: "Não é golpe. Tem prazo, mas sem ameaça; não pede senha, código nem dinheiro, e manda você usar os caminhos que já conhece.",
+  },
+];
+const SCAM_GOAL = 3;
+type ScamState = Record<number, { marks: number[]; done?: boolean }>;
+const scamClean = (index: number, entry: ScamState[number] | undefined) =>
+  Boolean(entry?.done) && SCAM_MESSAGES[index].parts.every((part, p) => Boolean(part.flag) === Boolean(entry?.marks.includes(p)));
+
+function ScamHunt() {
+  const { data, update, setAnswer, earn } = useNotebook();
+  const key = "ferramenta:caca-ao-golpe";
+  const state = (data.answers[key] as ScamState | undefined) ?? {};
+  const finished = SCAM_MESSAGES.every((_, index) => state[index]?.done);
+  const clean = SCAM_MESSAGES.filter((_, index) => scamClean(index, state[index])).length;
+  const toggle = (index: number, part: number) => {
+    update<ScamState>(key, (previous = {}) => {
+      const entry = previous[index] ?? { marks: [] };
+      if (entry.done) return previous;
+      const marks = entry.marks.includes(part) ? entry.marks.filter((p) => p !== part) : [...entry.marks, part];
+      return { ...previous, [index]: { marks } };
+    });
+  };
+  const check = (index: number) => {
+    const next = update<ScamState>(key, (previous = {}) => ({ ...previous, [index]: { marks: previous[index]?.marks ?? [], done: true } }));
+    const allDone = SCAM_MESSAGES.every((_, i) => next[i]?.done);
+    const nextClean = SCAM_MESSAGES.filter((_, i) => scamClean(i, next[i])).length;
+    if (allDone && nextClean >= SCAM_GOAL) earn("olho-no-golpe");
+  };
+  return (
+    <div className="nb-pasted nb-tool nb-scam">
+      <p className="nb-tag">Caça ao golpe</p>
+      <p className="nb-muted">Toque nos trechos que são sinal de golpe e depois confira. Se achar que a mensagem é verdadeira, confira sem marcar nada.</p>
+      <ol className="nb-scam-list">
+        {SCAM_MESSAGES.map((message, index) => {
+          const entry = state[index];
+          const marks = entry?.marks ?? [];
+          const done = Boolean(entry?.done);
+          const flags = message.parts.filter((part) => part.flag).length;
+          const found = message.parts.filter((part, p) => part.flag && marks.includes(p)).length;
+          const extra = message.parts.filter((part, p) => !part.flag && marks.includes(p)).length;
+          return (
+            <li key={message.from} className="nb-scam-item">
+              <div className={`nb-scam-msg is-${message.channel === "E-mail" ? "mail" : "chat"}`}>
+                <p className="nb-scam-head"><strong>{message.channel}</strong> <span>{message.from}</span></p>
+                <p className="nb-scam-body">
+                  {message.parts.map((part, p) => {
+                    const marked = marks.includes(p);
+                    if (!part.text.trim()) return <span key={p}>{part.text}</span>;
+                    const look = !done ? (marked ? "is-marked" : "") : part.flag ? (marked ? "is-found" : "is-missed") : marked ? "is-extra" : "";
+                    // Um span, e não um <button>, para o trecho quebrar a linha junto com o resto do texto.
+                    return (
+                      <span key={p} role="button" tabIndex={done ? -1 : 0} className={`nb-scam-part ${look}`} aria-pressed={marked} aria-disabled={done || undefined}
+                        onClick={done ? undefined : () => toggle(index, p)}
+                        onKeyDown={(event) => {
+                          if (done || (event.key !== "Enter" && event.key !== " ")) return;
+                          event.preventDefault();
+                          toggle(index, p);
+                        }}>
+                        {part.text}
+                      </span>
+                    );
+                  })}
+                </p>
+              </div>
+              {!done ? (
+                <div className="nb-scam-actions">
+                  <span className="nb-muted">{marks.length ? `${marks.length} ${marks.length === 1 ? "trecho marcado" : "trechos marcados"}` : "Nada marcado"}</span>
+                  <button type="button" className="nb-btn" onClick={() => check(index)}>Conferir</button>
+                </div>
+              ) : (
+                <div className={`nb-feedback ${scamClean(index, entry) ? "is-right" : "is-wrong"}`} role="status">
+                  <p>
+                    <strong>{flags === 0 ? (extra ? "Essa era verdadeira." : "Certo, essa era verdadeira.") : `Você achou ${found} de ${flags} sinais${extra ? ` e marcou ${extra} ${extra === 1 ? "trecho" : "trechos"} a mais` : ""}.`}</strong> {message.verdict}
+                  </p>
+                  {flags > 0 && (
+                    <ul className="nb-scam-flags">
+                      {message.parts.filter((part) => part.flag).map((part) => <li key={part.text}>{part.flag}</li>)}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+      {finished && (
+        <div className="nb-score">
+          <p><strong>{clean} de {SCAM_MESSAGES.length} mensagens sem erro.</strong></p>
+          <button type="button" className="nb-btn is-soft" onClick={() => setAnswer(key, {})}>Refazer</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export const NOTEBOOK_TOOLS = {
   "diagnostico-financeiro": Diagnostic,
   "gasto-formiga": AntSpending,
@@ -1324,4 +1472,5 @@ export const NOTEBOOK_TOOLS = {
   "ritmo-rcp": RcpRhythm,
   "regra-do-quadrado": RuleOfSquare,
   "matriz-eisenhower": EisenhowerMatrix,
+  "caca-ao-golpe": ScamHunt,
 } as const;

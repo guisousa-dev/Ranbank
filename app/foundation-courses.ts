@@ -60,11 +60,10 @@ export const COURSES: Course[] = [
     description: "O que fazer, e o que não fazer, nos primeiros minutos de uma emergência até a ajuda chegar." },
   {
     id: "hardware-so", title: "Hardware e sistema operacional", category: "tecnologia", tags: ["Computador", "Tecnologia", "Mão na massa", "Raciocínio"],
-    hook: "Abra o computador por dentro e entenda como tudo funciona.",
-    learn: ["Reconhecer as principais peças de um computador", "Entender o que cada peça faz e como elas conversam", "Instalar e configurar um sistema operacional", "Organizar arquivos, programas e atualizações", "Resolver problemas comuns e manter o computador saudável"],
-   
-    description: "Das peças do computador ao sistema que faz tudo funcionar: entender, cuidar e resolver problemas comuns.",
-    // Os módulos (Hardware e Software) e as aulas ficam em foundation-content/hardware-so.ts.
+    hook: "Do botão de ligar às peças de dentro: use o computador sem medo.",
+    learn: ["Usar o Windows, organizar arquivos e instalar programas com segurança", "Conectar pen drive, fones e impressora", "Pesquisar, usar o e-mail e reconhecer golpes", "Reconhecer as peças do computador e o que cada uma faz", "Resolver problemas comuns e manter o computador saudável"],
+    description: "Do botão de ligar à internet e das peças ao sistema: usar o computador sem medo, cuidar dele e resolver problemas comuns.",
+    // Os módulos (Informática básica e Hardware) e as aulas ficam em foundation-content/hardware-so.ts.
   },
   { id: "impressora-3d", title: "Impressora 3D", category: "tecnologia", tags: ["Tecnologia", "Criação", "Mão na massa"],
     hook: "Tire uma ideia da cabeça e segure ela na mão.",

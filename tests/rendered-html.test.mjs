@@ -412,7 +412,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   const rani = await readFile(new URL("../app/rani-knowledge.ts", import.meta.url), "utf8");
   const raniFoundation = rani.slice(rani.indexOf('topic: "Fundação RanBank"'), rani.indexOf('topic: "Parcerias"'));
   if (raniFoundation.includes("Todos os cursos já têm aulas")) assert.equal(ids.length, (catalogCourses.match(/learn: \[/g) ?? []).length, "a Rani diz que todos os cursos têm aulas");
-  assert.deepEqual(quizCourses.toSorted(), ["educacao-financeira", "gestao-tempo", "impressora-3d", "primeiros-socorros", "xadrez"], "atualize o texto da Rani sobre a prova final e o certificado");
+  assert.deepEqual(quizCourses.toSorted(), ["educacao-financeira", "gestao-tempo", "hardware-so", "impressora-3d", "primeiros-socorros", "xadrez"], "atualize o texto da Rani sobre a prova final e o certificado");
   // Imagens das aulas: toda imagem existe em public/ e tem descrição (alt) para leitor de tela.
   const images = [...allContent.matchAll(/\{ image: "([^"]+)", alt: "((?:[^"\\]|\\.)*)" \}/g)];
   assert.ok(images.length >= 20, "as aulas têm imagens");
@@ -422,7 +422,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   }
   // Curso que junta duas partes: as duas já têm aulas. Módulo sem aulas aparece como em preparação.
   assert.match(allContent, /title: "Hardware: por dentro do computador"/);
-  assert.match(allContent, /title: "Software: do botão Power à internet"/);
+  assert.match(allContent, /title: "Informática básica: do botão de ligar à internet"/);
   assert.match(catalog, /Esta parte do curso ainda está em preparação\./);
   // Ferramenta interativa: a calculadora de custo da impressão 3D aparece dentro da aula e não envia nada.
   assert.match(allContent, /\{ tool: "custo-impressao-3d" \}/);
@@ -513,6 +513,16 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   for (const question of time.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
   assert.match(await readFile(new URL("../app/foundation-content/gestao-tempo.ts", import.meta.url), "utf8"), /tool: "matriz-eisenhower"/);
   assert.match(notebook, /"matriz-eisenhower": EisenhowerMatrix/);
+  // Hardware e sistema operacional: 2 módulos com quiz, prova com os dois módulos e a Caça ao golpe.
+  const hardware = Object.values(await import(new URL("../app/foundation-content/hardware-so.ts", import.meta.url).href))[0];
+  assert.deepEqual(hardware.modules.map((module) => module.lessons.length), [4, 4]);
+  for (let index = 0; index < hardware.modules.length; index++) {
+    assert.equal(hardware.modules[index].quiz?.questions.length, 10, hardware.modules[index].title);
+    assert.ok(hardware.quiz.filter((question) => question.module === index).length >= 2, `prova de hardware: módulo ${index + 1}`);
+  }
+  for (const question of hardware.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  assert.match(await readFile(new URL("../app/foundation-content/hardware-so.ts", import.meta.url), "utf8"), /tool: "caca-ao-golpe"/);
+  assert.match(notebook, /"caca-ao-golpe": ScamHunt/);
   // Simulação da Lia: os três caminhos fecham com as contas do material (sempre A, B e C).
   assert.match(notebook, /const START = 650;/);
   assert.match(notebook, /const GOAL = 250;/);

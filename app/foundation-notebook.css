@@ -409,6 +409,31 @@ html[data-site-theme="light"] .nb-page .fc-box.is-atencao { --box: #9a6408; }
 .nb-matrix-tasks li:last-child { border-bottom: 0; }
 .nb-matrix-tasks li > p:first-child::before { content: counter(nb-matrix) ". "; font-weight: 700; color: var(--nb-accent); }
 .nb-matrix-choices { display: grid; grid-template-columns: 1fr 1fr; }
+/* Caça ao golpe */
+.nb-scam-list { margin: 0; padding: 0 !important; list-style: none !important; display: grid; gap: 18px; }
+.nb-scam-msg { max-width: 560px; padding: 12px 14px; border-radius: 14px; border: 1.5px solid var(--nb-card-line); background: var(--nb-card); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+.nb-scam-msg.is-chat { border-bottom-left-radius: 4px; }
+.nb-scam-head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; margin: 0 0 6px !important; font-size: 13px; line-height: 1.4 !important; }
+.nb-scam-head strong { font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--nb-accent); }
+.nb-scam-head span { color: var(--nb-muted); overflow-wrap: anywhere; }
+.nb-scam-body { margin: 0 !important; font-size: 16.5px; line-height: 1.75 !important; }
+.nb-scam-part {
+  padding: 1px 2px; border-radius: 4px;
+  box-shadow: inset 0 -1.5px 0 color-mix(in srgb, var(--nb-muted) 45%, transparent);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone; cursor: pointer;
+}
+.nb-scam-part:hover:not([aria-disabled]) { background: color-mix(in srgb, var(--nb-accent) 10%, transparent); }
+.nb-scam-part:focus-visible { outline: 2px solid var(--nb-accent); outline-offset: 1px; }
+.nb-scam-part[aria-disabled] { cursor: default; box-shadow: none; }
+.nb-scam-part.is-marked { background: color-mix(in srgb, #f5b83d 30%, transparent); box-shadow: inset 0 -2px 0 #d99a1e; }
+.nb-scam-part.is-found { background: color-mix(in srgb, var(--nb-right) 18%, transparent); box-shadow: inset 0 -2px 0 var(--nb-right); }
+.nb-scam-part.is-missed { box-shadow: inset 0 0 0 1.5px var(--nb-wrong); }
+.nb-scam-part.is-extra { background: color-mix(in srgb, var(--nb-wrong) 14%, transparent); text-decoration: line-through; text-decoration-color: var(--nb-wrong); }
+.nb-scam-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 10px; }
+.nb-scam-actions .nb-muted { margin: 0; font-size: 14px; }
+.nb-scam .nb-feedback p { margin: 0; }
+.nb-scam-flags { margin: 8px 0 0 !important; padding-left: 20px !important; font-size: 15px; line-height: 1.5 !important; }
+.nb-scam-flags li + li { margin-top: 4px; }
 @media (prefers-reduced-motion: reduce) {
   .nb-rcp-press span.is-pushed { animation: none; }
   .nb-rcp-marker { transition: none; }
