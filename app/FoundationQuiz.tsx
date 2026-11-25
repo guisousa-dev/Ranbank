@@ -12,7 +12,7 @@ import { Mark } from "./FoundationBadge";
  * A roleta é dividida pelos módulos do curso e tem o tema do curso (veja THEMES): na Impressora 3D é um
  * carretel de filamento com o bico da impressora; na Educação financeira, uma moeda; em Primeiros socorros,
  * um kit com a cruz verde (a cruz vermelha é um emblema protegido e não pode ser usada); no Xadrez,
- * um tabuleiro com o cavalo no meio; em Gestão de tempo, um relógio; em Hardware e sistema operacional, um cooler; em Autodesenvolvimento, a roleta do 1%; em Jogos, um disco de jogo; em Futebol, uma bola; em Literatura, um livro aberto; em Dominó, uma pedra.
+ * um tabuleiro com o cavalo no meio; em Gestão de tempo, um relógio; em Hardware e sistema operacional, um cooler; em Autodesenvolvimento, a roleta do 1%; em Jogos, um disco de jogo; em Futebol, uma bola; em Literatura, um livro aberto; em Dominó, uma pedra; em Maquiagem, um estojo com espelho.
  * Cada partida sorteia QUIZ_RULES.total perguntas, equilibradas entre os módulos.
  * Quem acerta QUIZ_RULES.pass ganha o certificado, que fica salvo junto com o progresso do curso.
  * O certificado mostra só o nome de quem fez o curso, nunca o de quem preparou as aulas.
@@ -21,7 +21,7 @@ import { Mark } from "./FoundationBadge";
 const MODULE_COLORS = ["#8fb1ff", "#3ddc84", "#f5b83d", "#f2a7d8", "#c9a7ff", "#7fe0e0"];
 
 /** Tema da roleta e do certificado. `wheel` é o desenho; `name` completa a frase "Gire ...". */
-type Theme = { wheel: "carretel" | "moeda" | "kit" | "tabuleiro" | "relogio" | "cooler" | "um-por-cento" | "disco" | "bola" | "livro" | "pedra" | "roleta"; name: string };
+type Theme = { wheel: "carretel" | "moeda" | "kit" | "tabuleiro" | "relogio" | "cooler" | "um-por-cento" | "disco" | "bola" | "livro" | "pedra" | "estojo" | "roleta"; name: string };
 const THEMES: Record<string, Theme> = {
   "impressora-3d": { wheel: "carretel", name: "o carretel" },
   "educacao-financeira": { wheel: "moeda", name: "a moeda" },
@@ -34,6 +34,7 @@ const THEMES: Record<string, Theme> = {
   futebol: { wheel: "bola", name: "a bola" },
   literatura: { wheel: "livro", name: "a roleta da leitura" },
   domino: { wheel: "pedra", name: "a pedra" },
+  maquiagem: { wheel: "estojo", name: "o estojo" },
 };
 const DEFAULT_THEME: Theme = { wheel: "roleta", name: "a roleta" };
 const themeOf = (courseId: string) => THEMES[courseId] ?? DEFAULT_THEME;
@@ -105,6 +106,7 @@ function Spool({ count, rotation, onStop, kind = "carretel" }: { count: number; 
   const ball = kind === "bola";
   const book = kind === "livro";
   const tile = kind === "pedra";
+  const compact = kind === "estojo";
   return (
     <svg className="fq-spool" viewBox="-104 -122 208 228" aria-hidden="true">
       {fan && (
@@ -114,12 +116,13 @@ function Spool({ count, rotation, onStop, kind = "carretel" }: { count: number; 
         </g>
       )}
       <g className="fq-rotor" style={{ transform: `rotate(${rotation}deg)` }} onTransitionEnd={onStop}>
-        <circle r="98" fill={coin ? "#c9973a" : kit || clock ? "#f4f5f7" : fan ? "#14161c" : disc ? "#cfd3dc" : ball ? "#f4f5f7" : book ? "#f3ead8" : tile ? "#14161c" : "#1b1e26"} stroke={coin ? "#8a6420" : kit ? "#1a8f4c" : clock ? "#2a2d36" : disc ? "#9aa0ad" : ball ? "#2a2d36" : book ? "#7a5c3a" : tile ? "#f4f1ea" : "rgba(255,255,255,.12)"} strokeWidth={kit || clock || ball || book ? 3 : 1.2} />
+        <circle r="98" fill={coin ? "#c9973a" : kit || clock ? "#f4f5f7" : fan ? "#14161c" : disc ? "#cfd3dc" : ball ? "#f4f5f7" : book ? "#f3ead8" : tile ? "#14161c" : compact ? "#e7bfb3" : "#1b1e26"} stroke={coin ? "#8a6420" : kit ? "#1a8f4c" : clock ? "#2a2d36" : disc ? "#9aa0ad" : ball ? "#2a2d36" : book ? "#7a5c3a" : tile ? "#f4f1ea" : compact ? "#a8705f" : "rgba(255,255,255,.12)"} strokeWidth={kit || clock || ball || book || compact ? 3 : 1.2} />
         {coin && Array.from({ length: 90 }, (_, k) => {
           const [x0, y0] = polar(91, k * 4), [x1, y1] = polar(97.5, k * 4);
           return <line key={k} x1={x0} y1={y0} x2={x1} y2={y1} stroke="#8a6420" strokeWidth="1.4" />;
         })}
         {coin && <circle r="89" fill="#e8bb5a" />}
+        {compact && Array.from({ length: 24 }, (_, k) => { const [x, y] = polar(93, k * 15); return <circle key={k} cx={x} cy={y} r="1.5" fill="#fff5f1" />; })}
         {tile && Array.from({ length: 28 }, (_, k) => { const [x, y] = polar(93, k * (360 / 28)); return <circle key={k} cx={x} cy={y} r="1.6" fill="#f4f1ea" />; })}
         {book && [90, 92.5, 95].map((r) => <circle key={r} r={r} fill="none" stroke="#c9b48e" strokeWidth=".8" />)}
         {ball && Array.from({ length: 8 }, (_, k) => { const [x, y] = polar(93, k * 45 + 22.5); return <polygon key={k} points={pentagon(4.5, x, y, k * 45 + 22.5)} fill="#1b1e26" />; })}
@@ -159,6 +162,12 @@ function Spool({ count, rotation, onStop, kind = "carretel" }: { count: number; 
             <line x1="0" y1="0" x2="0" y2="-26" stroke="#2a2d36" strokeWidth="3.2" strokeLinecap="round" />
             <line x1="0" y1="0" x2="16" y2="9" stroke="#2a2d36" strokeWidth="3.2" strokeLinecap="round" />
             <circle r="3.5" fill="#e0533d" />
+          </>
+        ) : compact ? (
+          <>
+            <circle r="40" fill="#a8705f" stroke="#fff5f1" strokeWidth="2" />
+            <circle r="31" fill="#f6e9ec" />
+            <path d="M-18 -8 L-8 -18 M-16 2 L2 -16" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
           </>
         ) : tile ? (
           <>
@@ -263,6 +272,25 @@ function Hourglass() {
       <path d="M-26 8 C-18 22 -4 30 0 42 C4 30 18 22 26 8Z" fill="currentColor" fillOpacity=".3" />
       <path d="M0 45 V104" stroke="currentColor" strokeOpacity=".35" strokeDasharray="2 3" />
       <path d="M-34 110 C-30 92 -12 84 0 82 C12 84 30 92 34 110Z" fill="currentColor" fillOpacity=".3" />
+    </svg>
+  );
+}
+
+/** Estojo aberto, com espelho e sombras, e um pincel ao lado, no mesmo traço do cubo. */
+function Compact() {
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      <circle cx="-26" cy="8" r="36" fill="currentColor" fillOpacity=".1" stroke="currentColor" strokeOpacity=".6" />
+      <circle cx="-26" cy="8" r="27" fill="currentColor" fillOpacity=".06" stroke="currentColor" strokeOpacity=".35" />
+      <path d="M-42 0 L-30 -12 M-40 12 L-18 -10" stroke="currentColor" strokeOpacity=".35" strokeWidth="2.4" strokeLinecap="round" />
+      <rect x="-36" y="44" width="20" height="8" rx="2" fill="currentColor" fillOpacity=".16" stroke="currentColor" strokeOpacity=".5" />
+      <circle cx="-26" cy="88" r="36" fill="currentColor" fillOpacity=".1" stroke="currentColor" strokeOpacity=".6" />
+      {[[-39, 75], [-13, 75], [-39, 101], [-13, 101]].map(([x, y], k) => <circle key={k} cx={x} cy={y} r="10" fill="currentColor" fillOpacity={0.12 + k * 0.08} stroke="currentColor" strokeOpacity=".45" />)}
+      <g transform="rotate(20 52 60)">
+        <rect x="46" y="44" width="12" height="74" rx="6" fill="currentColor" fillOpacity=".16" stroke="currentColor" strokeOpacity=".6" />
+        <rect x="45" y="28" width="14" height="17" rx="2" fill="currentColor" fillOpacity=".1" stroke="currentColor" strokeOpacity=".6" />
+        <path d="M45 28 C42 10 47 -4 52 -10 C57 -4 62 10 59 28Z" fill="currentColor" fillOpacity=".2" stroke="currentColor" strokeOpacity=".6" />
+      </g>
     </svg>
   );
 }
@@ -452,6 +480,12 @@ function Seal({ kind }: { kind: Theme["wheel"] }) {
         <g fill="none" stroke="#8fb1ff" strokeWidth="2.4" strokeLinecap="round"><circle r="15" /><path d="M0 -9 V0 L7 5" /></g>
       ) : kind === "tabuleiro" ? (
         <text textAnchor="middle" dominantBaseline="central" y="1" fontSize="30" fill="#8fb1ff">{"♞︎"}</text>
+      ) : kind === "estojo" ? (
+        <g fill="none" stroke="#8fb1ff" strokeWidth="1.8" strokeLinejoin="round">
+          <rect x="-6" y="1" width="12" height="15" rx="1.5" />
+          <line x1="-6" y1="6" x2="6" y2="6" />
+          <path d="M-4 1 V-8 L4 -15 V1" />
+        </g>
       ) : kind === "pedra" ? (
         <g>
           <rect x="-9" y="-16" width="18" height="32" rx="3" fill="none" stroke="#8fb1ff" strokeWidth="1.8" />
@@ -495,7 +529,7 @@ function Certificate({ course, modules, lessonsCount, name, hits, date, code, ve
   const kind = themeOf(course.id).wheel;
   return (
     <div className="fq-paper" role="img" aria-label={`Certificado de conclusão do curso ${course.title}${name ? `, em nome de ${name}` : ""}`}>
-      {kind !== "roleta" && <div className="fq-p-cube">{kind === "moeda" ? <CoinStacks /> : kind === "kit" ? <FirstAidKit /> : kind === "tabuleiro" ? <ChessBoard /> : kind === "relogio" ? <Hourglass /> : kind === "cooler" ? <Chip /> : kind === "um-por-cento" ? <Steps /> : kind === "disco" ? <Gamepad /> : kind === "bola" ? <Goal /> : kind === "livro" ? <Books /> : kind === "pedra" ? <DominoRow /> : <PrintedCube />}</div>}
+      {kind !== "roleta" && <div className="fq-p-cube">{kind === "moeda" ? <CoinStacks /> : kind === "kit" ? <FirstAidKit /> : kind === "tabuleiro" ? <ChessBoard /> : kind === "relogio" ? <Hourglass /> : kind === "cooler" ? <Chip /> : kind === "um-por-cento" ? <Steps /> : kind === "disco" ? <Gamepad /> : kind === "bola" ? <Goal /> : kind === "livro" ? <Books /> : kind === "pedra" ? <DominoRow /> : kind === "estojo" ? <Compact /> : <PrintedCube />}</div>}
       <div className="fq-p-seal"><Seal kind={kind} /></div>
       <div className="fq-p-in">
         <div className="fq-p-top">
