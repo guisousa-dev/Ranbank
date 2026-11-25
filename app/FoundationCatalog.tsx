@@ -120,16 +120,18 @@ const LOGIN_MESSAGES: Record<string, string> = {
 /** Quanto do curso inteiro foi feito, de 0 a 100. */
 function coursePct(course: Course, progress?: Progress) {
   if (!progress) return 0;
+  // Curso com aulas conta pelas aulas feitas: se entrar um módulo novo, quem já tinha terminado vê o que falta.
+  if (hasLessons(course) && progress.doneLessons) return Math.min(100, Math.round(((progress.doneLessons?.filter((index) => index < partsOf(course).length).length ?? 0) / partsOf(course).length) * 100));
   if (progress.done) return 100;
-  if (hasLessons(course)) return Math.min(100, Math.round(((progress.doneLessons?.filter((index) => index < partsOf(course).length).length ?? 0) / partsOf(course).length) * 100));
   return Math.round(((progress.part + progress.pct / 100) / partsOf(course).length) * 100);
 }
 
 /** A parte (ou aula) já foi feita? */
 function partDone(course: Course, progress: Progress | undefined, index: number) {
   if (!progress) return false;
+  if (hasLessons(course) && progress.doneLessons) return progress.doneLessons.includes(index);
   if (progress.done) return true;
-  return hasLessons(course) ? Boolean(progress.doneLessons?.includes(index)) : index < progress.part;
+  return hasLessons(course) ? false : index < progress.part;
 }
 
 /** Marca no histórico do navegador de que a aula está aberta (fcEntry: a pessoa chegou direto pelo link da aula). */
@@ -264,7 +266,7 @@ function HoverPreview({ state, actions, lastWatched, onEnter, onLeave }: { state
         {common.length > 0 && lastWatched && <p className="fc-preview-match">Tem a ver com {lastWatched.title}: {common.join(", ").toLowerCase()}</p>}
         <p className="fc-preview-meta">
           <span>{partsLabel(course)}</span>
-          {pct > 0 && <span className="is-green">{progress?.done ? "Concluído" : `${pct}% feito`}</span>}
+          {pct > 0 && <span className="is-green">{pct === 100 ? "Concluído" : `${pct}% feito`}</span>}
         </p>
         <ul className="fc-tags">{course.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>
       </div>
@@ -314,7 +316,7 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
           <div className="fc-dialog-hero-copy">
             <h2 id="fc-dialog-title" className={longTitle(course)}>{course.title}</h2>
             <div className="fc-dialog-actions">
-              <button type="button" className="fc-btn fc-btn-light" onClick={() => actions.play(course)}><PlayGlyph /> {progress?.done ? "Fazer de novo" : pct ? "Continuar" : "Começar"}</button>
+              <button type="button" className="fc-btn fc-btn-light" onClick={() => actions.play(course)}><PlayGlyph /> {pct === 100 ? "Fazer de novo" : pct ? "Continuar" : "Começar"}</button>
               <button type="button" className="fc-circle is-big" onClick={() => actions.toggleList(course)} aria-pressed={inList} aria-label={inList ? "Tirar da minha lista" : "Adicionar à minha lista"}><PlusIcon checked={inList} /></button>
               <button type="button" className="fc-circle is-big" onClick={() => actions.toggleLike(course)} aria-pressed={liked} aria-label={liked ? "Desfazer gostei" : "Gostei"}><LikeIcon filled={liked} /></button>
             </div>
@@ -325,7 +327,7 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
         <div className="fc-dialog-body">
           <div className="fc-dialog-main">
             <p className="fc-dialog-meta">
-              {pct > 0 && <span className="is-green">{progress?.done ? "Concluído" : `${pct}% feito`}</span>}
+              {pct > 0 && <span className="is-green">{pct === 100 ? "Concluído" : `${pct}% feito`}</span>}
               <span>{partsLabel(course)}</span>
               <span>Para iniciantes</span>
             </p>
@@ -604,7 +606,7 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
     const current = latest.current.progress;
     const doneLessons = [...new Set([...(current?.doneLessons ?? []), index])].sort((a, b) => a - b);
     const now = new Date().toISOString();
-    if (current?.done || missing.length === 0) {
+    if (missing.length === 0) {
       onSave({ ...current, part: index, pct: 100, updatedAt: now, done: true, doneLessons });
       setFinished(true);
       return;
@@ -840,7 +842,7 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
                         <div className="nb-nav">
                           {index > 0 && <button type="button" className="nb-btn is-soft" onClick={() => go(index - 1)}>Aula anterior</button>}
                           <button type="button" className="nb-btn" onClick={complete}>
-                            {progress?.done || missing.length === 0 ? "Concluir o curso" : isLast ? `Concluir e ir para a aula ${missing[0] + 1}` : "Concluir e virar a página"}
+                            {missing.length === 0 ? "Concluir o curso" : isLast ? `Concluir e ir para a aula ${missing[0] + 1}` : "Concluir e virar a página"}
                           </button>
                         </div>
                       </article>
@@ -1078,8 +1080,8 @@ function ProfileDialog({ account, saved, onOpen, onLogout, onAccountChange, onCl
     .map(([id, progress]) => ({ course: courseById(id), progress }))
     .filter((item): item is { course: Course; progress: Progress } => Boolean(item.course))
     .sort((a, b) => b.progress.updatedAt.localeCompare(a.progress.updatedAt));
-  const done = entries.filter((item) => item.progress.done).map((item) => item.course);
-  const watching = entries.filter((item) => !item.progress.done);
+  const done = entries.filter((item) => coursePct(item.course, item.progress) === 100).map((item) => item.course);
+  const watching = entries.filter((item) => coursePct(item.course, item.progress) < 100);
   const list = saved.list.map((id) => courseById(id)).filter((course): course is Course => Boolean(course));
   const liked = saved.liked.map((id) => courseById(id)).filter((course): course is Course => Boolean(course));
 
@@ -1262,7 +1264,7 @@ export default function FoundationCatalog() {
     saved,
     play: (course, part) => {
       const progress = saved.progress[course.id];
-      const resume = part === undefined && progress && !progress.done;
+      const resume = part === undefined && progress && coursePct(course, progress) < 100;
       const start = Math.min(part ?? (resume ? progress.part : 0), partsOf(course).length - 1);
       setPreview(null); setOpen(null);
       // A aula ganha um endereço próprio; assim o "voltar" do navegador fecha a aula.
@@ -1319,7 +1321,7 @@ export default function FoundationCatalog() {
     .map(([id, progress]) => ({ course: courseById(id), progress }))
     .filter((item): item is { course: Course; progress: Progress } => Boolean(item.course))
     .sort((a, b) => b.progress.updatedAt.localeCompare(a.progress.updatedAt));
-  const watching = history.filter((item) => !item.progress.done);
+  const watching = history.filter((item) => coursePct(item.course, item.progress) < 100);
   const historyIds = history.map((item) => item.course.id);
   const latest = history[0];
   const becauseWatched = latest ? similarCourses(latest.course, historyIds, 8) : [];
@@ -1421,7 +1423,7 @@ export default function FoundationCatalog() {
           </Row>
 
           {latest && becauseWatched.length > 0 && (
-            <Row title={<>{latest.progress.done ? "Porque você fez" : "Porque você começou"} <em>{latest.course.title}</em></>} onScroll={hidePreview}>
+            <Row title={<>{coursePct(latest.course, latest.progress) === 100 ? "Porque você fez" : "Porque você começou"} <em>{latest.course.title}</em></>} onScroll={hidePreview}>
               {cards(becauseWatched)}
             </Row>
           )}

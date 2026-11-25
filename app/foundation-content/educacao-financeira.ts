@@ -15,6 +15,8 @@ export const EDUCACAO_FINANCEIRA: CourseContent = {
     { id: "prioridades-claras", name: "Prioridades claras", how: "Escolheu as suas três prioridades." },
     { id: "mente-fria", name: "Mente fria", how: "Terminou o mês da Lia com a meta e sem parcelas." },
     { id: "mestre-do-modulo-1", name: "Mestre do módulo", how: "Acertou 8 ou mais no quiz do Módulo 1." },
+    { id: "orcamento-fechado", name: "Conta fechada", how: "Montou um orçamento sem faltar dinheiro e com algo para as metas." },
+    { id: "mestre-do-modulo-2", name: "Orçamento na mão", how: "Acertou 8 ou mais no quiz do Módulo 2." },
   ],
   modules: [
     {
@@ -414,7 +416,304 @@ export const EDUCACAO_FINANCEIRA: CourseContent = {
         ],
       },
     },
-    { title: "Organização financeira", lessons: [] },
+    {
+      title: "Organização financeira",
+      lessons: [
+        {
+          id: "receitas-e-despesas",
+          title: "Receitas e despesas",
+          summary: "Saber quanto entra de verdade, separar os tipos de gasto e registrar sem complicação.",
+          goals: ["Calcular a renda que realmente cai na conta", "Separar despesas fixas, variáveis e esporádicas", "Escolher um jeito simples de registrar o mês"],
+          sections: [
+            {
+              title: "Quanto entra de verdade",
+              body: [
+                "No Módulo 1 você descobriu para onde vai o dinheiro. Agora é hora de colocar os números no papel, começando pelo que entra: a receita, ou renda.",
+                "O valor que importa é a renda líquida: o que cai na conta depois dos descontos. Quem tem carteira assinada vê no holerite o salário bruto e, abaixo, descontos como INSS e vale-transporte. Planejar com o bruto é contar com um dinheiro que nunca chega.",
+                { box: "exemplo", title: "Bruto ou líquido?", text: "Rita tem salário de R$ 2.500, mas R$ 220 são descontados em folha. A renda dela para o orçamento é R$ 2.280, não R$ 2.500." },
+                "Some também o que entra além do salário: bicos, vendas, pensão, bolsa de estudos. Tudo o que entra com frequência faz parte da receita.",
+                { box: "atencao", title: "Renda que muda todo mês", text: "Para quem trabalha por conta, com comissão ou por aplicativo, use como base o menor valor dos últimos três meses, e não a média nem o melhor mês. O que vier a mais vai direto para uma meta ou para a reserva. Assim o mês fraco não pega você de surpresa." },
+              ],
+            },
+            {
+              title: "Fixas, variáveis e esporádicas",
+              body: [
+                "Do lado das despesas, ajuda separar os gastos em três tipos:",
+                {
+                  cards: [
+                    { title: "Fixas", text: "Mesmo valor (ou quase) todo mês: aluguel, internet, mensalidade, plano do celular.", tag: "Fáceis de prever" },
+                    { title: "Variáveis", text: "Mudam conforme o uso: mercado, luz, água, transporte por aplicativo, lazer.", tag: "Pedem acompanhamento" },
+                    { title: "Esporádicas", text: "Aparecem poucas vezes por ano: IPVA, IPTU, material escolar, presentes de fim de ano, manutenção.", tag: "As que mais surpreendem" },
+                  ],
+                },
+                "As esporádicas são as que mais bagunçam o orçamento, porque a gente esquece delas até a hora de pagar. A saída é dividir o valor anual por 12 e guardar um pouco todo mês.",
+                { box: "exemplo", title: "O IPVA de março", text: "Bruna paga R$ 960 de IPVA todo mês de março e sempre se aperta. Guardando R$ 80 por mês (960 ÷ 12), em março o dinheiro já está separado." },
+                {
+                  sort: {
+                    title: "Fixa ou variável?",
+                    labels: ["Fixa", "Variável"],
+                    items: [
+                      { text: "Aluguel de R$ 750.", answer: 0, why: "O valor se repete todo mês." },
+                      { text: "Conta de luz.", answer: 1, why: "Depende do consumo: no verão, com ventilador ligado, costuma subir." },
+                      { text: "Plano do celular de R$ 50.", answer: 0, why: "Valor combinado no contrato, igual todo mês." },
+                      { text: "Compras do mercado.", answer: 1, why: "Mudam conforme o que se compra e os preços do mês." },
+                      { text: "Mensalidade da academia.", answer: 0, why: "Valor fixo, mesmo nos meses em que a pessoa vai pouco." },
+                      { text: "Corridas por aplicativo.", answer: 1, why: "Dependem de quantas vezes e para onde se vai." },
+                    ],
+                  },
+                },
+              ],
+            },
+            {
+              title: "Como registrar sem desistir",
+              body: [
+                "O melhor registro é o que você consegue manter. Pode ser um caderno, uma planilha ou um aplicativo confiável: o formato importa menos do que a constância.",
+                {
+                  list: [
+                    "Use poucas categorias: moradia, contas, mercado, transporte, saúde, lazer, compras, metas e dívidas.",
+                    "Reserve cinco minutos no mesmo horário todo dia, como antes de dormir.",
+                    "Anote também o Pix, o débito e o dinheiro em espécie, que somem mais fácil da memória.",
+                    "No cartão de crédito, anote a compra no dia em que fez, e não só quando a fatura chegar.",
+                  ],
+                },
+                { box: "pratica", title: "Use o seu desafio dos 7 dias", text: "Se você fez o desafio do Módulo 1, já tem uma semana de gastos anotados. Multiplique por 52 ÷ 12 para ter uma estimativa do mês: esse é o ponto de partida do seu orçamento na próxima aula." },
+                {
+                  check: {
+                    question: "Téo é motoboy e ganhou R$ 2.100, R$ 2.600 e R$ 1.800 nos últimos três meses. Com qual valor ele deveria montar o orçamento?",
+                    options: ["R$ 2.600, o melhor mês, para não se limitar.", "R$ 2.167, a média dos três meses.", "R$ 1.800, o menor dos três meses."],
+                    answer: 2,
+                    why: "Com renda que varia, a base segura é o menor valor recente. A média parece justa, mas nos meses abaixo dela falta dinheiro. O que vier a mais vai para uma meta ou para a reserva.",
+                  },
+                },
+              ],
+            },
+          ],
+          activity: {
+            title: "Meu mês em números",
+            steps: ["Use os seus valores reais ou, se preferir, valores de exemplo. Os números ficam só neste aparelho."],
+            fields: [
+              "Minha renda líquida (e de onde ela vem):",
+              "Minhas despesas fixas e o total delas:",
+              "Minhas despesas variáveis mais comuns e quanto gasto com elas, em média:",
+              "Uma despesa esporádica do ano e quanto eu deveria separar por mês para ela (valor ÷ 12):",
+            ],
+            answer: "Confira três pontos: a renda é a líquida, e não o salário bruto; se a renda varia, a base é o menor mês recente; e cada esporádica virou um valor mensal. Com isso você já tem quase tudo para montar o orçamento na próxima aula.",
+          },
+          recap: [
+            "Planeje com a renda líquida; se ela varia, use o menor mês recente.",
+            "Despesas fixas, variáveis e esporádicas: as esporádicas viram um valor por mês (÷ 12).",
+            "O registro bom é o simples que você mantém, com Pix e cartão anotados no dia.",
+          ],
+        },
+        {
+          id: "montando-o-orcamento",
+          title: "Montando o orçamento",
+          summary: "Juntar receitas e despesas num plano, dividir a renda e saber o que fazer quando a conta não fecha.",
+          goals: ["Montar um orçamento em quatro passos", "Usar a divisão 50-30-20 como ponto de partida", "Ajustar o plano quando as despesas passam da renda"],
+          sections: [
+            {
+              title: "O orçamento em quatro passos",
+              body: [
+                "Orçamento é o plano de como usar a renda do mês. Ele não é uma lista de proibições: é a decisão, tomada com calma e antes do mês começar, de para onde cada real vai.",
+                {
+                  ordered: true,
+                  list: [
+                    "Anote a renda líquida do mês.",
+                    "Liste as despesas em três grupos: necessidades, desejos, e metas e dívidas.",
+                    "Some tudo e faça a conta: receitas − despesas = saldo.",
+                    "Se o saldo for negativo, ajuste antes do mês começar. Se for positivo, dê um destino para ele.",
+                  ],
+                },
+                { box: "chave", title: "Ponto-chave", text: "Dinheiro sem destino costuma ir embora no automático. Até a sobra precisa de um plano: uma meta, a reserva ou um lazer escolhido." },
+              ],
+            },
+            {
+              title: "Uma divisão para começar: 50-30-20",
+              body: [
+                "Uma referência muito usada divide a renda líquida assim:",
+                {
+                  table: {
+                    caption: "A divisão 50-30-20 numa renda de R$ 2.000",
+                    head: ["Grupo", "Parte da renda", "Valor", "Exemplos"],
+                    rows: [
+                      ["Necessidades", "50%", "R$ 1.000", "Moradia, contas, mercado, transporte, saúde"],
+                      ["Desejos", "30%", "R$ 600", "Lazer, delivery, assinaturas, roupas além do básico"],
+                      ["Metas e dívidas", "20%", "R$ 400", "Reserva, objetivos, parcelas e dívidas"],
+                    ],
+                  },
+                },
+                "É um ponto de partida, não uma regra. Em muitas famílias brasileiras, só as necessidades já passam de 50% da renda, principalmente por causa do aluguel. Tudo bem: você ajusta os percentuais à sua realidade, por exemplo 65-20-15, e tenta melhorar aos poucos.",
+                { box: "atencao", title: "O que não pode faltar", text: "Seja qual for a divisão, o grupo de metas não deve ficar zerado. Mesmo um valor pequeno todo mês cria o hábito e começa a reserva." },
+              ],
+            },
+            {
+              title: "O orçamento do Diego",
+              body: [
+                "Diego, 26 anos, é auxiliar de logística e recebe R$ 2.200 líquidos. Ele montou o orçamento pela primeira vez e levou um susto:",
+                {
+                  table: {
+                    caption: "O mês do Diego",
+                    head: ["Grupo", "Despesas", "Total"],
+                    rows: [
+                      ["Necessidades", "Aluguel R$ 750, contas R$ 210, mercado R$ 480, transporte R$ 180, celular R$ 50", "R$ 1.670"],
+                      ["Desejos", "Saídas R$ 200, delivery R$ 160, assinaturas R$ 75, academia R$ 125", "R$ 560"],
+                      ["Metas e dívidas", "Parcela do celular novo R$ 150 (faltam 5 meses)", "R$ 150"],
+                      ["Saldo", "R$ 2.200 − R$ 2.380", "− R$ 180"],
+                    ],
+                  },
+                },
+                "Só as necessidades somam 76% da renda. E o mês fecha no vermelho: todo mês faltavam R$ 180, que iam para o cheque especial. Veja como ele ajustou, sem cortar tudo:",
+                {
+                  ordered: true,
+                  list: [
+                    "Cancelou duas das três assinaturas: − R$ 50.",
+                    "Reduziu o delivery para um pedido por semana: − R$ 100.",
+                    "Trocou o plano de internet por um mais barato com a mesma velocidade: − R$ 30.",
+                    "Diminuiu um pouco as saídas: − R$ 30.",
+                  ],
+                },
+                "Total: R$ 210 a menos. O saldo passou de − R$ 180 para + R$ 30, e Diego manteve academia, saídas e um delivery por semana. Quando a parcela do celular acabar, daqui a 5 meses, os R$ 150 vão direto para a reserva, em vez de virarem uma parcela nova.",
+              ],
+            },
+            {
+              title: "Quando a conta não fecha",
+              body: [
+                "Se as despesas passam da renda, siga esta ordem:",
+                {
+                  ordered: true,
+                  list: [
+                    "Proteja as necessidades: moradia, comida, contas básicas, saúde e transporte vêm primeiro.",
+                    "Reveja os desejos e as assinaturas, como fez o Diego.",
+                    "Renegocie as despesas fixas: planos de internet e celular, tarifas do banco, seguros.",
+                    "Procure aumentar a renda de forma pontual, com um bico ou a venda de algo parado.",
+                  ],
+                },
+                { box: "atencao", title: "Crédito não fecha orçamento", text: "Cobrir a diferença com cheque especial ou cartão só empurra o problema para o mês seguinte, agora com juros. Você vai ver por que no Módulo 3." },
+                "Agora é a sua vez. Monte o seu orçamento abaixo, com valores reais ou de exemplo:",
+                { tool: "orcamento" },
+              ],
+            },
+          ],
+          activity: {
+            title: "Meu plano de ajuste",
+            steps: ["Olhe para o orçamento que você montou na ferramenta acima.", "Se sobrou dinheiro, decida o destino. Se faltou, escolha os ajustes seguindo a ordem da aula."],
+            fields: [
+              "Meu saldo do mês (receitas − despesas):",
+              "Dois ajustes que eu posso fazer, e quanto cada um libera:",
+              "Para onde vai a sobra (ou o dinheiro que os ajustes liberarem):",
+            ],
+            answer: "Um bom plano começa pelos desejos e assinaturas, renegocia o que é fixo e não usa crédito para fechar a conta. A sobra sempre ganha um destino, nem que seja pequeno: meta, reserva ou um lazer escolhido.",
+          },
+          recap: [
+            "Orçamento: renda líquida − despesas = saldo, decidido antes do mês começar.",
+            "50-30-20 é um ponto de partida; ajuste à sua realidade, sem zerar as metas.",
+            "Se não fecha: proteja o essencial, corte desejos, renegocie fixos e não cubra com crédito.",
+          ],
+        },
+        {
+          id: "metas-e-acompanhamento",
+          title: "Metas e acompanhamento",
+          summary: "Transformar prioridades em metas com valor e prazo, guardar primeiro e acompanhar sem desistir.",
+          goals: ["Escrever uma meta com o quê, quanto e até quando", "Calcular quanto guardar por mês e ajustar o prazo", "Acompanhar o planejado e o realizado"],
+          sections: [
+            {
+              title: "Meta boa tem valor e prazo",
+              body: [
+                "No Módulo 1 você escolheu as suas prioridades. Agora elas viram metas. \"Quero viajar\" é um sonho; uma meta responde três perguntas:",
+                {
+                  cards: [
+                    { title: "O quê?", text: "O objetivo, bem específico: um curso, uma viagem, a reserva de emergência." },
+                    { title: "Quanto?", text: "O valor aproximado, pesquisado. Chute costuma sair baixo." },
+                    { title: "Até quando?", text: "Um prazo possível, com mês e ano." },
+                  ],
+                },
+                { box: "exemplo", title: "De sonho a meta", text: "\"Quero fazer um curso de inglês\" vira \"Juntar R$ 1.200 até dezembro para o curso de inglês\". Agora dá para calcular, acompanhar e saber quando chegou." },
+                "Separe também as metas pelo prazo: curto (até 1 ano), médio (1 a 5 anos) e longo (mais de 5 anos). As de curto prazo mantêm a motivação; as de longo prazo mudam a vida.",
+              ],
+            },
+            {
+              title: "Quanto guardar por mês",
+              body: [
+                "A conta é simples: valor da meta ÷ número de meses = quanto guardar por mês.",
+                { box: "exemplo", title: "A meta do Igor", text: "Igor quer R$ 1.800 em 6 meses: seriam R$ 300 por mês. Mas o orçamento dele só tem espaço para R$ 200. Em vez de desistir, ele aumentou o prazo: 1.800 ÷ 200 = 9 meses." },
+                "Se o valor não cabe no orçamento, você tem três caminhos: aumentar o prazo, diminuir o valor da meta ou abrir espaço no orçamento. O que não funciona é manter uma meta que não cabe e \"guardar o que sobrar\": quase nunca sobra.",
+              ],
+            },
+            {
+              title: "Pague-se primeiro",
+              body: [
+                "Pagar-se primeiro é separar a parte da meta assim que o dinheiro entra, antes de qualquer outro gasto, como se fosse uma conta a pagar. É o \"facilite o hábito bom\" do Módulo 1 aplicado às metas.",
+                {
+                  list: [
+                    "Programe uma transferência automática para o dia do salário.",
+                    "Guarde a meta em um lugar separado da conta do dia a dia, como uma conta ou \"caixinha\" só para isso.",
+                    "Dê um nome para esse dinheiro: \"Curso de inglês\" é mais difícil de gastar do que \"sobra\".",
+                  ],
+                },
+                {
+                  check: {
+                    question: "O que significa \"pagar-se primeiro\"?",
+                    options: ["Pagar primeiro as contas mais caras do mês.", "Separar o valor da meta assim que o dinheiro entra, antes dos outros gastos.", "Guardar no fim do mês tudo o que sobrar."],
+                    answer: 1,
+                    why: "A meta é tratada como uma conta: sai primeiro, no dia em que o dinheiro entra. Guardar o que sobrar no fim do mês é justamente o que costuma não dar certo.",
+                  },
+                },
+              ],
+            },
+            {
+              title: "Acompanhar e ajustar",
+              body: [
+                "Uma vez por mês, compare o planejado com o realizado. A diferença não é fracasso: é informação.",
+                {
+                  table: {
+                    caption: "O acompanhamento de março da Sol",
+                    head: ["Categoria", "Planejado", "Realizado", "O que ela decidiu"],
+                    rows: [
+                      ["Mercado", "R$ 300", "R$ 390", "Planejou baixo demais: vai planejar R$ 360 e fazer lista antes de ir"],
+                      ["Lazer", "R$ 150", "R$ 110", "Sobraram R$ 40, que foram para a meta"],
+                      ["Meta da viagem", "R$ 200", "R$ 200", "Guardou no dia do salário, como combinado"],
+                    ],
+                  },
+                },
+                "Imprevistos vão acontecer. Quando a meta atrasar, ajuste o prazo ou o valor, mas não abandone o plano. Um plano realista e ajustado vale mais do que um plano perfeito abandonado em março.",
+              ],
+            },
+          ],
+          activity: {
+            title: "Minha primeira meta",
+            steps: ["Escolha uma das prioridades que você marcou no Módulo 1 e transforme em meta."],
+            fields: [
+              "O quê:",
+              "Quanto (valor pesquisado):",
+              "Até quando (mês e ano):",
+              "Quanto guardar por mês (valor ÷ meses) e se isso cabe no meu orçamento:",
+              "Como vou me pagar primeiro (dia e lugar onde vou guardar):",
+            ],
+            answer: "Confira se a meta tem as três respostas (o quê, quanto e até quando) e se o valor mensal cabe no orçamento. Se não couber, aumente o prazo, diminua o valor ou abra espaço no orçamento. E deixe a transferência marcada para o dia em que o dinheiro entra.",
+          },
+          recap: [
+            "Meta tem o quê, quanto e até quando; valor ÷ meses diz quanto guardar.",
+            "Se não cabe, ajuste o prazo, o valor ou o orçamento. \"Guardar o que sobrar\" não funciona.",
+            "Pague-se primeiro e compare planejado com realizado todo mês.",
+          ],
+        },
+      ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-2", min: 8 },
+        questions: [
+          { question: "Rita tem salário de R$ 2.500, mas R$ 220 são descontados em folha. As despesas dela somam R$ 1.850. Quanto sobra de verdade no mês?", options: ["R$ 650", "R$ 870", "R$ 430", "R$ 210"], answer: 2, why: "O orçamento usa a renda líquida: R$ 2.500 − R$ 220 = R$ 2.280. R$ 2.280 − R$ 1.850 = R$ 430. R$ 650 é a conta com o salário bruto, que nunca chega inteiro na conta." },
+          { question: "Bruna paga R$ 960 de IPVA todo mês de março e sempre se aperta nesse mês. O que a aula sugere?", options: ["Parcelar o IPVA no cartão todo ano.", "Separar R$ 80 por mês ao longo do ano para esse gasto.", "Tratar o IPVA como emergência e usar a reserva.", "Deixar para pagar com o 13º salário, que chega em março."], answer: 1, why: "IPVA é uma despesa esporádica: 960 ÷ 12 = R$ 80 por mês. Ele não é emergência, porque se sabe a data. E o 13º salário é pago no fim do ano, não em março." },
+          { question: "Téo, motoboy, ganhou R$ 2.100, R$ 2.600 e R$ 1.800 nos últimos três meses. Que valor a aula recomenda como base do orçamento?", options: ["R$ 2.600, o melhor mês.", "R$ 2.167, a média dos três meses.", "R$ 2.100, o mês mais recente.", "R$ 1.800, o menor dos três meses."], answer: 3, why: "Com renda variável, a base segura é o menor valor recente. Pela média, faltaria dinheiro em todo mês abaixo dela. O que entrar a mais vai para uma meta ou para a reserva." },
+          { question: "Pela divisão 50-30-20, quanto de uma renda líquida de R$ 1.800 vai para metas e dívidas?", options: ["R$ 360", "R$ 540", "R$ 900", "R$ 180"], answer: 0, why: "Metas e dívidas são os 20%: R$ 1.800 × 0,20 = R$ 360. R$ 900 são as necessidades (50%), R$ 540 os desejos (30%) e R$ 180 seriam só 10%." },
+          { question: "No orçamento do Diego, só as necessidades somam 76% da renda. O que a aula diz sobre isso?", options: ["O orçamento está errado e ele precisa se mudar logo.", "A divisão 50-30-20 é ponto de partida, e ele ajusta os percentuais à realidade dele.", "Ele precisa zerar o lazer até as necessidades caírem para 50%.", "Ele pode usar o cartão para cobrir a parte acima dos 50%."], answer: 1, why: "Em muitas famílias as necessidades passam de 50%, principalmente pelo aluguel. A divisão se adapta, sem zerar as metas. Cortar todo o lazer não se sustenta, e crédito não fecha orçamento." },
+          { question: "O orçamento de Kátia não fecha: faltam R$ 120 todo mês. Pela ordem da aula, qual deve ser o primeiro ajuste?", options: ["Cortar parte do mercado, que é o maior gasto variável.", "Usar o cheque especial até a renda melhorar.", "Rever desejos e assinaturas e renegociar contas fixas.", "Atrasar o aluguel um mês para equilibrar."], answer: 2, why: "Primeiro se protegem as necessidades (mercado e aluguel entram aqui). Depois vêm desejos e assinaturas e a renegociação de fixos. O cheque especial só adia o problema, com juros." },
+          { question: "A parcela de R$ 150 do celular do Diego termina daqui a 5 meses. Segundo a aula, o que fazer com esse dinheiro depois?", options: ["Mandar os R$ 150 direto para a reserva.", "Usar a folga para parcelar algo novo.", "Aumentar o lazer na mesma proporção.", "Deixar o valor na conta, sem destino definido."], answer: 0, why: "Dinheiro sem destino vai embora no automático, e uma parcela nova ocupa o espaço que acabou de abrir. Diego decidiu antes: os R$ 150 viram reserva." },
+          { question: "Qual destas metas tem tudo o que a aula pede: o quê, quanto e até quando?", options: ["Juntar R$ 1.200 para o curso de inglês.", "Fazer o curso de inglês até dezembro.", "Juntar R$ 1.200 até dezembro para o curso de inglês.", "Guardar R$ 100 por mês, sem data para parar."], answer: 2, why: "Só a C tem objetivo (o curso), valor (R$ 1.200) e prazo (dezembro). A A não tem prazo, a B não tem valor, e a D não tem objetivo nem prazo." },
+          { question: "Igor quer R$ 1.800 em 6 meses, mas só cabem R$ 200 por mês no orçamento. Qual ajuste a aula sugere?", options: ["Manter os 6 meses e guardar o que der.", "Pegar um empréstimo para completar o que faltar.", "Desistir da meta até ganhar mais.", "Aumentar o prazo para 9 meses."], answer: 3, why: "1.800 ÷ 200 = 9 meses. Aumentar o prazo mantém a meta possível. \"Guardar o que der\" quase nunca dá, e empréstimo para meta é pagar juros para guardar dinheiro." },
+          { question: "O que significa \"pagar-se primeiro\"?", options: ["Pagar primeiro as contas mais caras do mês.", "Separar o valor da meta assim que o dinheiro entra, antes dos outros gastos.", "Quitar todas as dívidas antes de qualquer outro gasto.", "Guardar no fim do mês tudo o que sobrar."], answer: 1, why: "A meta é tratada como uma conta que sai no dia em que o dinheiro entra, de preferência com transferência automática. Guardar o que sobrar é o oposto disso." },
+        ],
+      },
+    },
     { title: "Crédito e dívidas", lessons: [] },
     { title: "Consumo consciente", lessons: [] },
     { title: "Poupança e investimentos", lessons: [] },

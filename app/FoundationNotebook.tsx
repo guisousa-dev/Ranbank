@@ -653,9 +653,92 @@ function TemptationMonth() {
   );
 }
 
+/* Orçamento (Módulo 2) ----------------------------------------------------- */
+
+const BUDGET_GROUPS = [
+  { name: "Necessidades", target: 50, lines: ["Moradia", "Contas da casa e celular", "Mercado", "Transporte", "Saúde"] },
+  { name: "Desejos", target: 30, lines: ["Saídas e lazer", "Delivery e lanches", "Assinaturas", "Academia e outros"] },
+  { name: "Metas e dívidas", target: 20, lines: ["Guardar para metas e reserva", "Parcelas e dívidas"] },
+] as const;
+/** O mês do Diego depois dos ajustes da aula, na mesma ordem das linhas acima. */
+const DIEGO = { income: "2200", lines: ["750", "230", "480", "180", "0", "170", "60", "25", "125", "0", "150"] };
+
+function Budget() {
+  const { data, update, setAnswer, earn } = useNotebook();
+  const baseId = useId();
+  const key = "ferramenta:orcamento";
+  type Saved = { income?: string; lines?: string[] };
+  const saved = (data.answers[key] as Saved | undefined) ?? {};
+  const income = toNumber(saved.income ?? "");
+  const value = (index: number) => toNumber(saved.lines?.[index] ?? "");
+  const groups = BUDGET_GROUPS.map((group, groupIndex) => {
+    const start = BUDGET_GROUPS.slice(0, groupIndex).reduce((sum, previous) => sum + previous.lines.length, 0);
+    const total = group.lines.reduce((sum, _, offset) => sum + value(start + offset), 0);
+    return { ...group, start, total, share: income > 0 ? Math.round((total / income) * 100) : 0 };
+  });
+  const spent = groups.reduce((sum, group) => sum + group.total, 0);
+  const balance = income - spent;
+  const goals = groups[2].total;
+  const ready = income > 0 && spent > 0;
+  const check = (next: Saved) => {
+    const nextIncome = toNumber(next.income ?? "");
+    const nextSpent = (next.lines ?? []).reduce((sum, text) => sum + toNumber(text ?? ""), 0);
+    const nextGoals = BUDGET_GROUPS[2].lines.reduce((sum, _, offset) => sum + toNumber(next.lines?.[groups[2].start + offset] ?? ""), 0);
+    if (nextIncome > 0 && nextSpent > 0 && nextIncome - nextSpent >= 0 && nextGoals > 0) earn("orcamento-fechado");
+  };
+  const setIncome = (text: string) => check(update<Saved>(key, (previous) => ({ ...previous, income: text })));
+  const setLine = (index: number, text: string) => check(update<Saved>(key, (previous) => {
+    const lines = [...(previous?.lines ?? [])];
+    lines[index] = text;
+    return { ...previous, lines };
+  }));
+  return (
+    <div className="nb-pasted nb-tool nb-budget">
+      <p className="nb-tag">Monte o seu orçamento</p>
+      <div className="nb-fields is-single">
+        <label htmlFor={`${baseId}-income`}>Renda líquida do mês (R$)<input id={`${baseId}-income`} inputMode="decimal" value={saved.income ?? ""} placeholder="2.200" onChange={(event) => setIncome(event.target.value)} /></label>
+      </div>
+      {groups.map((group) => (
+        <fieldset key={group.name} className="nb-budget-group">
+          <legend>{group.name} <span>referência: {group.target}%</span></legend>
+          <div className="nb-budget-lines">
+            {group.lines.map((line, offset) => {
+              const index = group.start + offset;
+              return <label key={line} htmlFor={`${baseId}-${index}`}>{line}<input id={`${baseId}-${index}`} inputMode="decimal" value={saved.lines?.[index] ?? ""} placeholder="0" onChange={(event) => setLine(index, event.target.value)} /></label>;
+            })}
+          </div>
+        </fieldset>
+      ))}
+      <div aria-live="polite">
+        {!ready ? <p className="nb-muted">Preencha a renda e pelo menos uma despesa para ver o resultado.</p> : (
+          <div className="nb-result">
+            <p className="nb-result-total">
+              <strong>{balance < 0 ? `Faltam ${brl(-balance)}` : balance === 0 ? "Fechou na conta" : `Sobram ${brl(balance)}`}</strong> · despesas de {brl(spent)} para uma renda de {brl(income)}
+            </p>
+            <dl className="nb-areas">
+              {groups.map((group) => (
+                <div key={group.name}>
+                  <dt>{group.name} <span>{brl(group.total)} · {group.share}% da renda (referência {group.target}%)</span></dt>
+                  <dd><span className="nb-meter" aria-hidden="true"><i style={{ width: `${Math.min(group.share, 100)}%` }} /></span></dd>
+                </div>
+              ))}
+            </dl>
+            {balance < 0 && <p>Antes do mês começar, ajuste nesta ordem: proteja as necessidades, reveja desejos e assinaturas, renegocie as contas fixas e, se precisar, busque uma renda extra pontual. Não cubra a diferença com crédito.</p>}
+            {balance > 0 && <p>Dê um destino para a sobra: uma meta, a reserva ou um lazer escolhido. Dinheiro sem destino costuma ir embora no automático.</p>}
+            {goals === 0 && <p>O grupo de metas está zerado. Mesmo um valor pequeno todo mês cria o hábito e começa a reserva.</p>}
+            {groups[0].share > 50 && <p className="nb-muted">As necessidades passam de 50%. Isso é comum, principalmente por causa do aluguel: ajuste os percentuais à sua realidade.</p>}
+          </div>
+        )}
+      </div>
+      <button type="button" className="nb-btn is-soft" onClick={() => setAnswer(key, { income: DIEGO.income, lines: [...DIEGO.lines] })}>Ver o exemplo do Diego</button>
+    </div>
+  );
+}
+
 export const NOTEBOOK_TOOLS = {
   "diagnostico-financeiro": Diagnostic,
   "gasto-formiga": AntSpending,
   prioridades: Priorities,
   "simulacao-lia": TemptationMonth,
+  orcamento: Budget,
 } as const;
