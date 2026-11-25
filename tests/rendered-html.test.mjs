@@ -412,7 +412,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   const rani = await readFile(new URL("../app/rani-knowledge.ts", import.meta.url), "utf8");
   const raniFoundation = rani.slice(rani.indexOf('topic: "Fundação RanBank"'), rani.indexOf('topic: "Parcerias"'));
   if (raniFoundation.includes("Todos os cursos já têm aulas")) assert.equal(ids.length, (catalogCourses.match(/learn: \[/g) ?? []).length, "a Rani diz que todos os cursos têm aulas");
-  assert.deepEqual(quizCourses.toSorted(), ["educacao-financeira", "impressora-3d", "primeiros-socorros", "xadrez"], "atualize o texto da Rani sobre a prova final e o certificado");
+  assert.deepEqual(quizCourses.toSorted(), ["educacao-financeira", "gestao-tempo", "impressora-3d", "primeiros-socorros", "xadrez"], "atualize o texto da Rani sobre a prova final e o certificado");
   // Imagens das aulas: toda imagem existe em public/ e tem descrição (alt) para leitor de tela.
   const images = [...allContent.matchAll(/\{ image: "([^"]+)", alt: "((?:[^"\\]|\\.)*)" \}/g)];
   assert.ok(images.length >= 20, "as aulas têm imagens");
@@ -503,6 +503,16 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   const chessText = await readFile(new URL("../app/foundation-content/xadrez.ts", import.meta.url), "utf8");
   assert.match(chessText, /tool: "regra-do-quadrado"/);
   assert.match(notebook, /"regra-do-quadrado": RuleOfSquare/);
+  // Gestão de tempo: 3 módulos com quiz, prova com todos os módulos e a Matriz de Eisenhower.
+  const time = Object.values(await import(new URL("../app/foundation-content/gestao-tempo.ts", import.meta.url).href))[0];
+  assert.deepEqual(time.modules.map((module) => module.lessons.length), [2, 2, 3]);
+  for (let index = 0; index < time.modules.length; index++) {
+    assert.equal(time.modules[index].quiz?.questions.length, 10, time.modules[index].title);
+    assert.ok(time.quiz.filter((question) => question.module === index).length >= 2, `prova de gestão de tempo: módulo ${index + 1}`);
+  }
+  for (const question of time.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  assert.match(await readFile(new URL("../app/foundation-content/gestao-tempo.ts", import.meta.url), "utf8"), /tool: "matriz-eisenhower"/);
+  assert.match(notebook, /"matriz-eisenhower": EisenhowerMatrix/);
   // Simulação da Lia: os três caminhos fecham com as contas do material (sempre A, B e C).
   assert.match(notebook, /const START = 650;/);
   assert.match(notebook, /const GOAL = 250;/);

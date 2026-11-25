@@ -393,6 +393,22 @@ html[data-site-theme="light"] .nb-page .fc-box.is-atencao { --box: #9a6408; }
 .nb-square-side p { margin: 0; }
 .nb-square-nav { display: flex; gap: 10px; flex-wrap: wrap; }
 .nb-square-nav:empty { display: none; }
+.nb-matrix-board { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 4px 0 14px; }
+.nb-matrix-axis { text-align: center; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--nb-muted); }
+.nb-matrix-cell { display: grid; align-content: start; gap: 2px; min-height: 96px; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--nb-card-line); }
+.nb-matrix-cell strong { font-size: 15px; }
+.nb-matrix-cell small { color: var(--nb-muted); font-size: 12.5px; }
+.nb-matrix-cell ul { margin: 6px 0 0; padding: 0 !important; list-style: none !important; display: flex; flex-wrap: wrap; gap: 5px; }
+.nb-matrix-cell li { padding: 3px 8px; border-radius: 6px; background: var(--nb-card); box-shadow: 0 1px 2px rgba(0, 0, 0, .12); font-size: 13.5px; line-height: 1.35; }
+.nb-matrix-cell.is-q0 { background: color-mix(in srgb, var(--nb-wrong) 12%, transparent); }
+.nb-matrix-cell.is-q1 { background: color-mix(in srgb, var(--nb-right) 12%, transparent); }
+.nb-matrix-cell.is-q2 { background: color-mix(in srgb, #f5b83d 14%, transparent); }
+.nb-matrix-cell.is-q3 { background: color-mix(in srgb, var(--nb-muted) 10%, transparent); }
+.nb-matrix-tasks { margin: 0; padding: 0 !important; list-style: none !important; counter-reset: nb-matrix; }
+.nb-matrix-tasks li { padding: 12px 0; border-bottom: 1px dashed var(--nb-card-line); counter-increment: nb-matrix; }
+.nb-matrix-tasks li:last-child { border-bottom: 0; }
+.nb-matrix-tasks li > p:first-child::before { content: counter(nb-matrix) ". "; font-weight: 700; color: var(--nb-accent); }
+.nb-matrix-choices { display: grid; grid-template-columns: 1fr 1fr; }
 @media (prefers-reduced-motion: reduce) {
   .nb-rcp-press span.is-pushed { animation: none; }
   .nb-rcp-marker { transition: none; }

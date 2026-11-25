@@ -1232,6 +1232,86 @@ function RuleOfSquare() {
   );
 }
 
+/* Gestão de tempo: Matriz de Eisenhower --------------------------------- */
+
+/** Quadrantes na ordem da matriz: em cima os importantes, à esquerda os urgentes. */
+const QUADRANTS = [
+  { name: "Fazer agora", hint: "urgente e importante" },
+  { name: "Agendar", hint: "importante, não urgente" },
+  { name: "Avaliar ou passar adiante", hint: "urgente, menos importante" },
+  { name: "Reduzir ou cortar", hint: "nem urgente nem importante" },
+] as const;
+const MATRIX_TASKS: Array<{ text: string; short: string; answer: 0 | 1 | 2 | 3; why: string }> = [
+  { text: "O trabalho de história vale nota, vence hoje às 18h e ainda falta a conclusão.", short: "Trabalho que vence hoje", answer: 0, why: "Prazo hoje e impacto na nota: urgente e importante." },
+  { text: "Começar a estudar para o vestibular, que é daqui a três meses.", short: "Estudar para o vestibular", answer: 1, why: "Faz muita diferença, mas o prazo está longe. Sem um horário reservado, vai ficando para depois." },
+  { text: "Um colega pede agora que você imprima uma lista que ele mesmo pode imprimir.", short: "Imprimir a lista do colega", answer: 2, why: "Pede resposta rápida, mas pesa pouco para você e outra pessoa pode resolver." },
+  { text: "Ver vídeos aleatórios no celular antes de começar a tarefa.", short: "Vídeos aleatórios", answer: 3, why: "Não tem prazo nem ajuda nos seus objetivos. É o tipo de coisa que dá para reduzir." },
+  { text: "Renovar a matrícula, que fecha amanhã. Sem ela, você perde a vaga.", short: "Renovar a matrícula", answer: 0, why: "Prazo amanhã e consequência grande: fazer agora." },
+  { text: "Organizar a pasta de documentos para não perder tempo procurando papéis no mês que vem.", short: "Organizar os documentos", answer: 1, why: "Evita problemas no futuro, mas não tem prazo perto: entra na agenda." },
+  { text: "O grupo da turma pede, agora, a sua opinião sobre a cor da camiseta da festa.", short: "Cor da camiseta da festa", answer: 2, why: "Chegou com pressa, mas tem pouco impacto: dá para responder rápido mais tarde ou deixar que outros decidam." },
+  { text: "Reorganizar os aplicativos da tela do celular por cor.", short: "Aplicativos por cor", answer: 3, why: "Nem prazo nem importância: reduzir ou cortar." },
+];
+
+function EisenhowerMatrix() {
+  const { data, update, setAnswer, earn } = useNotebook();
+  const key = "ferramenta:matriz-eisenhower";
+  const picks = (data.answers[key] as Record<number, number> | undefined) ?? {};
+  const answered = Object.keys(picks).length;
+  const hits = MATRIX_TASKS.filter((task, index) => picks[index] === task.answer).length;
+  const choose = (index: number, quadrant: number) => {
+    const next = update<Record<number, number>>(key, (previous) => ({ ...previous, [index]: quadrant }));
+    const nextHits = MATRIX_TASKS.filter((task, taskIndex) => next[taskIndex] === task.answer).length;
+    if (Object.keys(next).length === MATRIX_TASKS.length && nextHits >= 6) earn("matriz-em-dia");
+  };
+  return (
+    <div className="nb-pasted nb-tool nb-matrix">
+      <p className="nb-tag">Matriz de Eisenhower</p>
+      <p className="nb-muted">Escolha o quadrante de cada tarefa. Depois de responder, ela aparece no lugar certo da matriz.</p>
+      <div className="nb-matrix-board" aria-label="A matriz com as tarefas já respondidas" role="group">
+        <span className="nb-matrix-axis is-top" aria-hidden="true">Urgente</span>
+        <span className="nb-matrix-axis is-top" aria-hidden="true">Não urgente</span>
+        {QUADRANTS.map((quadrant, index) => (
+          <div key={quadrant.name} className={`nb-matrix-cell is-q${index}`}>
+            <strong>{quadrant.name}</strong>
+            <small>{quadrant.hint}</small>
+            <ul>
+              {MATRIX_TASKS.map((task, taskIndex) => (picks[taskIndex] !== undefined && task.answer === index ? <li key={task.short}>{task.short}</li> : null))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <ol className="nb-matrix-tasks">
+        {MATRIX_TASKS.map((task, index) => {
+          const pick = picks[index];
+          return (
+            <li key={task.short}>
+              <p>{task.text}</p>
+              <div className="nb-sort-buttons nb-matrix-choices" role="group" aria-label={`Em que quadrante fica: ${task.text}`}>
+                {QUADRANTS.map((quadrant, quadrantIndex) => (
+                  <button key={quadrant.name} type="button" aria-pressed={pick === quadrantIndex} disabled={pick !== undefined}
+                    className={pick === undefined ? "" : quadrantIndex === task.answer ? "is-right" : pick === quadrantIndex ? "is-wrong" : ""}
+                    onClick={() => choose(index, quadrantIndex)}>{quadrant.name}</button>
+                ))}
+              </div>
+              {pick !== undefined && (
+                <p className={`nb-feedback ${pick === task.answer ? "is-right" : "is-wrong"}`} role="status">
+                  <strong>{pick === task.answer ? "Certo." : `${QUADRANTS[task.answer].name}.`}</strong> {task.why}
+                </p>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+      {answered === MATRIX_TASKS.length && (
+        <div className="nb-score">
+          <p><strong>Você acertou {hits} de {MATRIX_TASKS.length}.</strong></p>
+          <button type="button" className="nb-btn is-soft" onClick={() => setAnswer(key, {})}>Refazer</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export const NOTEBOOK_TOOLS = {
   "diagnostico-financeiro": Diagnostic,
   "gasto-formiga": AntSpending,
@@ -1243,4 +1323,5 @@ export const NOTEBOOK_TOOLS = {
   "juros-compostos": CompoundGrowth,
   "ritmo-rcp": RcpRhythm,
   "regra-do-quadrado": RuleOfSquare,
+  "matriz-eisenhower": EisenhowerMatrix,
 } as const;
