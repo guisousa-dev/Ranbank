@@ -78,8 +78,8 @@ export const COURSES: Course[] = [
     learn: ["Regras do dominó e das variações mais jogadas", "Contar pedras e prever o jogo do adversário", "Jogar em dupla com estratégia", "Saber a hora de fechar ou segurar o jogo"],
     description: "Regras, contagem de pedras e as jogadas que fazem diferença na mesa." },  { id: "jogos", title: "Jogos", category: "jogos", tags: ["Estratégia", "Diversão", "Criação", "Equipe"],
     hook: "Saia do controle e passe para a criação.",
-    learn: ["Conhecer gêneros, plataformas e a história dos games", "Entender o que torna um jogo divertido", "Saber como um jogo é criado e quem faz o quê", "Transformar regras em instruções de programação", "Planejar, testar e apresentar o seu próprio jogo"],
-    description: "Como os jogos são feitos, do design à programação básica, até criar o seu primeiro jogo." },
+    learn: ["Diferenciar jogos online e offline e saber onde se joga", "Reconhecer os tipos de jogos", "Identificar personagens, cenários, objetivos e regras", "Saber como um jogo é criado e quem faz o quê", "Entender atualizações, capas e trailers"],
+    description: "Jogos online e offline, tipos de jogos, os elementos de um jogo e como ele é criado, das etapas aos profissionais." },
   {
     id: "futebol", title: "Futebol", category: "esporte", tags: ["Esporte", "Equipe", "Saúde", "Estratégia"],
     hook: "Do campo à quadra e à areia: jogue melhor e em equipe.",

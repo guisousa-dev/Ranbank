@@ -412,7 +412,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   const rani = await readFile(new URL("../app/rani-knowledge.ts", import.meta.url), "utf8");
   const raniFoundation = rani.slice(rani.indexOf('topic: "Fundação RanBank"'), rani.indexOf('topic: "Parcerias"'));
   if (raniFoundation.includes("Todos os cursos já têm aulas")) assert.equal(ids.length, (catalogCourses.match(/learn: \[/g) ?? []).length, "a Rani diz que todos os cursos têm aulas");
-  assert.deepEqual(quizCourses.toSorted(), ["autodesenvolvimento", "educacao-financeira", "gestao-tempo", "hardware-so", "impressora-3d", "primeiros-socorros", "xadrez"], "atualize o texto da Rani sobre a prova final e o certificado");
+  assert.deepEqual(quizCourses.toSorted(), ["autodesenvolvimento", "educacao-financeira", "gestao-tempo", "hardware-so", "impressora-3d", "jogos", "primeiros-socorros", "xadrez"], "atualize o texto da Rani sobre a prova final e o certificado");
   // Imagens das aulas: toda imagem existe em public/ e tem descrição (alt) para leitor de tela.
   const images = [...allContent.matchAll(/\{ image: "([^"]+)", alt: "((?:[^"\\]|\\.)*)" \}/g)];
   assert.ok(images.length >= 20, "as aulas têm imagens");
@@ -533,6 +533,15 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   for (const question of growth.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
   assert.match(await readFile(new URL("../app/foundation-content/autodesenvolvimento.ts", import.meta.url), "utf8"), /tool: "respiracao"/);
   assert.match(notebook, /respiracao: BreathPause/);
+  // Jogos: 3 módulos de 1 aula, com quiz, prova com todos os módulos e a atividade "Online ou offline?".
+  const games = Object.values(await import(new URL("../app/foundation-content/jogos.ts", import.meta.url).href))[0];
+  assert.deepEqual(games.modules.map((module) => module.lessons.length), [1, 1, 1]);
+  for (let index = 0; index < games.modules.length; index++) {
+    assert.equal(games.modules[index].quiz?.questions.length, 10, games.modules[index].title);
+    assert.ok(games.quiz.filter((question) => question.module === index).length >= 2, `prova de jogos: módulo ${index + 1}`);
+  }
+  for (const question of games.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  assert.match(await readFile(new URL("../app/foundation-content/jogos.ts", import.meta.url), "utf8"), /sticker: \{ id: "online-ou-offline", min: 7 \}/);
   // Simulação da Lia: os três caminhos fecham com as contas do material (sempre A, B e C).
   assert.match(notebook, /const START = 650;/);
   assert.match(notebook, /const GOAL = 250;/);

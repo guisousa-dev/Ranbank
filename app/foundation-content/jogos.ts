@@ -1,61 +1,83 @@
-// Curso: Jogos ("Game Academy"). 3 módulos (introdução aos games, design de jogos e desenvolvimento), 5 aulas.
-// Segue o padrão de app/foundation-lessons.ts.
+// Curso: Jogos ("Game Academy"). 3 módulos (introdução aos games, design de jogos e desenvolvimento), 3 aulas.
+// O conteúdo segue só o material do curso. Segue o padrão de app/foundation-lessons.ts.
 
 import type { CourseContent } from "../foundation-lessons";
+import { PROVA_JOGOS } from "./jogos-prova";
 
 export const JOGOS: CourseContent = {
-  closing: "Você saiu do lado de quem só joga para o lado de quem cria. Todo grande jogo começou como uma ideia simples num papel. Continue testando, errando e melhorando: é assim que se faz um jogo.",
+  closing: "Você conheceu o lado de quem cria: jogos online e offline, onde se joga, os tipos de jogos, os elementos de um jogo, as etapas de criação e quem faz cada parte. Todo jogo começa no planejamento: pense na história, nos personagens e em como ele vai funcionar.",
+  quiz: PROVA_JOGOS,
+  stickers: [
+    { id: "online-ou-offline", name: "Conexão certa", how: "Acertou 7 ou mais em \"Online ou offline?\"." },
+    { id: "mestre-do-modulo-1", name: "Player 1", how: "Acertou 8 ou mais no quiz do Módulo 1." },
+    { id: "mestre-do-modulo-2", name: "Game designer", how: "Acertou 8 ou mais no quiz do Módulo 2." },
+    { id: "mestre-do-modulo-3", name: "Level up", how: "Acertou 8 ou mais no quiz do Módulo 3." },
+  ],
   modules: [
     {
       title: "Introdução aos games",
       lessons: [
         {
-          id: "mundo-dos-games",
-          title: "O mundo dos games",
-          summary: "Um pouco de história, jogos online e offline, plataformas e gêneros.",
-          goals: ["Conhecer um pouco da história dos videogames", "Diferenciar jogos online e offline", "Reconhecer as plataformas e os principais gêneros"],
+          id: "online-offline-e-onde-jogar",
+          title: "Online, offline e onde jogar",
+          summary: "A diferença entre jogos online e offline, onde um jogo pode ser jogado e os tipos de jogos.",
+          goals: ["Diferenciar jogos online e offline", "Saber onde um jogo pode ser jogado", "Reconhecer os tipos de jogos"],
           sections: [
             {
-              title: "Um pouco de história",
+              title: "Jogo online",
               body: [
-                "Os videogames começaram como experimentos em laboratórios nos anos 1950 e 1960. Em 1972, Pong (um tênis de mesa bem simples) virou sucesso nos fliperamas. Depois vieram os consoles em casa, os computadores pessoais, os jogos em 3D, a internet e os celulares.",
-                "Hoje, os games são uma das maiores indústrias de entretenimento do mundo e empregam programadores, artistas, roteiristas, músicos e muitos outros profissionais.",
+                "Jogos online são jogos em que você precisa ter internet. Com ela, você joga com pessoas reais de diferentes lugares, que podem ser de outro estado ou de outro país.",
+                { box: "exemplo", text: "Exemplos de jogos online: Fortnite, Free Fire, Valorant e Call of Duty." },
               ],
             },
             {
-              title: "Online ou offline",
+              title: "Jogo offline e os dois modos",
               body: [
-                { table: { caption: "Dois jeitos de jogar", head: ["Tipo", "Como é", "Exemplos"], rows: [
-                  ["Online", "Precisa de internet. Você joga com pessoas reais de outros lugares.", "Fortnite, Free Fire, Valorant"],
-                  ["Offline", "Não precisa de internet. Você joga sozinho ou com quem está ao lado.", "God of War, Red Dead Redemption 2"],
-                  ["Os dois", "Tem modo sozinho e modo online.", "Minecraft, GTA V, jogos de futebol"],
+                "Jogos offline são jogos em que você não precisa de internet, mas também não consegue jogar com pessoas reais. E tem jogos em que dá para jogar tanto offline quanto online.",
+                { table: { caption: "Exemplos da aula", head: ["Tipo", "Exemplos"], rows: [
+                  ["Online", "Fortnite, Free Fire, Valorant e Call of Duty"],
+                  ["Offline", "Mad Max, State of Decay, Red Dead Redemption 2 e God of War"],
+                  ["Os dois", "GTA V, Fifa e Minecraft"],
                 ] } },
-                { box: "atencao", text: "Nos jogos online, não passe dados pessoais, senhas ou fotos para desconhecidos, e desconfie de quem oferece itens ou moedas \"de graça\" em troca de login." },
+                {
+                  sort: {
+                    title: "Online ou offline?",
+                    labels: ["Online", "Offline"],
+                    items: [
+                      { text: "Fortnite", answer: 0, why: "A aula cita como jogo online: precisa de internet e você joga com pessoas reais." },
+                      { text: "Mad Max", answer: 1, why: "A aula cita como jogo offline: não precisa de internet." },
+                      { text: "Free Fire", answer: 0, why: "A aula cita como jogo online." },
+                      { text: "State of Decay", answer: 1, why: "A aula cita como jogo offline." },
+                      { text: "Valorant", answer: 0, why: "A aula cita como jogo online." },
+                      { text: "Red Dead Redemption 2", answer: 1, why: "A aula cita como jogo offline." },
+                      { text: "Call of Duty", answer: 0, why: "A aula cita como jogo online." },
+                      { text: "God of War", answer: 1, why: "A aula cita como jogo offline." },
+                    ],
+                    sticker: { id: "online-ou-offline", min: 7 },
+                  },
+                },
               ],
             },
             {
-              title: "Onde se joga",
+              title: "Onde pode ser jogado",
               body: [
                 { list: [
-                  "Computador: jogos baixados de lojas oficiais (como Steam ou Microsoft Store) ou jogados direto no navegador.",
-                  "Consoles: PlayStation, Xbox e Nintendo Switch, com lojas próprias.",
-                  "Celular: a plataforma com mais jogadores no mundo.",
+                  "Sites: jogos que rodam no navegador, como o Google Chrome ou o Opera GX. Quem cria pode vender o jogo para eles ou colocar o jogo no site.",
+                  "Xbox e PlayStation: você manda o jogo para o site ou o app da PlayStation ou do Xbox, e eles veem se querem e aceitam o jogo, caso ele tenha condições de funcionar no console.",
+                  "Computador: jogos que você baixa de um site confiável. Também dá para jogar por serviços como o da própria Xbox, em que você paga para jogar; a maioria precisa de controle e poucos jogos funcionam com teclado.",
                 ] },
-                { box: "exemplo", text: "Quem cria um jogo pode publicá-lo em lojas de computador, de console ou de celular. Cada loja tem as suas regras e analisa o jogo antes de aceitar." },
               ],
             },
             {
-              title: "Gêneros de jogos",
+              title: "Tipos de jogos",
               body: [
-                { table: { caption: "Alguns gêneros", head: ["Gênero", "O que tem", "Exemplos"], rows: [
-                  ["Tiro", "Mirar e acertar alvos", "Valorant, Counter-Strike"],
-                  ["Terror", "Suspense e sustos", "Resident Evil"],
-                  ["Puzzle", "Resolver enigmas e quebra-cabeças", "Tetris"],
-                  ["Luta", "Combates entre personagens", "Street Fighter, Mortal Kombat"],
-                  ["Estratégia", "Planejar e tomar decisões", "Clash of Clans, League of Legends"],
-                  ["Simulação", "Imitar a vida real ou uma atividade", "The Sims"],
+                { table: { caption: "Tipos de jogos e exemplos", head: ["Tipo", "Exemplos"], rows: [
+                  ["Tiro (refletem um campo de tiro)", "Fortnite, Call of Duty, Counter-Strike e Valorant"],
+                  ["Terror", "Resident Evil e State of Decay"],
+                  ["Puzzle", "Quebra-cabeça e Tetris"],
+                  ["Luta", "Mortal Kombat e Street Fighter"],
+                  ["Estratégia", "League of Legends, Minecraft e Clash of Clans"],
                 ] } },
-                "Muitos jogos misturam gêneros. O Minecraft, por exemplo, tem construção, sobrevivência e aventura.",
               ],
             },
           ],
@@ -63,14 +85,30 @@ export const JOGOS: CourseContent = {
             title: "Seu raio-x de jogador",
             steps: [
               "Liste três jogos que você joga ou já jogou.",
-              "Para cada um, diga a plataforma, se é online ou offline e o gênero.",
-              "Qual gênero aparece mais? O que você acha que ele tem de especial?",
+              "Para cada um, diga onde você joga (site, console ou computador) e se ele é online, offline ou os dois.",
+              "Diga o tipo de cada um: tiro, terror, puzzle, luta ou estratégia.",
+              "Qual tipo aparece mais na sua lista?",
             ],
-            note: "Não tem resposta errada. O gênero que você mais gosta é uma boa pista do tipo de jogo que você vai querer criar no projeto final.",
+            note: "Não tem resposta errada. O tipo que você mais joga é uma boa pista do jogo que você vai querer planejar no fim do curso.",
           },
-          recap: ["Os videogames começaram nos anos 1950 e hoje são uma indústria gigante.", "Online precisa de internet; offline, não.", "Gênero é o tipo de jogo: tiro, puzzle, luta, estratégia e muitos outros."],
+          recap: ["Online precisa de internet e junta pessoas reais; offline, não. Alguns jogos têm os dois.", "Um jogo pode ser jogado em sites, no Xbox e na PlayStation ou no computador.", "Os tipos da aula são tiro, terror, puzzle, luta e estratégia."],
         },
       ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-1", min: 8 },
+        questions: [
+          { question: "Qual destes a aula dá como exemplo de jogo que dá para jogar tanto offline quanto online?", options: ["Valorant", "God of War", "GTA V", "Mad Max"], answer: 2, why: "GTA V, Fifa e Minecraft são os exemplos dos dois modos. Valorant é online; God of War e Mad Max, offline." },
+          { question: "Pela aula, o que o jogador não consegue fazer num jogo offline?", options: ["Salvar o progresso para continuar depois.", "Jogar com pessoas reais.", "Jogar no computador, só no console.", "Escolher o tipo de jogo que quer."], answer: 1, why: "No offline você não precisa de internet, mas também não joga com pessoas reais." },
+          { question: "Na lista de exemplos da aula, em quais grupos aparece o State of Decay?", options: ["Online e tiro.", "Os dois modos e estratégia.", "Offline e luta.", "Offline e terror."], answer: 3, why: "State of Decay é citado entre os offline e entre os de terror, junto com Resident Evil." },
+          { question: "Em qual tipo de jogo a aula coloca o Minecraft?", options: ["Estratégia", "Puzzle", "Terror", "Luta"], answer: 0, why: "Os exemplos de estratégia são League of Legends, Minecraft e Clash of Clans." },
+          { question: "Qual destes a aula não cita como jogo online?", options: ["Free Fire", "Call of Duty", "Red Dead Redemption 2", "Fortnite"], answer: 2, why: "Red Dead Redemption 2 está nos exemplos de jogo offline." },
+          { question: "Que navegadores a aula usa como exemplo de onde rodam jogos em sites?", options: ["Microsoft Edge e Safari.", "Google Chrome e Opera GX.", "Edge e Brave.", "Opera GX e Mozilla Firefox."], answer: 1, why: "A aula cita o Google Chrome e o Opera GX." },
+          { question: "Bia fez um jogo e quer lançar na PlayStation. Pela aula, como isso acontece?", options: ["Ela publica sozinha na loja do console, e o jogo aparece na hora para todos.", "Ela vende primeiro o jogo para um navegador, que repassa para a PlayStation.", "Ela manda para o site ou o app da PlayStation, que vê se aceita.", "Ela só consegue lançar se o jogo for offline e não precisar de internet."], answer: 2, why: "A PlayStation e o Xbox veem se querem e aceitam o jogo, caso ele tenha condições de funcionar no console." },
+          { question: "Pela aula, como é jogar no computador por serviços como o da Xbox?", options: ["Você paga, e a maioria dos jogos precisa de controle.", "É grátis, e todos os jogos funcionam com teclado.", "Você paga por jogo, e todos funcionam só com teclado.", "É grátis, mas só vale para os jogos offline."], answer: 0, why: "Você paga para poder jogar, e a maioria precisa de controle; poucos funcionam com teclado." },
+          { question: "Qual destes a aula coloca entre os jogos de tiro?", options: ["Street Fighter", "Clash of Clans", "Tetris", "Counter-Strike"], answer: 3, why: "Os exemplos de tiro são Fortnite, Call of Duty, Counter-Strike e Valorant." },
+          { question: "De onde a aula diz para baixar jogos no computador?", options: ["Do link que um amigo mandar.", "De um site confiável.", "De qualquer site que tenha o jogo grátis.", "Do primeiro anúncio que aparecer."], answer: 1, why: "Os jogos de computador são baixados de um site confiável." },
+        ],
+      },
     },
     {
       title: "Design de jogos",
@@ -78,46 +116,32 @@ export const JOGOS: CourseContent = {
         {
           id: "elementos-de-um-jogo",
           title: "Os elementos de um jogo",
-          summary: "Personagens, cenários, objetivos, regras e o que deixa um jogo divertido.",
-          goals: ["Identificar os elementos que todo jogo tem", "Diferenciar regras e mecânicas", "Entender o que deixa um jogo divertido"],
+          summary: "Personagens, cenários, objetivos, regras e o começo, meio e fim.",
+          goals: ["Identificar os elementos de um jogo", "Diferenciar objetivo e regra", "Saber que todo jogo tem começo, meio e fim"],
           sections: [
             {
-              title: "O que todo jogo tem",
+              title: "Personagens e cenários",
               body: [
                 { list: [
-                  "Personagens: quem aparece no jogo, controlado pelo jogador ou pelo próprio jogo.",
-                  "Cenários: os lugares onde o jogo acontece (uma cidade, uma floresta, outro planeta).",
-                  "Objetivo: o que o jogador precisa conseguir (vencer a partida, completar a missão, passar de fase).",
-                  "Regras: o que pode e o que não pode ser feito.",
-                  "Começo, meio e fim: mesmo jogos sem fim têm partidas com um começo e um encerramento.",
+                  "Personagens: são os personagens que aparecem no jogo. Eles podem ser controlados pelo jogador ou pelo próprio jogo.",
+                  "Cenários: são os lugares onde o jogo acontece. Podem ser cidades, florestas ou até outros planetas.",
                 ] },
               ],
             },
             {
-              title: "Regras e mecânicas",
+              title: "Objetivos e regras",
               body: [
-                "Regras dizem o que é permitido. Mecânicas são as ações que o jogador faz: pular, atirar, construir, trocar cartas, correr.",
-                { box: "exemplo", text: "No futebol de videogame, a regra é \"a bola não pode sair do campo\". As mecânicas são passar, chutar e driblar." },
-                { box: "chave", text: "Um bom jogo tem poucas mecânicas fáceis de aprender e difíceis de dominar." },
+                { list: [
+                  "Objetivos: todo jogo precisa ter algum objetivo, como vencer uma partida, completar uma missão ou passar de fase.",
+                  "Regras: são as regras que dizem o que pode ou não pode fazer dentro de um jogo.",
+                ] },
+                { box: "chave", text: "Objetivo é o que o jogador precisa conseguir. Regra é o que ele pode ou não pode fazer para chegar lá." },
               ],
             },
             {
-              title: "O que deixa um jogo divertido",
+              title: "Começo, meio e fim",
               body: [
-                { table: { caption: "Ingredientes da diversão", head: ["Ingrediente", "O que é"], rows: [
-                  ["Desafio na medida", "Nem fácil demais (fica chato) nem difícil demais (dá raiva). A dificuldade sobe aos poucos."],
-                  ["Resposta clara", "O jogo mostra na hora o que aconteceu: um som, uma luz, uma pontuação."],
-                  ["Escolhas", "O jogador decide coisas que fazem diferença."],
-                  ["Progresso", "Dá para ver que está melhorando: novas fases, itens, níveis."],
-                ] } },
-                { box: "pratica", text: "Pense num jogo que você largou. Qual desses ingredientes faltou nele?" },
-              ],
-            },
-            {
-              title: "Personagens e história",
-              body: [
-                "Um bom personagem tem um objetivo, um jeito próprio e uma aparência que combina com ele. A história explica por que o jogador está ali e o que está em jogo.",
-                { list: ["Quem é o personagem?", "O que ele quer?", "O que o impede (o desafio ou o vilão)?", "Onde a história acontece?"] },
+                "O estilo do jogo pode ser offline, online ou os dois. Seja qual for, um jogo precisa ter começo, meio e fim!",
               ],
             },
           ],
@@ -125,191 +149,117 @@ export const JOGOS: CourseContent = {
             title: "Desmonte um jogo",
             steps: [
               "Escolha um jogo que você conhece bem.",
-              "Liste o personagem principal, o cenário, o objetivo e duas regras.",
-              "Liste três mecânicas (ações do jogador).",
-              "Diga qual ingrediente da diversão ele faz melhor.",
+              "Quem são os personagens? Quais você controla e quais o jogo controla?",
+              "Qual é o cenário e qual é o objetivo?",
+              "Escreva duas regras: uma do que pode e uma do que não pode.",
+              "Como é o começo, o meio e o fim de uma partida?",
             ],
-            answer: "Exemplo com um jogo de corrida: personagem, o piloto; cenário, as pistas; objetivo, chegar em primeiro; regras, não cortar caminho fora da pista e completar as voltas; mecânicas, acelerar, frear e fazer curvas; ingrediente forte, a resposta clara (velocidade, posição e tempo aparecem o tempo todo).",
+            answer: "Exemplo com o Fifa: os personagens são os jogadores do seu time, que você controla, e os do time adversário, que o jogo controla no modo offline; o cenário é o estádio; o objetivo é vencer a partida; uma regra do que pode é chutar a bola com os pés, e uma do que não pode é pegar a bola com a mão (só o goleiro pode); o começo é o apito inicial, o meio são os dois tempos e o fim é o apito final.",
           },
-          recap: ["Todo jogo tem personagens, cenários, objetivo e regras.", "Regras dizem o que pode; mecânicas são o que o jogador faz.", "Diversão vem de desafio na medida, resposta clara, escolhas e progresso."],
-        },
-        {
-          id: "como-um-jogo-e-criado",
-          title: "Como um jogo é criado",
-          summary: "Etapas, profissionais, ferramentas, testes, atualizações, capa e trailer.",
-          goals: ["Conhecer as etapas de criação de um jogo", "Saber quem faz o quê numa equipe", "Conhecer ferramentas para começar"],
-          sections: [
-            {
-              title: "As etapas",
-              body: [
-                { list: [
-                  "Planejamento: a ideia, a história, os personagens e como o jogo vai funcionar.",
-                  "Desenvolvimento: programar e montar o jogo, transformando a ideia em algo jogável.",
-                  "Arte e som: personagens, cenários, objetos, músicas e efeitos.",
-                  "Testes: jogar várias vezes para achar erros (os bugs) e ajustar a dificuldade.",
-                  "Lançamento e atualizações: publicar e, depois, corrigir erros e trazer novidades.",
-                ], ordered: true },
-                { box: "chave", text: "Atualizações mantêm o jogo vivo: corrigem erros e trazem mapas, personagens e modos novos para os jogadores voltarem." },
-              ],
-            },
-            {
-              title: "Quem faz o quê",
-              body: [
-                { table: { caption: "Profissões dos games", head: ["Profissional", "O que faz"], rows: [
-                  ["Game designer", "Cria as regras, as fases e o que torna o jogo divertido"],
-                  ["Programador", "Escreve o código que faz o jogo funcionar"],
-                  ["Artista", "Desenha personagens, cenários e objetos"],
-                  ["Roteirista", "Escreve a história e os diálogos"],
-                  ["Músico e sonoplasta", "Cria as músicas e os efeitos sonoros"],
-                  ["Testador (QA)", "Joga antes do lançamento para encontrar erros"],
-                ] } },
-              ],
-            },
-            {
-              title: "Ferramentas para criar",
-              body: [
-                "Motores de jogo (engines) são programas que já trazem física, gráficos, som e controles prontos, para a equipe focar no jogo em si.",
-                { list: [
-                  "Scratch: gratuito, com blocos coloridos de encaixar. Ótimo para o primeiro jogo, sem precisar digitar código.",
-                  "Godot: gratuito e de código aberto, para jogos 2D e 3D.",
-                  "Unity e Unreal Engine: muito usados por estúdios profissionais, com versões gratuitas para quem está aprendendo.",
-                ] },
-                { box: "atencao", text: "Baixe as ferramentas só do site oficial de cada uma. Versões \"crackeadas\" ou de sites desconhecidos podem trazer vírus." },
-              ],
-            },
-            {
-              title: "Capa e trailer",
-              body: [
-                "Antes de jogar, as pessoas veem a capa e o trailer. A capa mostra o clima e o estilo do jogo numa imagem só. O trailer mostra como é jogar: o gráfico, o estilo e se tem modo online.",
-                "Antigamente a capa ia numa caixa de plástico com o disco. Hoje ela aparece nas lojas digitais, mas continua sendo o primeiro contato com o jogo.",
-              ],
-            },
-          ],
-          activity: {
-            title: "Monte a equipe",
-            steps: [
-              "Imagine que você vai criar um jogo de terror curto com três amigos.",
-              "Que funções cada pessoa vai ter?",
-              "Em qual etapa vocês acham que vão gastar mais tempo, e por quê?",
-            ],
-            answer: "Uma divisão possível: uma pessoa no game design e no roteiro, uma na programação, uma na arte e uma no som e nos testes. Em equipes pequenas, todo mundo acumula funções. A etapa que mais demora costuma ser o desenvolvimento junto com os testes, porque cada erro encontrado precisa ser corrigido e testado de novo.",
-          },
-          recap: ["Planejar, desenvolver, fazer arte e som, testar e atualizar.", "Um jogo junta designer, programador, artista, roteirista, músico e testador.", "Scratch e Godot são gratuitos e ótimos para começar."],
+          recap: ["Personagens são controlados pelo jogador ou pelo próprio jogo.", "Cenário é onde o jogo acontece; objetivo é o que se precisa conseguir; regras dizem o que pode ou não.", "Offline, online ou os dois: todo jogo precisa de começo, meio e fim."],
         },
       ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-2", min: 8 },
+        questions: [
+          { question: "Num jogo, os inimigos andam e atacam sozinhos, sem ninguém controlar. Pela aula, o que eles são?", options: ["Cenários, porque fazem parte do lugar da fase.", "Regras, porque dizem até onde o jogador pode ir.", "Objetivos, porque precisam ser vencidos.", "Personagens controlados pelo próprio jogo."], answer: 3, why: "Personagens podem ser controlados pelo jogador ou pelo próprio jogo." },
+          { question: "Qual é a diferença entre regra e objetivo, pela aula?", options: ["Regra diz o que pode ou não fazer; objetivo é o que precisa conseguir.", "Regra é o que precisa conseguir; objetivo diz o que pode ou não fazer.", "Regra vale só no online; objetivo vale só no offline.", "Não há diferença: as duas palavras querem dizer o mesmo."], answer: 0, why: "Objetivos são coisas como vencer, completar uma missão ou passar de fase. Regras dizem o que pode ou não pode." },
+          { question: "\"Passar de fase\" é exemplo de qual elemento de um jogo?", options: ["Regra", "Cenário", "Objetivo", "Personagem"], answer: 2, why: "A aula dá três exemplos de objetivo: vencer uma partida, completar uma missão ou passar de fase." },
+          { question: "No plano de um jogo está escrito: \"o robô não pode tocar na água\". Que elemento é esse?", options: ["Objetivo", "Regra", "Cenário", "Estilo"], answer: 1, why: "Diz o que não pode ser feito dentro do jogo, então é uma regra." },
+          { question: "Quais exemplos de cenário a aula dá?", options: ["Menus, botões e telas de carregamento.", "Músicas, sons e efeitos.", "Placar, vidas e tempo de partida.", "Cidades, florestas e até outros planetas."], answer: 3, why: "Cenários são os lugares onde o jogo acontece." },
+          { question: "Qual destes a aula dá como exemplo de objetivo?", options: ["Completar uma missão.", "Escolher a roupa do personagem.", "Baixar o jogo de um site confiável.", "Jogar com pessoas de outro país."], answer: 0, why: "Vencer uma partida, completar uma missão ou passar de fase são os exemplos de objetivo." },
+          { question: "Ao falar de estilo, o que a aula diz que todo jogo precisa ter?", options: ["Modo online e offline ao mesmo tempo.", "Começo, meio e fim.", "Pelo menos três tipos misturados.", "Um personagem que conversa com o jogador."], answer: 1, why: "O estilo pode ser offline, online ou os dois, mas o jogo precisa ter começo, meio e fim." },
+          { question: "Pela aula, como pode ser o estilo de um jogo?", options: ["Só online, para jogar com pessoas reais.", "Só offline, para ter começo, meio e fim.", "Offline, online ou os dois.", "Online, desde que seja um jogo de tiro."], answer: 2, why: "O estilo pode ser tanto offline quanto online, ou mesmo os dois." },
+          { question: "Segundo a aula, quem pode controlar um personagem?", options: ["Só o jogador.", "Só outro jogador, numa partida online.", "Só os testadores, antes do lançamento.", "O jogador ou o próprio jogo."], answer: 3, why: "Personagens podem ser controlados pelo jogador ou pelo próprio jogo." },
+          { question: "O plano diz: \"um robô explora uma cidade abandonada para encontrar a saída\". O que é a cidade abandonada?", options: ["O cenário.", "O objetivo.", "Uma regra.", "Um personagem."], answer: 0, why: "Cenário é o lugar onde o jogo acontece. Encontrar a saída é o objetivo, e o robô é o personagem." },
+        ],
+      },
     },
     {
       title: "Desenvolvimento de jogos",
       lessons: [
         {
-          id: "programacao-e-mecanicas",
-          title: "Programação básica e mecânicas",
-          summary: "Instruções, condições, repetições e variáveis, explicadas com exemplos de jogos.",
-          goals: ["Entender o que é programar", "Reconhecer condições, repetições e variáveis num jogo", "Transformar uma regra em instruções"],
+          id: "como-um-jogo-e-criado",
+          title: "Como um jogo é criado",
+          summary: "Programação, motores de jogos, etapas, profissionais, atualizações, capa e trailer.",
+          goals: ["Saber do que um jogo precisa para funcionar", "Conhecer as etapas de criação e quem faz o quê", "Entender por que atualizações, capa e trailer importam"],
           sections: [
             {
-              title: "O que é programar",
+              title: "Do que um jogo precisa",
               body: [
-                "Programar é dar instruções ao computador, passo a passo e na ordem certa. O computador não adivinha nada: faz exatamente o que foi mandado.",
-                { box: "exemplo", text: "Uma receita de bolo é um programa para pessoas: tem os ingredientes (os dados) e os passos na ordem. Se pular um passo, o bolo dá errado. No código, é igual." },
-              ],
-            },
-            {
-              title: "Os blocos básicos",
-              body: [
-                { table: { caption: "Quatro ideias que aparecem em todo jogo", head: ["Ideia", "O que é", "Exemplo num jogo"], rows: [
-                  ["Sequência", "Fazer uma coisa depois da outra", "Mostrar a tela inicial, depois carregar a fase"],
-                  ["Condição (se... então...)", "Fazer algo só se uma coisa for verdade", "Se o personagem tocar no espinho, então perde uma vida"],
-                  ["Repetição", "Fazer algo várias vezes", "Enquanto o jogo estiver rodando, mover os inimigos"],
-                  ["Variável", "Um lugar que guarda um valor que muda", "Pontos, vidas, tempo restante"],
-                ] } },
-                { box: "chave", text: "Quase toda mecânica de jogo é uma mistura de condições, repetições e variáveis." },
-              ],
-            },
-            {
-              title: "Da regra ao código",
-              body: [
-                "Pegue a regra \"o jogador ganha 10 pontos ao pegar uma moeda e a moeda some\". Em instruções, fica assim:",
                 { list: [
-                  "Repetir o tempo todo:",
-                  "Se o personagem encostar numa moeda, então:",
-                  "somar 10 na variável pontos,",
-                  "tocar o som de moeda,",
-                  "esconder a moeda.",
-                ], ordered: true },
-                "No Scratch, cada uma dessas linhas é um bloco de encaixar. Em outras ferramentas, vira uma linha de código, mas a lógica é a mesma.",
-                { box: "pratica", text: "Abra o Scratch (site oficial scratch.mit.edu, gratuito, funciona no navegador) e faça um personagem andar com as setas do teclado." },
-              ],
-            },
-          ],
-          activity: {
-            title: "Escreva as instruções",
-            steps: [
-              "Regra: \"o jogador tem 3 vidas; se cair num buraco, perde uma vida e volta ao começo; com 0 vidas, aparece Fim de Jogo\".",
-              "Qual é a variável dessa regra?",
-              "Quais são as condições?",
-              "Escreva as instruções em passos, como no exemplo da moeda.",
-            ],
-            answer: "A variável é vidas (começa em 3). As condições são \"se cair num buraco\" e \"se vidas for 0\". Instruções: começar com vidas = 3; repetir o tempo todo: se o personagem cair num buraco, então tirar 1 de vidas e levar o personagem ao começo; se vidas for 0, então mostrar Fim de Jogo e parar.",
-          },
-          recap: ["Programar é dar instruções em ordem para o computador.", "Condição, repetição e variável formam a maioria das mecânicas.", "Toda regra do jogo pode ser escrita em passos."],
-        },
-        {
-          id: "projeto-meu-jogo",
-          title: "Projeto: crie o seu jogo",
-          summary: "Do documento de uma página ao protótipo, aos testes e à apresentação.",
-          goals: ["Planejar um jogo simples em uma página", "Fazer um protótipo e testar com outras pessoas", "Apresentar o jogo criado"],
-          sections: [
-            {
-              title: "O plano de uma página",
-              body: [
-                "Antes de abrir qualquer programa, escreva o plano do jogo numa página só:",
-                { list: [
-                  "Nome do jogo.",
-                  "Gênero e plataforma.",
-                  "Personagem principal e o que ele quer.",
-                  "Objetivo do jogador.",
-                  "Três regras.",
-                  "Duas ou três mecânicas.",
-                  "Como se ganha e como se perde.",
+                  "Programação: é toda a parte de sistemas que programam os objetos, os personagens, a física, os sons e as plataformas.",
+                  "Unreal Engine e Unity: são motores de jogos, plataformas de software completas que trazem as ferramentas necessárias para criar, programar, animar, simular física e renderizar jogos eletrônicos.",
                 ] },
-                { box: "atencao", text: "Comece pequeno: uma fase só, um personagem e uma mecânica principal. Um jogo pequeno terminado vale mais que um enorme pela metade." },
               ],
             },
             {
-              title: "Protótipo e testes",
+              title: "As etapas",
               body: [
-                "Protótipo é uma versão simples para testar a ideia. Pode ser no papel (com cartas, dados e desenhos) ou no Scratch.",
                 { list: [
-                  "Faça a versão mais simples que dê para jogar.",
-                  "Peça para alguém jogar sem você explicar nada.",
-                  "Observe em silêncio: onde a pessoa travou, se divertiu ou se irritou?",
-                  "Anote, ajuste e teste de novo.",
+                  "Planejamento: antes de criar um jogo, é preciso pensar na história, nos personagens e em como ele vai funcionar.",
+                  "Desenvolvimento: é quando os criadores começam a montar o jogo e fazer as ideias virarem realidade.",
+                  "Criação visual: é a parte em que são feitos os personagens, os cenários e os objetos que aparecem no jogo e nas cenas.",
                 ], ordered: true },
-                { box: "chave", text: "Quem testa o seu jogo está ajudando. Críticas mostram o que melhorar." },
               ],
             },
             {
-              title: "Apresentar o jogo",
+              title: "Quem faz o jogo",
               body: [
-                "Na apresentação, mostre: a ideia em uma frase, o que o jogador faz, uma partida rápida, o que você mudou depois dos testes e o que faria se tivesse mais tempo.",
-                { box: "pratica", text: "Faça uma capa para o seu jogo: uma imagem com o nome e o personagem principal que mostre, de longe, o clima do jogo." },
+                { table: { caption: "Profissionais dos jogos", head: ["Profissional", "O que faz"], rows: [
+                  ["Programadores", "Criam os códigos e fazem o jogo funcionar"],
+                  ["Designers", "Criam as ideias, os personagens, as fases e os cenários"],
+                  ["Testadores", "Jogam antes do lançamento para encontrar erros e problemas"],
+                ] } },
+              ],
+            },
+            {
+              title: "Atualizações",
+              body: [
+                "Atualizações são mudanças feitas depois que o jogo é lançado. Elas podem trazer novidades, novos personagens, mapas e correções de erros.",
+                { box: "atencao", text: "Atualizações são necessárias porque as pessoas vão querer jogar o jogo atualizado, com coisas novas. Se não, o jogo fica enjoativo e o desempenho cai." },
+              ],
+            },
+            {
+              title: "Capa e trailer",
+              body: [
+                "Além do próprio jogo, a capa e o trailer também chamam atenção e são necessários: sem a capa, as pessoas não saberiam qual é o jogo; sem o trailer, não saberiam como ele é.",
+                { list: [
+                  "Trailer: mostra para quem está vendo como é o jogo, qual é o estilo, o gráfico e se dá para jogar online ou offline.",
+                  "Capa: antigamente, os jogos eram em discos e vinham numa caixa de plástico de CD, DVD ou Blu-Ray, com fotos do jogo, dos cenários e informações. O tempo passou, e agora temos só as fotos dos jogos pela internet.",
+                ] },
               ],
             },
           ],
           activity: {
-            title: "Meu jogo em uma página",
+            title: "Planeje o seu jogo",
             steps: [
-              "Preencha o plano de uma página com os sete itens.",
-              "Faça um protótipo em papel ou no Scratch.",
-              "Teste com pelo menos duas pessoas e anote o que elas acharam.",
-              "Faça uma mudança a partir dos testes e apresente o jogo.",
+              "Dê um nome ao jogo e escolha o tipo: tiro, terror, puzzle, luta ou estratégia.",
+              "Diga se ele vai ser online, offline ou os dois, e onde vai ser jogado.",
+              "Descreva os personagens, o cenário, o objetivo e duas regras.",
+              "Diga quem da equipe faria o quê: programar, criar personagens e fases, testar.",
+              "Descreva como seriam a capa e o trailer.",
             ],
-            note: "O que conta é a criatividade, o jogo funcionar e você conseguir explicar as suas escolhas, não o gráfico.",
+            note: "No curso, o que conta é a criatividade, o funcionamento do jogo e a participação nas atividades.",
           },
-          recap: ["Planeje o jogo numa página antes de começar.", "Protótipo simples, testes com outras pessoas e ajustes.", "Um jogo pequeno terminado vale mais que um grande pela metade."],
+          recap: ["Um jogo precisa de programação, e motores como Unreal Engine e Unity trazem as ferramentas.", "Planejamento, desenvolvimento e criação visual, com programadores, designers e testadores.", "Atualizações mantêm o jogo novo; capa e trailer mostram qual é o jogo e como ele é."],
         },
       ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-3", min: 8 },
+        questions: [
+          { question: "Pela aula, do que cuida a programação de um jogo?", options: ["Só das cores dos personagens e dos cenários que aparecem nas fases.", "Dos sistemas de objetos, personagens, física, sons e plataformas.", "Da capa e do trailer que mostram o jogo antes do lançamento.", "Da escolha de quem vai testar o jogo e procurar os erros."], answer: 1, why: "Programação é toda a parte de sistemas que programam objetos, personagens, física, sons e plataformas." },
+          { question: "O que são Unreal Engine e Unity?", options: ["Lojas digitais onde os jogos prontos são vendidos e atualizados.", "Consoles de videogame concorrentes do Xbox e da PlayStation.", "Navegadores próprios para rodar jogos em sites, como o Opera GX.", "Motores de jogos, plataformas com ferramentas para criar jogos."], answer: 3, why: "São motores de jogos: plataformas de software completas para criar, programar, animar, simular física e renderizar." },
+          { question: "Em que etapa se pensa na história, nos personagens e em como o jogo vai funcionar?", options: ["Planejamento", "Desenvolvimento", "Criação visual", "Atualização"], answer: 0, why: "O planejamento vem antes de criar o jogo." },
+          { question: "Fazer os personagens, os cenários e os objetos que aparecem no jogo e nas cenas é qual etapa?", options: ["Planejamento", "Desenvolvimento", "Criação visual", "Teste"], answer: 2, why: "Na criação visual são feitos os personagens, os cenários e os objetos." },
+          { question: "Quem joga antes do lançamento para encontrar erros e problemas?", options: ["Os programadores", "Os designers", "Os jogadores online", "Os testadores"], answer: 3, why: "Testadores jogam antes do lançamento justamente para achar erros e problemas." },
+          { question: "Pela aula, quem cria as ideias, os personagens, as fases e os cenários?", options: ["Os programadores", "Os designers", "Os testadores", "Quem faz o trailer"], answer: 1, why: "Designers criam ideias, personagens, fases e cenários. Programadores criam os códigos." },
+          { question: "Segundo a aula, o que as atualizações podem trazer?", options: ["Só correções de erros, sem novidades.", "Uma capa nova para a caixa do disco.", "Novidades, personagens, mapas e correções de erros.", "Um motor de jogo novo para o jogador instalar."], answer: 2, why: "Atualizações são mudanças depois do lançamento: novidades, novos personagens, mapas e correções." },
+          { question: "Pela aula, o que acontece com um jogo que não recebe atualizações?", options: ["Fica enjoativo e o desempenho cai.", "Deixa de funcionar no modo offline.", "Perde a capa nas lojas da internet.", "Passa a precisar de controle para jogar."], answer: 0, why: "As pessoas querem jogar o jogo atualizado, com coisas novas. Sem isso, ele fica enjoativo e o desempenho cai." },
+          { question: "Segundo a aula, o que o trailer mostra?", options: ["Só a história e os nomes dos personagens principais.", "As regras e o objetivo de cada fase do jogo.", "Quem programou, quem desenhou e quem testou o jogo.", "O estilo, o gráfico e se tem modo online ou offline."], answer: 3, why: "O trailer mostra como é o jogo: o estilo, o gráfico e se tem como jogar online ou offline." },
+          { question: "Quando os criadores começam a montar o jogo e fazer as ideias virarem realidade, é qual etapa?", options: ["Planejamento", "Desenvolvimento", "Criação visual", "Atualização"], answer: 1, why: "O desenvolvimento vem depois do planejamento: é quando o jogo começa a ser montado." },
+        ],
+      },
     },
   ],
 };
