@@ -412,7 +412,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   const rani = await readFile(new URL("../app/rani-knowledge.ts", import.meta.url), "utf8");
   const raniFoundation = rani.slice(rani.indexOf('topic: "Fundação RanBank"'), rani.indexOf('topic: "Parcerias"'));
   if (raniFoundation.includes("Todos os cursos já têm aulas")) assert.equal(ids.length, (catalogCourses.match(/learn: \[/g) ?? []).length, "a Rani diz que todos os cursos têm aulas");
-  assert.deepEqual(quizCourses.toSorted(), ["autodesenvolvimento", "educacao-financeira", "futebol", "gestao-tempo", "hardware-so", "impressora-3d", "jogos", "literatura", "primeiros-socorros", "xadrez"], "atualize o texto da Rani sobre a prova final e o certificado");
+  assert.deepEqual(quizCourses.toSorted(), ["autodesenvolvimento", "domino", "educacao-financeira", "futebol", "gestao-tempo", "hardware-so", "impressora-3d", "jogos", "literatura", "primeiros-socorros", "xadrez"], "atualize o texto da Rani sobre a prova final e o certificado");
   // Imagens das aulas: toda imagem existe em public/ e tem descrição (alt) para leitor de tela.
   const images = [...allContent.matchAll(/\{ image: "([^"]+)", alt: "((?:[^"\\]|\\.)*)" \}/g)];
   assert.ok(images.length >= 20, "as aulas têm imagens");
@@ -542,6 +542,15 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   }
   for (const question of football.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
   assert.match(await readFile(new URL("../app/foundation-content/futebol.ts", import.meta.url), "utf8"), /sticker: \{ id: "ataque-ou-defesa", min: 8 \}/);
+  // Dominó: 4 módulos com quiz, prova com todos os módulos e "Encaixa ou não?".
+  const domino = Object.values(await import(new URL("../app/foundation-content/domino.ts", import.meta.url).href))[0];
+  assert.deepEqual(domino.modules.map((module) => module.lessons.length), [1, 2, 2, 1]);
+  for (let index = 0; index < domino.modules.length; index++) {
+    assert.equal(domino.modules[index].quiz?.questions.length, 10, domino.modules[index].title);
+    assert.ok(domino.quiz.filter((question) => question.module === index).length >= 2, `prova de dominó: módulo ${index + 1}`);
+  }
+  for (const question of domino.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  assert.match(await readFile(new URL("../app/foundation-content/domino.ts", import.meta.url), "utf8"), /sticker: \{ id: "encaixe-certo", min: 7 \}/);
   // Literatura: 4 módulos com quiz, prova com todos os módulos e a estante dos 5 livros.
   const reading = Object.values(await import(new URL("../app/foundation-content/literatura.ts", import.meta.url).href))[0];
   assert.deepEqual(reading.modules.map((module) => module.lessons.length), [2, 1, 2, 1]);
