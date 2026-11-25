@@ -56,7 +56,7 @@ export const COURSES: Course[] = [
     description: "Jeitos simples de planejar a semana, dar conta de estudo e trabalho e sobrar tempo para descansar." },
   { id: "primeiros-socorros", title: "Primeiros socorros", category: "vida", tags: ["Saúde", "Cuidado", "Dia a dia"],
     hook: "Os primeiros minutos fazem diferença. Saiba como agir.",
-    learn: ["Avaliar a cena e se proteger antes de ajudar", "Chamar o socorro certo e passar as informações", "Agir em engasgo, desmaio e sangramento", "Cuidar de queimaduras e torções até a ajuda chegar", "Saber o que não fazer para não piorar a situação"],
+    learn: ["Avaliar a cena e se proteger antes de ajudar", "Chamar o socorro certo e passar as informações", "Reconhecer sinais de AVC, infarto e parada cardíaca", "Agir em engasgo, desmaio, convulsão e sangramento", "Saber o que não fazer para não piorar a situação"],
     description: "O que fazer, e o que não fazer, nos primeiros minutos de uma emergência até a ajuda chegar." },
   {
     id: "hardware-so", title: "Hardware e sistema operacional", category: "tecnologia", tags: ["Computador", "Tecnologia", "Mão na massa", "Raciocínio"],

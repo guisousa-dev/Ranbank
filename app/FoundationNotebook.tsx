@@ -1018,6 +1018,113 @@ function CompoundGrowth() {
   );
 }
 
+/* Primeiros socorros: treino do ritmo das compressões ------------------ */
+
+const RCP_MIN = 100;
+const RCP_MAX = 120;
+const RCP_GOAL = 30;
+/** Mais que isso sem apertar conta como pausa: a sequência recomeça. */
+const RCP_PAUSE_MS = 2000;
+const RCP_SCALE = { from: 60, to: 160 };
+
+function RcpRhythm() {
+  const { data, update, earn } = useNotebook();
+  const key = "ferramenta:ritmo-rcp";
+  const best = (data.answers[key] as { best?: number } | undefined)?.best ?? 0;
+  const taps = useRef<number[]>([]);
+  const streakRef = useRef(0);
+  const [rate, setRate] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [pulse, setPulse] = useState(0);
+  const [sound, setSound] = useState(false);
+  const statusId = useId();
+
+  // Metrônomo opcional, a 110 por minuto, feito com a Web Audio (sem arquivo de som).
+  useEffect(() => {
+    if (!sound) return;
+    const AudioCtx = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    const context = new AudioCtx();
+    const beep = () => {
+      const osc = context.createOscillator();
+      const gain = context.createGain();
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.18, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.06);
+      osc.connect(gain).connect(context.destination);
+      osc.start();
+      osc.stop(context.currentTime + 0.07);
+    };
+    beep();
+    const timer = window.setInterval(beep, 60000 / 110);
+    return () => { window.clearInterval(timer); void context.close(); };
+  }, [sound]);
+
+  const press = () => {
+    const now = performance.now();
+    const list = taps.current;
+    if (list.length && now - list[list.length - 1] > RCP_PAUSE_MS) {
+      list.length = 0;
+      streakRef.current = 0;
+      setStreak(0);
+      setPaused(true);
+    } else setPaused(false);
+    list.push(now);
+    if (list.length > 5) list.shift();
+    setPulse((value) => value + 1);
+    if (list.length < 3) { setRate(0); return; }
+    const average = (list[list.length - 1] - list[0]) / (list.length - 1);
+    const next = Math.round(60000 / average);
+    setRate(next);
+    const count = next >= RCP_MIN && next <= RCP_MAX ? streakRef.current + 1 : 0;
+    streakRef.current = count;
+    setStreak(count);
+    if (count > best) update<{ best?: number }>(key, () => ({ best: count }));
+    if (count === RCP_GOAL) earn("ritmo-certo");
+  };
+
+  const status = rate === 0 ? "" : rate < RCP_MIN ? "Mais rápido" : rate > RCP_MAX ? "Mais devagar" : "No ritmo";
+  const tone = rate === 0 ? "" : status === "No ritmo" ? "is-ok" : "is-off";
+  const position = (value: number) => `${((Math.min(Math.max(value, RCP_SCALE.from), RCP_SCALE.to) - RCP_SCALE.from) / (RCP_SCALE.to - RCP_SCALE.from)) * 100}%`;
+  return (
+    <div className="nb-pasted nb-tool nb-rcp">
+      <p className="nb-tag">Treino do ritmo da RCP</p>
+      <p className="nb-muted">Aperte no ritmo das compressões: de {RCP_MIN} a {RCP_MAX} por minuto, sem parar. A meta é fazer {RCP_GOAL} seguidas no ritmo.</p>
+      <div className="nb-rcp-stage">
+        <button
+          type="button"
+          className="nb-rcp-press"
+          aria-label="Comprimir"
+          aria-describedby={statusId}
+          onPointerDown={(event) => { if (event.button === 0) press(); }}
+          onKeyDown={(event) => {
+            if ((event.key === " " || event.key === "Enter") && !event.repeat) { event.preventDefault(); press(); }
+          }}
+        >
+          <span key={pulse} className={pulse ? "is-pushed" : undefined} aria-hidden="true" />
+          <b>Comprimir</b>
+        </button>
+        <div className="nb-rcp-readout">
+          <strong className={tone}>{rate ? rate : "–"}<small> por minuto</small></strong>
+          <div className="nb-rcp-gauge" aria-hidden="true">
+            <i className="nb-rcp-zone" style={{ left: position(RCP_MIN), width: `calc(${position(RCP_MAX)} - ${position(RCP_MIN)})` }} />
+            {rate > 0 && <i className={`nb-rcp-marker ${tone}`} style={{ left: position(rate) }} />}
+          </div>
+          <div className="nb-rcp-axis" aria-hidden="true"><small>{RCP_SCALE.from}</small><small>{RCP_MIN}–{RCP_MAX}</small><small>{RCP_SCALE.to}</small></div>
+          <p id={statusId} aria-live="polite" className={tone}>
+            {paused ? "Você parou. Na RCP, as pausas devem ser as menores possíveis." : status || "Comece a apertar: o ritmo aparece depois de 3 toques."}
+          </p>
+          <p className="nb-rcp-count">Seguidas no ritmo: <b>{Math.min(streak, RCP_GOAL)}</b>/{RCP_GOAL}{best > 0 && <> · seu recorde: {best}</>}</p>
+          {streak >= RCP_GOAL && <p className="is-ok">Isso! É esse o ritmo: umas duas compressões por segundo.</p>}
+        </div>
+      </div>
+      <label className="nb-rcp-sound"><input type="checkbox" checked={sound} onChange={(event) => setSound(event.target.checked)} /> Ouvir o ritmo certo (110 por minuto)</label>
+      <p className="nb-muted">Aqui você treina só o ritmo. A força (afundar uns 5 cm) e a posição das mãos se aprendem num curso prático, com boneco.</p>
+    </div>
+  );
+}
+
 export const NOTEBOOK_TOOLS = {
   "diagnostico-financeiro": Diagnostic,
   "gasto-formiga": AntSpending,
@@ -1027,4 +1134,5 @@ export const NOTEBOOK_TOOLS = {
   parcelas: Installments,
   comparador: PriceCompare,
   "juros-compostos": CompoundGrowth,
+  "ritmo-rcp": RcpRhythm,
 } as const;

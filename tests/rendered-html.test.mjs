@@ -412,7 +412,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   const rani = await readFile(new URL("../app/rani-knowledge.ts", import.meta.url), "utf8");
   const raniFoundation = rani.slice(rani.indexOf('topic: "Fundação RanBank"'), rani.indexOf('topic: "Parcerias"'));
   if (raniFoundation.includes("Todos os cursos já têm aulas")) assert.equal(ids.length, (catalogCourses.match(/learn: \[/g) ?? []).length, "a Rani diz que todos os cursos têm aulas");
-  assert.deepEqual(quizCourses, ["educacao-financeira", "impressora-3d"], "atualize o texto da Rani sobre a prova final e o certificado");
+  assert.deepEqual(quizCourses, ["educacao-financeira", "impressora-3d", "primeiros-socorros"], "atualize o texto da Rani sobre a prova final e o certificado");
   // Imagens das aulas: toda imagem existe em public/ e tem descrição (alt) para leitor de tela.
   const images = [...allContent.matchAll(/\{ image: "([^"]+)", alt: "((?:[^"\\]|\\.)*)" \}/g)];
   assert.ok(images.length >= 20, "as aulas têm imagens");
@@ -475,6 +475,23 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   const financeText = await readFile(new URL("../app/foundation-content/educacao-financeira.ts", import.meta.url), "utf8");
   assert.doesNotMatch(financeText, /\b\d+ min\b|\d horas · /, "sem promessa de tempo escrita à mão");
   for (const tool of ["diagnostico-financeiro", "gasto-formiga", "prioridades", "simulacao-lia"]) assert.match(financeText, new RegExp(`tool: "${tool}"`), tool);
+  // Primeiros socorros: 4 módulos com quiz, prova com todos os módulos e as figurinhas que as aulas dão existem na capa.
+  const firstAid = Object.values(await import(new URL("../app/foundation-content/primeiros-socorros.ts", import.meta.url).href))[0];
+  assert.deepEqual(firstAid.modules.map((module) => module.lessons.length), [2, 2, 3, 4]);
+  for (let index = 0; index < firstAid.modules.length; index++) {
+    const part = firstAid.modules[index];
+    assert.equal(part.quiz?.questions.length, 10, part.title);
+    for (const question of part.quiz.questions) assert.ok(question.answer < question.options.length && question.options.length === 4, question.question);
+    assert.ok(firstAid.quiz.filter((question) => question.module === index).length >= 2, `prova: módulo ${index + 1}`);
+  }
+  for (const question of firstAid.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  const firstAidText = await readFile(new URL("../app/foundation-content/primeiros-socorros.ts", import.meta.url), "utf8");
+  assert.match(firstAidText, /tool: "ritmo-rcp"/);
+  assert.match(firstAidText, /192/);
+  assert.doesNotMatch(firstAidText, /FVPL/);
+  const firstAidStickers = new Set(firstAid.stickers.map((sticker) => sticker.id));
+  for (const id of [...firstAidText.matchAll(/sticker: \{ id: "([a-z0-9-]+)"/g)].map(([, id]) => id).concat("ritmo-certo")) assert.ok(firstAidStickers.has(id), `figurinha ${id}`);
+  assert.match(notebook, /"ritmo-rcp": RcpRhythm/);
   // Simulação da Lia: os três caminhos fecham com as contas do material (sempre A, B e C).
   assert.match(notebook, /const START = 650;/);
   assert.match(notebook, /const GOAL = 250;/);
