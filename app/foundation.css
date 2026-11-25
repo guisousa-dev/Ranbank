@@ -619,6 +619,8 @@ body:has(.fc) .rb-noncommercial-seal { display: none; }
 
 /* Modo aula: tela cheia por cima da home */
 .fc-lesson { position: fixed; inset: 0; z-index: 120; display: flex; flex-direction: column; background: #0f1013; color: #f4f5f7; }
+/* Com a aula aberta, só a aula rola: o catálogo por trás fica parado e não mostra uma segunda barra de rolagem. */
+html:has(.fc-lesson), html:has(.fc-lesson) body { overflow: hidden; }
 .fc-lesson-top { border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: color-mix(in srgb, var(--fc-bg) 55%, #0f1013); }
 .fc-lesson-dot { flex: none; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 999px; border: 1.5px solid rgba(255, 255, 255, 0.3); font-size: 13px; font-weight: 700; }
 .fc-lesson-dot.is-done { border-color: #3ddc84; background: #3ddc84; color: #0a0a0c; }
