@@ -21,6 +21,7 @@ export const FUTEBOL: CourseContent = {
               body: [
                 "O futebol é um esporte coletivo jogado por duas equipes, normalmente com 11 jogadores cada, contando o goleiro. O objetivo é marcar gols na meta adversária e impedir que o adversário marque.",
                 "O futebol moderno foi organizado na Inglaterra no século XIX. Em 1863, a criação da Football Association ajudou a padronizar as regras. O esporte chegou ao Brasil no fim do século XIX e cresceu em clubes, escolas e comunidades.",
+                { image: "/images/fundacao/aulas/futebol/historia-partida-antiga.webp", alt: "Ilustração em estilo de foto antiga, em tons de sépia: uma partida de futebol na Inglaterra do começo do século XX, num campo de terra. Um jogador de camisa escura conduz a bola diante de um defensor de camisa clara, o goleiro espera perto da trave e a arquibancada está lotada. Ao fundo, casas com chaminés e uma bandeira do Reino Unido." },
                 { box: "chave", text: "Além de divertido, o futebol desenvolve resistência, coordenação, velocidade, raciocínio tático, trabalho em equipe, disciplina e respeito." },
               ],
             },
@@ -33,6 +34,7 @@ export const FUTEBOL: CourseContent = {
                   "Mínimo: a partida não começa nem continua se uma equipe tiver menos de 7 jogadores.",
                 ] },
                 "O árbitro aplica as regras e controla a partida, com a ajuda dos assistentes.",
+                { image: "/images/fundacao/aulas/futebol/como-e-uma-partida.webp", alt: "Infográfico em quatro quadros. Duração da partida: dois tempos de 45 minutos, mais os acréscimos que a arbitragem decidir, com um cronômetro marcando 45:00. Jogadores em campo: até 11 jogadores por equipe, contando o goleiro, com um time abraçado. Mínimo: a partida não começa nem continua se uma equipe tiver menos de 7 jogadores. Árbitro e assistentes: o árbitro aplica as regras e controla a partida, com a ajuda dos assistentes, que seguram bandeiras." },
               ],
             },
             {
@@ -47,6 +49,7 @@ export const FUTEBOL: CourseContent = {
                   ["Escanteio", "A bola sai pela linha de fundo depois de tocar por último num defensor, sem gol."],
                   ["Tiro de meta", "A bola sai pela linha de fundo depois de tocar por último num atacante, sem gol."],
                 ] } },
+                { image: "/images/fundacao/aulas/futebol/regras-principais.webp", alt: "Infográfico \"Futebol de campo: as regras principais\", com uma foto para cada regra. Gol: a bola passa inteira da linha do gol, entre as traves e abaixo do travessão, sem infração. Falta: uma infração prevista nas regras, como empurrar, segurar ou dar uma entrada perigosa. Cartão amarelo: advertência; dois amarelos no mesmo jogo viram vermelho. Cartão vermelho: expulsão; o jogador sai e a equipe fica com um a menos. Lateral: a bola sai pela linha lateral e é reposta com as mãos. Escanteio: a bola sai pela linha de fundo depois de tocar por último num defensor, sem gol. Tiro de meta: a bola sai pela linha de fundo depois de tocar por último num atacante, sem gol." },
               ],
             },
             {
@@ -347,7 +350,7 @@ export const FUTEBOL: CourseContent = {
         {
           id: "futsal-sistemas-e-estrategias",
           title: "Futsal: sistemas e estratégias",
-          summary: "3-1, 4-0 e 2-2, goleiro-linha, marcação e preparação física.",
+          summary: "2-2, 3-1, 1-2-1 e 4-0, goleiro-linha, marcação e preparação física.",
           goals: ["Comparar os sistemas do futsal", "Entender vantagens e riscos do goleiro-linha", "Conhecer os tipos de marcação"],
           sections: [
             {
@@ -355,10 +358,13 @@ export const FUTEBOL: CourseContent = {
               body: [
                 "Os números contam os 4 jogadores de linha, sem o goleiro.",
                 { table: { caption: "Sistemas mais usados", head: ["Sistema", "Como é", "Vantagens"], rows: [
-                  ["3-1", "Três constroem as jogadas e um pivô fica mais à frente", "Usa o pivô, facilita tabelas e abre espaços"],
-                  ["4-0", "Os quatro se movimentam e trocam de posição, sem pivô fixo", "Bola circulando e movimentação constante"],
                   ["2-2", "Dois mais atrás e dois mais à frente", "Estrutura simples, boa para iniciantes entenderem o posicionamento"],
+                  ["3-1", "Três constroem as jogadas, com um fixo atrás, e um pivô fica mais à frente", "Usa o pivô, facilita tabelas e abre espaços sem descuidar da defesa"],
+                  ["1-2-1", "Um fixo atrás, dois alas pelos lados e um pivô na frente, formando um losango", "Equilíbrio entre defesa e ataque"],
+                  ["4-0", "Os quatro se movimentam e trocam de posição, sem pivô fixo", "Muito ofensivo, com bola circulando e movimentação constante"],
                 ] } },
+                "Nas escolas e entre quem está começando, o 2-2 é o mais comum, por ser o mais fácil de entender. Com mais treino, as equipes passam a usar o 3-1, o 1-2-1 ou o 4-0.",
+                { image: "/images/fundacao/aulas/futebol/futsal-formacao-e-tatica.webp", alt: "Infográfico \"Futsal: formação e tática\". Formação básica: a mais usada é o 2-2, com goleiro, dois meias (armadores) e dois atacantes (pivô e alas). Táticas principais: posse de bola (trocar passes e manter o controle do jogo), movimento sem bola (se movimentar para criar espaços e receber o passe), pressão (marcar o adversário logo na saída de bola) e contra-ataque (aproveitar os espaços para atacar rápido após recuperar a bola). Outras formações: 3-1, mais defensiva, com um fixo; 1-2-1, equilíbrio entre defesa e ataque; 4-0, muito ofensiva, sem pivô. Detalhando o 2-2: os laterais ajudam no ataque e na defesa, os meias equilibram o time e o goleiro pode participar do jogo com passes. Dicas extras: marque forte, mas sem cometer faltas; use o pivô para fazer o time jogar; mantenha a calma e toque rápido; trabalhe o coletivo, não jogue sozinho. Resumo: no futsal, a formação mais comum é o 2-2, mas o importante é jogar junto, se movimentar bem e usar a tática certa para defender e atacar com eficiência." },
               ],
             },
             {
