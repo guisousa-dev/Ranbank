@@ -412,7 +412,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   const rani = await readFile(new URL("../app/rani-knowledge.ts", import.meta.url), "utf8");
   const raniFoundation = rani.slice(rani.indexOf('topic: "Fundação RanBank"'), rani.indexOf('topic: "Parcerias"'));
   if (raniFoundation.includes("Todos os cursos já têm aulas")) assert.equal(ids.length, (catalogCourses.match(/learn: \[/g) ?? []).length, "a Rani diz que todos os cursos têm aulas");
-  assert.deepEqual(quizCourses, ["impressora-3d"], "atualize o texto da Rani sobre desafio final e certificado");
+  assert.deepEqual(quizCourses.toSorted(), ["autodesenvolvimento", "domino", "educacao-financeira", "futebol", "gestao-tempo", "hardware-so", "impressora-3d", "jogos", "literatura", "maquiagem", "primeiros-socorros", "xadrez"], "atualize o texto da Rani sobre a prova final e o certificado");
   // Imagens das aulas: toda imagem existe em public/ e tem descrição (alt) para leitor de tela.
   const images = [...allContent.matchAll(/\{ image: "([^"]+)", alt: "((?:[^"\\]|\\.)*)" \}/g)];
   assert.ok(images.length >= 20, "as aulas têm imagens");
@@ -422,7 +422,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   }
   // Curso que junta duas partes: as duas já têm aulas. Módulo sem aulas aparece como em preparação.
   assert.match(allContent, /title: "Hardware: por dentro do computador"/);
-  assert.match(allContent, /title: "Software: do botão Power à internet"/);
+  assert.match(allContent, /title: "Informática básica: do botão de ligar à internet"/);
   assert.match(catalog, /Esta parte do curso ainda está em preparação\./);
   // Ferramenta interativa: a calculadora de custo da impressão 3D aparece dentro da aula e não envia nada.
   assert.match(allContent, /\{ tool: "custo-impressao-3d" \}/);
@@ -434,7 +434,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   assert.match(catalog, /aria-labelledby="fc-lesson-title"/);
   assert.match(catalog, /addEventListener\("popstate"/);
   assert.match(catalog, /<summary>Ver resposta<\/summary>/);
-  assert.match(catalog, /youtube-nocookie\.com\/embed\/\$\{lesson\.video\.youtubeId\}\?cc_load_policy=1/);
+  assert.match(catalog, /youtube-nocookie\.com\/embed\/\$\{video\.youtubeId\}\?cc_load_policy=1/);
   // Extras da aula: título da aba, ouvir só com voz do aparelho, aviso de erro sem dados pessoais e tabela em cartões.
   const extras = await readFile(new URL("../app/FoundationLessonExtras.tsx", import.meta.url), "utf8");
   const api = await readFile(new URL("../app/api/[...path]/fundacao.ts", import.meta.url), "utf8");
@@ -449,6 +449,146 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   assert.match(api, /path === "fundacao\/certificado"/);
   assert.doesNotMatch(check, /foundation-courses|foundation-lessons/);
   assert.match(await readFile(new URL("../app/fundacao/certificado/page.tsx", import.meta.url), "utf8"), /FoundationCertificateCheck/);
+  // Caderno: capa, abas dos módulos com a prova, folha pautada e exercícios que só guardam no aparelho.
+  const notebook = await readFile(new URL("../app/FoundationNotebook.tsx", import.meta.url), "utf8");
+  const notebookCss = await readFile(new URL("../app/foundation-notebook.css", import.meta.url), "utf8");
+  assert.match(catalog, /<NotebookCover/);
+  assert.match(catalog, /className="nb-tabs" aria-label="Módulos do curso"/);
+  // O quiz de cada módulo é uma aba entre os módulos, não um item dentro da aula.
+  assert.match(catalog, /className="is-quiz"[^>]*aria-current=\{moduleQuiz === itemIndex/);
+  assert.doesNotMatch(catalog, /className="nb-lessons"[^]{0,900}is-quiz/);
+  assert.match(catalog, /useRuledPaper\(pageRef, pageKey\)/);
+  assert.ok(!notebook.includes("fetch("), "o caderno não envia nada");
+  assert.match(notebook, /localStorage\.setItem\(storageKey\(courseId\)/);
+  assert.match(notebookCss, /html\[data-site-theme="light"\] \.fc-lesson\.nb-desk \{/);
+  assert.match(notebookCss, /prefers-reduced-motion: reduce/);
+  // Educação financeira: 5 módulos de 3 aulas, cada um com quiz de 10 perguntas, e a prova final com pelo menos 2 perguntas por módulo.
+  const finance = Object.values(await import(new URL("../app/foundation-content/educacao-financeira.ts", import.meta.url).href))[0];
+  assert.deepEqual(finance.modules.map((module) => module.lessons.length), [3, 3, 3, 3, 3]);
+  assert.ok(finance.modules.every((item) => item.quiz), "todo módulo tem quiz");
+  for (let index = 0; index < finance.modules.length; index++) assert.ok(finance.quiz.filter((question) => question.module === index).length >= 2, `prova: módulo ${index + 1}`);
+  for (const question of finance.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  for (const part of finance.modules.filter((item) => item.quiz)) {
+    assert.equal(part.quiz.questions.length, 10, part.title);
+    for (const question of part.quiz.questions) assert.ok(question.answer < question.options.length && question.options.length === 4, question.question);
+  }
+  const financeText = await readFile(new URL("../app/foundation-content/educacao-financeira.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(financeText, /\b\d+ min\b|\d horas · /, "sem promessa de tempo escrita à mão");
+  for (const tool of ["diagnostico-financeiro", "gasto-formiga", "prioridades", "simulacao-lia"]) assert.match(financeText, new RegExp(`tool: "${tool}"`), tool);
+  // Primeiros socorros: 4 módulos com quiz, prova com todos os módulos e as figurinhas que as aulas dão existem na capa.
+  const firstAid = Object.values(await import(new URL("../app/foundation-content/primeiros-socorros.ts", import.meta.url).href))[0];
+  assert.deepEqual(firstAid.modules.map((module) => module.lessons.length), [2, 2, 3, 4]);
+  for (let index = 0; index < firstAid.modules.length; index++) {
+    const part = firstAid.modules[index];
+    assert.equal(part.quiz?.questions.length, 10, part.title);
+    for (const question of part.quiz.questions) assert.ok(question.answer < question.options.length && question.options.length === 4, question.question);
+    assert.ok(firstAid.quiz.filter((question) => question.module === index).length >= 2, `prova: módulo ${index + 1}`);
+  }
+  for (const question of firstAid.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  const firstAidText = await readFile(new URL("../app/foundation-content/primeiros-socorros.ts", import.meta.url), "utf8");
+  assert.match(firstAidText, /tool: "ritmo-rcp"/);
+  assert.match(firstAidText, /192/);
+  assert.doesNotMatch(firstAidText, /FVPL/);
+  const firstAidStickers = new Set(firstAid.stickers.map((sticker) => sticker.id));
+  for (const id of [...firstAidText.matchAll(/sticker: \{ id: "([a-z0-9-]+)"/g)].map(([, id]) => id).concat("ritmo-certo")) assert.ok(firstAidStickers.has(id), `figurinha ${id}`);
+  assert.match(notebook, /"ritmo-rcp": RcpRhythm/);
+  // Xadrez: 3 módulos com quiz, prova com todos os módulos e o treino da regra do quadrado.
+  const chess = Object.values(await import(new URL("../app/foundation-content/xadrez.ts", import.meta.url).href))[0];
+  assert.deepEqual(chess.modules.map((module) => module.lessons.length), [3, 3, 2]);
+  for (let index = 0; index < chess.modules.length; index++) {
+    assert.equal(chess.modules[index].quiz?.questions.length, 10, chess.modules[index].title);
+    assert.ok(chess.quiz.filter((question) => question.module === index).length >= 2, `prova de xadrez: módulo ${index + 1}`);
+  }
+  for (const question of chess.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  const chessText = await readFile(new URL("../app/foundation-content/xadrez.ts", import.meta.url), "utf8");
+  assert.match(chessText, /tool: "regra-do-quadrado"/);
+  assert.match(notebook, /"regra-do-quadrado": RuleOfSquare/);
+  // Gestão de tempo: 3 módulos com quiz, prova com todos os módulos e a Matriz de Eisenhower.
+  const time = Object.values(await import(new URL("../app/foundation-content/gestao-tempo.ts", import.meta.url).href))[0];
+  assert.deepEqual(time.modules.map((module) => module.lessons.length), [2, 2, 3]);
+  for (let index = 0; index < time.modules.length; index++) {
+    assert.equal(time.modules[index].quiz?.questions.length, 10, time.modules[index].title);
+    assert.ok(time.quiz.filter((question) => question.module === index).length >= 2, `prova de gestão de tempo: módulo ${index + 1}`);
+  }
+  for (const question of time.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  assert.match(await readFile(new URL("../app/foundation-content/gestao-tempo.ts", import.meta.url), "utf8"), /tool: "matriz-eisenhower"/);
+  assert.match(notebook, /"matriz-eisenhower": EisenhowerMatrix/);
+  // Hardware e sistema operacional: 2 módulos com quiz, prova com os dois módulos e a Caça ao golpe.
+  const hardware = Object.values(await import(new URL("../app/foundation-content/hardware-so.ts", import.meta.url).href))[0];
+  assert.deepEqual(hardware.modules.map((module) => module.lessons.length), [4, 4]);
+  for (let index = 0; index < hardware.modules.length; index++) {
+    assert.equal(hardware.modules[index].quiz?.questions.length, 10, hardware.modules[index].title);
+    assert.ok(hardware.quiz.filter((question) => question.module === index).length >= 2, `prova de hardware: módulo ${index + 1}`);
+  }
+  for (const question of hardware.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  assert.match(await readFile(new URL("../app/foundation-content/hardware-so.ts", import.meta.url), "utf8"), /tool: "caca-ao-golpe"/);
+  assert.match(notebook, /"caca-ao-golpe": ScamHunt/);
+  // Autodesenvolvimento: 3 módulos com quiz, prova com todos os módulos e o "Pare, respire, escolha".
+  const growth = Object.values(await import(new URL("../app/foundation-content/autodesenvolvimento.ts", import.meta.url).href))[0];
+  assert.deepEqual(growth.modules.map((module) => module.lessons.length), [1, 2, 2]);
+  for (let index = 0; index < growth.modules.length; index++) {
+    assert.equal(growth.modules[index].quiz?.questions.length, 10, growth.modules[index].title);
+    assert.ok(growth.quiz.filter((question) => question.module === index).length >= 2, `prova de autodesenvolvimento: módulo ${index + 1}`);
+  }
+  for (const question of growth.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  assert.match(await readFile(new URL("../app/foundation-content/autodesenvolvimento.ts", import.meta.url), "utf8"), /tool: "respiracao"/);
+  assert.match(notebook, /respiracao: BreathPause/);
+  // Futebol: campo, futsal e areia, com quiz por módulo, prova com todos os módulos e "Ataque ou defesa?".
+  const football = Object.values(await import(new URL("../app/foundation-content/futebol.ts", import.meta.url).href))[0];
+  assert.deepEqual(football.modules.map((module) => module.lessons.length), [5, 2, 2]);
+  for (let index = 0; index < football.modules.length; index++) {
+    assert.equal(football.modules[index].quiz?.questions.length, 10, football.modules[index].title);
+    assert.ok(football.quiz.filter((question) => question.module === index).length >= 2, `prova de futebol: módulo ${index + 1}`);
+  }
+  for (const question of football.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  assert.match(await readFile(new URL("../app/foundation-content/futebol.ts", import.meta.url), "utf8"), /sticker: \{ id: "ataque-ou-defesa", min: 8 \}/);
+  // Impressora 3D: 3 módulos com quiz, desafio final com todos os módulos e "Precisa de suporte?".
+  const printing = Object.values(await import(new URL("../app/foundation-content/impressora-3d.ts", import.meta.url).href))[0];
+  for (let index = 0; index < printing.modules.length; index++) {
+    assert.equal(printing.modules[index].quiz?.questions.length, 10, printing.modules[index].title);
+    assert.ok(printing.quiz.filter((question) => question.module === index).length >= 2, `desafio de impressora 3D: módulo ${index + 1}`);
+  }
+  assert.match(await readFile(new URL("../app/foundation-content/impressora-3d.ts", import.meta.url), "utf8"), /sticker: \{ id: "regra-dos-45", min: 7 \}/);
+  // Maquiagem: 3 módulos com quiz, prova com todos os módulos e "Pode usar ou descarte?".
+  const makeup = Object.values(await import(new URL("../app/foundation-content/maquiagem.ts", import.meta.url).href))[0];
+  assert.deepEqual(makeup.modules.map((module) => module.lessons.length), [1, 3, 1]);
+  for (let index = 0; index < makeup.modules.length; index++) {
+    assert.equal(makeup.modules[index].quiz?.questions.length, 10, makeup.modules[index].title);
+    assert.ok(makeup.quiz.filter((question) => question.module === index).length >= 2, `prova de maquiagem: módulo ${index + 1}`);
+  }
+  for (const question of makeup.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  assert.match(await readFile(new URL("../app/foundation-content/maquiagem.ts", import.meta.url), "utf8"), /sticker: \{ id: "necessaire-em-dia", min: 7 \}/);
+  // Dominó: 4 módulos com quiz, prova com todos os módulos e "Encaixa ou não?".
+  const domino = Object.values(await import(new URL("../app/foundation-content/domino.ts", import.meta.url).href))[0];
+  assert.deepEqual(domino.modules.map((module) => module.lessons.length), [1, 2, 2, 1]);
+  for (let index = 0; index < domino.modules.length; index++) {
+    assert.equal(domino.modules[index].quiz?.questions.length, 10, domino.modules[index].title);
+    assert.ok(domino.quiz.filter((question) => question.module === index).length >= 2, `prova de dominó: módulo ${index + 1}`);
+  }
+  for (const question of domino.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  assert.match(await readFile(new URL("../app/foundation-content/domino.ts", import.meta.url), "utf8"), /sticker: \{ id: "encaixe-certo", min: 7 \}/);
+  // Literatura: 4 módulos com quiz, prova com todos os módulos e a estante dos 5 livros.
+  const reading = Object.values(await import(new URL("../app/foundation-content/literatura.ts", import.meta.url).href))[0];
+  assert.deepEqual(reading.modules.map((module) => module.lessons.length), [2, 1, 2, 1]);
+  for (let index = 0; index < reading.modules.length; index++) {
+    assert.equal(reading.modules[index].quiz?.questions.length, 10, reading.modules[index].title);
+    assert.ok(reading.quiz.filter((question) => question.module === index).length >= 2, `prova de literatura: módulo ${index + 1}`);
+  }
+  for (const question of reading.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  assert.match(await readFile(new URL("../app/foundation-content/literatura.ts", import.meta.url), "utf8"), /tool: "estante"/);
+  assert.match(notebook, /estante: Shelf/);
+  // Jogos: 3 módulos de 1 aula, com quiz, prova com todos os módulos e a atividade "Online ou offline?".
+  const games = Object.values(await import(new URL("../app/foundation-content/jogos.ts", import.meta.url).href))[0];
+  assert.deepEqual(games.modules.map((module) => module.lessons.length), [1, 1, 1]);
+  for (let index = 0; index < games.modules.length; index++) {
+    assert.equal(games.modules[index].quiz?.questions.length, 10, games.modules[index].title);
+    assert.ok(games.quiz.filter((question) => question.module === index).length >= 2, `prova de jogos: módulo ${index + 1}`);
+  }
+  for (const question of games.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
+  assert.match(await readFile(new URL("../app/foundation-content/jogos.ts", import.meta.url), "utf8"), /sticker: \{ id: "online-ou-offline", min: 7 \}/);
+  // Simulação da Lia: os três caminhos fecham com as contas do material (sempre A, B e C).
+  assert.match(notebook, /const START = 650;/);
+  assert.match(notebook, /const GOAL = 250;/);
   // Sem créditos de autoria nas aulas.
   for (const word of ["autoria", "Responsável pela elaboração", "Elaborado por"]) assert.ok(!allContent.includes(word) && !lessons.includes(word), word);
 });
@@ -480,9 +620,17 @@ test("warns that the bank is fictional and switches themes with a circle from th
   assert.match(layout, /SITE_THEME_BOOT/);
   assert.match(theme, /startViewTransition/);
   assert.match(theme, /prefers-reduced-motion: reduce/);
-  assert.match(site, /switchThemeFrom\(event/);
+  const themeButton = await readFile(new URL("../app/SiteThemeButton.tsx", import.meta.url), "utf8");
+  const foundationCss = await readFile(new URL("../app/foundation.css", import.meta.url), "utf8");
+  assert.match(themeButton, /switchThemeFrom\(event/);
+  assert.match(site, /<SiteThemeButton \/>/);
   assert.match(bank, /switchThemeFrom\(event/);
   assert.match(siteCss, /html\[data-site-theme="light"\] \{/);
+  // A Fundação tem o mesmo botão no catálogo e dentro do caderno, e o catálogo também fica claro.
+  const foundationCatalog = await readFile(new URL("../app/FoundationCatalog.tsx", import.meta.url), "utf8");
+  assert.match(foundationCatalog, /<SiteThemeButton className="fc-icon-btn" \/>/);
+  assert.match(foundationCatalog, /<SiteThemeButton className="fc-player-back nb-theme" \/>/);
+  assert.match(foundationCss, /html\[data-site-theme="light"\] \.fc \{/);
 });
 
 test("shows a simple, working copy of the bank app at the top of the site", async () => {

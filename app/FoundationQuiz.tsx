@@ -8,14 +8,36 @@ import type { QuizQuestion, QuizResult } from "./foundation-lessons";
 import { Mark } from "./FoundationBadge";
 
 /*
- * Desafio final de um curso e o certificado de conclusão.
- * A roleta é um carretel de filamento dividido pelos módulos do curso; o ponteiro é o bico da impressora.
+ * Prova final de um curso e o certificado de conclusão.
+ * A roleta é dividida pelos módulos do curso e tem o tema do curso (veja THEMES): na Impressora 3D é um
+ * carretel de filamento com o bico da impressora; na Educação financeira, uma moeda; em Primeiros socorros,
+ * um kit com a cruz verde (a cruz vermelha é um emblema protegido e não pode ser usada); no Xadrez,
+ * um tabuleiro com o cavalo no meio; em Gestão de tempo, um relógio; em Hardware e sistema operacional, um cooler; em Autodesenvolvimento, a roleta do 1%; em Jogos, um disco de jogo; em Futebol, uma bola; em Literatura, um livro aberto; em Dominó, uma pedra; em Maquiagem, um estojo com espelho.
  * Cada partida sorteia QUIZ_RULES.total perguntas, equilibradas entre os módulos.
  * Quem acerta QUIZ_RULES.pass ganha o certificado, que fica salvo junto com o progresso do curso.
  * O certificado mostra só o nome de quem fez o curso, nunca o de quem preparou as aulas.
  */
 
-const MODULE_COLORS = ["#8fb1ff", "#3ddc84", "#f5b83d", "#f2a7d8"];
+const MODULE_COLORS = ["#8fb1ff", "#3ddc84", "#f5b83d", "#f2a7d8", "#c9a7ff", "#7fe0e0"];
+
+/** Tema da roleta e do certificado. `wheel` é o desenho; `name` completa a frase "Gire ...". */
+type Theme = { wheel: "carretel" | "moeda" | "kit" | "tabuleiro" | "relogio" | "cooler" | "um-por-cento" | "disco" | "bola" | "livro" | "pedra" | "estojo" | "roleta"; name: string };
+const THEMES: Record<string, Theme> = {
+  "impressora-3d": { wheel: "carretel", name: "o carretel" },
+  "educacao-financeira": { wheel: "moeda", name: "a moeda" },
+  "primeiros-socorros": { wheel: "kit", name: "a roleta do kit" },
+  xadrez: { wheel: "tabuleiro", name: "o tabuleiro" },
+  "gestao-tempo": { wheel: "relogio", name: "o relógio" },
+  "hardware-so": { wheel: "cooler", name: "o cooler" },
+  autodesenvolvimento: { wheel: "um-por-cento", name: "a roleta do 1%" },
+  jogos: { wheel: "disco", name: "o disco" },
+  futebol: { wheel: "bola", name: "a bola" },
+  literatura: { wheel: "livro", name: "a roleta da leitura" },
+  domino: { wheel: "pedra", name: "a pedra" },
+  maquiagem: { wheel: "estojo", name: "o estojo" },
+};
+const DEFAULT_THEME: Theme = { wheel: "roleta", name: "a roleta" };
+const themeOf = (courseId: string) => THEMES[courseId] ?? DEFAULT_THEME;
 const LETTERS = "ABCD";
 const RING = 2 * Math.PI * 44; // circunferência do anel do resultado (r = 44)
 
@@ -61,20 +83,55 @@ function polar(r: number, deg: number) {
   const a = ((deg - 90) * Math.PI) / 180;
   return [r * Math.cos(a), r * Math.sin(a)] as const;
 }
+/** Pentágono de bola de futebol com centro em (cx, cy). */
+function pentagon(r: number, cx = 0, cy = 0, turn = 0) {
+  return Array.from({ length: 5 }, (_, k) => { const [x, y] = polar(r, turn + k * 72); return `${cx + x},${cy + y}`; }).join(" ");
+}
 function sector(r0: number, r1: number, a0: number, a1: number) {
   const [x0, y0] = polar(r1, a0), [x1, y1] = polar(r1, a1), [x2, y2] = polar(r0, a1), [x3, y3] = polar(r0, a0);
   const large = a1 - a0 > 180 ? 1 : 0;
   return `M${x0} ${y0}A${r1} ${r1} 0 ${large} 1 ${x1} ${y1}L${x2} ${y2}A${r0} ${r0} 0 ${large} 0 ${x3} ${y3}Z`;
 }
 
-function Spool({ count, rotation, onStop }: { count: number; rotation: number; onStop?: () => void }) {
+function Spool({ count, rotation, onStop, kind = "carretel" }: { count: number; rotation: number; onStop?: () => void; kind?: Theme["wheel"] }) {
   const step = 360 / count;
   const rings = [];
-  for (let r = 44; r <= 86; r += 3.5) rings.push(r);
+  if (kind === "carretel") for (let r = 44; r <= 86; r += 3.5) rings.push(r);
+  const coin = kind === "moeda";
+  const kit = kind === "kit";
+  const board = kind === "tabuleiro";
+  const clock = kind === "relogio";
+  const fan = kind === "cooler";
+  const disc = kind === "disco";
+  const ball = kind === "bola";
+  const book = kind === "livro";
+  const tile = kind === "pedra";
+  const compact = kind === "estojo";
   return (
     <svg className="fq-spool" viewBox="-104 -122 208 228" aria-hidden="true">
+      {fan && (
+        <g>
+          <rect x="-103" y="-103" width="206" height="206" rx="20" fill="#2a2d36" stroke="#11131a" strokeWidth="2" />
+          {[[-84, -84], [84, -84], [-84, 84], [84, 84]].map(([x, y]) => <circle key={`${x}${y}`} cx={x} cy={y} r="6" fill="#11131a" stroke="#565c6b" />)}
+        </g>
+      )}
       <g className="fq-rotor" style={{ transform: `rotate(${rotation}deg)` }} onTransitionEnd={onStop}>
-        <circle r="98" fill="#1b1e26" stroke="rgba(255,255,255,.12)" strokeWidth="1.2" />
+        <circle r="98" fill={coin ? "#c9973a" : kit || clock ? "#f4f5f7" : fan ? "#14161c" : disc ? "#cfd3dc" : ball ? "#f4f5f7" : book ? "#f3ead8" : tile ? "#14161c" : compact ? "#e7bfb3" : "#1b1e26"} stroke={coin ? "#8a6420" : kit ? "#1a8f4c" : clock ? "#2a2d36" : disc ? "#9aa0ad" : ball ? "#2a2d36" : book ? "#7a5c3a" : tile ? "#f4f1ea" : compact ? "#a8705f" : "rgba(255,255,255,.12)"} strokeWidth={kit || clock || ball || book || compact ? 3 : 1.2} />
+        {coin && Array.from({ length: 90 }, (_, k) => {
+          const [x0, y0] = polar(91, k * 4), [x1, y1] = polar(97.5, k * 4);
+          return <line key={k} x1={x0} y1={y0} x2={x1} y2={y1} stroke="#8a6420" strokeWidth="1.4" />;
+        })}
+        {coin && <circle r="89" fill="#e8bb5a" />}
+        {compact && Array.from({ length: 24 }, (_, k) => { const [x, y] = polar(93, k * 15); return <circle key={k} cx={x} cy={y} r="1.5" fill="#fff5f1" />; })}
+        {tile && Array.from({ length: 28 }, (_, k) => { const [x, y] = polar(93, k * (360 / 28)); return <circle key={k} cx={x} cy={y} r="1.6" fill="#f4f1ea" />; })}
+        {book && [90, 92.5, 95].map((r) => <circle key={r} r={r} fill="none" stroke="#c9b48e" strokeWidth=".8" />)}
+        {ball && Array.from({ length: 8 }, (_, k) => { const [x, y] = polar(93, k * 45 + 22.5); return <polygon key={k} points={pentagon(4.5, x, y, k * 45 + 22.5)} fill="#1b1e26" />; })}
+        {disc && [91, 94].map((r) => <circle key={r} r={r} fill="none" stroke="#f4f5f7" strokeOpacity=".75" strokeWidth=".8" />)}
+        {clock && Array.from({ length: 60 }, (_, k) => {
+          const [x0, y0] = polar(k % 5 ? 93 : 90, k * 6), [x1, y1] = polar(97, k * 6);
+          return <line key={k} x1={x0} y1={y0} x2={x1} y2={y1} stroke="#2a2d36" strokeWidth={k % 5 ? 0.8 : 2} />;
+        })}
+        {board && Array.from({ length: 32 }, (_, k) => <path key={k} d={sector(88, 97, k * 11.25, (k + 1) * 11.25)} fill={k % 2 ? "#b58b62" : "#ecd9b9"} />)}
         {Array.from({ length: count }, (_, m) => <path key={m} d={sector(40, 88, m * step, (m + 1) * step)} fill={MODULE_COLORS[m % MODULE_COLORS.length]} />)}
         {rings.map((r) => <circle key={r} r={r} fill="none" stroke="rgba(0,0,0,.22)" strokeWidth=".8" />)}
         {Array.from({ length: count }, (_, m) => {
@@ -86,16 +143,292 @@ function Spool({ count, rotation, onStop }: { count: number; rotation: number; o
           const [x, y] = polar(64, angle);
           return <text key={m} x={x} y={y} textAnchor="middle" dominantBaseline="central" fontWeight="700" fontSize="15" fill="rgba(5,10,25,.78)" transform={`rotate(${angle} ${x} ${y})`}>{m + 1}</text>;
         })}
-        <circle r="40" fill="#14161c" stroke="rgba(255,255,255,.14)" />
-        {[0, 1, 2].map((k) => { const [x, y] = polar(25, k * 120 + 60); return <circle key={k} cx={x} cy={y} r="6.5" fill="#0f1013" />; })}
-        <circle r="9" fill="#0f1013" stroke="rgba(255,255,255,.18)" />
+        {kind === "carretel" ? (
+          <>
+            <circle r="40" fill="#14161c" stroke="rgba(255,255,255,.14)" />
+            {[0, 1, 2].map((k) => { const [x, y] = polar(25, k * 120 + 60); return <circle key={k} cx={x} cy={y} r="6.5" fill="#0f1013" />; })}
+            <circle r="9" fill="#0f1013" stroke="rgba(255,255,255,.18)" />
+          </>
+        ) : coin ? (
+          <>
+            <circle r="40" fill="#e8bb5a" stroke="#8a6420" strokeWidth="1.5" />
+            <circle r="34" fill="none" stroke="#b08431" strokeWidth="1" strokeDasharray="2 2.5" />
+            <text textAnchor="middle" dominantBaseline="central" fontWeight="800" fontSize="24" fill="#7a5413">R$</text>
+          </>
+        ) : clock ? (
+          <>
+            <circle r="40" fill="#f4f5f7" stroke="#2a2d36" strokeWidth="2" />
+            {[0, 90, 180, 270].map((angle) => { const [x0, y0] = polar(31, angle), [x1, y1] = polar(37, angle); return <line key={angle} x1={x0} y1={y0} x2={x1} y2={y1} stroke="#2a2d36" strokeWidth="2.4" />; })}
+            <line x1="0" y1="0" x2="0" y2="-26" stroke="#2a2d36" strokeWidth="3.2" strokeLinecap="round" />
+            <line x1="0" y1="0" x2="16" y2="9" stroke="#2a2d36" strokeWidth="3.2" strokeLinecap="round" />
+            <circle r="3.5" fill="#e0533d" />
+          </>
+        ) : compact ? (
+          <>
+            <circle r="40" fill="#a8705f" stroke="#fff5f1" strokeWidth="2" />
+            <circle r="31" fill="#f6e9ec" />
+            <path d="M-18 -8 L-8 -18 M-16 2 L2 -16" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
+          </>
+        ) : tile ? (
+          <>
+            <circle r="40" fill="#14161c" stroke="#f4f1ea" strokeWidth="2" />
+            <rect x="-15" y="-27" width="30" height="54" rx="5" fill="#f4f1ea" />
+            <line x1="-11" y1="0" x2="11" y2="0" stroke="#14161c" strokeWidth="1.6" />
+            {[[-7, -20], [0, -13], [7, -6], [-7, 6], [7, 6], [-7, 20], [7, 20], [0, 13]].map(([x, y]) => <circle key={`${x}${y}`} cx={x} cy={y} r="2.6" fill="#14161c" />)}
+          </>
+        ) : book ? (
+          <>
+            <circle r="40" fill="#7a2e3a" stroke="#f3ead8" strokeWidth="2" />
+            <path d="M-2 -10 C-10 -16 -22 -16 -28 -12 V14 C-22 10 -10 10 -2 16Z M2 -10 C10 -16 22 -16 28 -12 V14 C22 10 10 10 2 16Z" fill="#f3ead8" />
+            <path d="M-23 -6 C-17 -9 -11 -9 -7 -6 M-23 0 C-17 -3 -11 -3 -7 0 M7 -6 C11 -9 17 -9 23 -6 M7 0 C11 -3 17 -3 23 0" fill="none" stroke="#c9b48e" strokeWidth="1.2" />
+          </>
+        ) : ball ? (
+          <>
+            <circle r="40" fill="#f4f5f7" stroke="#2a2d36" strokeWidth="2" />
+            <polygon points={pentagon(13)} fill="#1b1e26" />
+            {Array.from({ length: 5 }, (_, k) => {
+              const [x0, y0] = polar(13, k * 72), [x1, y1] = polar(26, k * 72);
+              return <g key={k}><line x1={x0} y1={y0} x2={x1} y2={y1} stroke="#1b1e26" strokeWidth="1.6" /><polygon points={pentagon(7, ...polar(33, k * 72), k * 72 + 36)} fill="#1b1e26" /></g>;
+            })}
+          </>
+        ) : disc ? (
+          <>
+            <circle r="40" fill="#e9ebf0" stroke="#9aa0ad" strokeWidth="1.5" />
+            <circle r="24" fill="none" stroke="#b9bec9" strokeWidth="1.2" />
+            <circle r="16" fill="#d5d9e1" stroke="#9aa0ad" />
+            <circle r="9" fill="#0f1013" />
+          </>
+        ) : kind === "um-por-cento" ? (
+          <>
+            <circle r="40" fill="#14161c" stroke="#3ddc84" strokeWidth="2" />
+            <text textAnchor="middle" dominantBaseline="central" fontWeight="800" fontSize="25" fill="#3ddc84">1%</text>
+          </>
+        ) : fan ? (
+          <>
+            <circle r="40" fill="#14161c" stroke="#565c6b" strokeWidth="1.5" />
+            {Array.from({ length: 7 }, (_, k) => (
+              <path key={k} d="M0 -6 C8 -14 20 -24 34 -18 C30 -8 18 -2 4 2Z" fill="#3a3f4c" stroke="#6b7282" strokeWidth=".8" transform={`rotate(${k * (360 / 7)})`} />
+            ))}
+            <circle r="10" fill="#d9dde6" stroke="#11131a" strokeWidth="1.5" />
+          </>
+        ) : board ? (
+          <>
+            <circle r="40" fill="#14161c" stroke="#ecd9b9" strokeWidth="2" />
+            <text textAnchor="middle" dominantBaseline="central" y="2" fontSize="44" fill="#ecd9b9">{"♞︎"}</text>
+          </>
+        ) : kit ? (
+          <>
+            <circle r="40" fill="#1a8f4c" stroke="#f4f5f7" strokeWidth="3" />
+            <path d="M-8 -24 H8 V-8 H24 V8 H8 V24 H-8 V8 H-24 V-8 H-8Z" fill="#f4f5f7" />
+          </>
+        ) : (
+          <>
+            <circle r="40" fill="#14161c" stroke="rgba(255,255,255,.14)" />
+            <circle r="9" fill="#d9dde6" />
+          </>
+        )}
       </g>
-      <g transform="translate(0,-104)">
-        <rect x="-15" y="-18" width="30" height="13" rx="2.5" fill="#d9dde6" />
-        <rect x="-11" y="-5" width="22" height="6" fill="#aab1bf" />
-        <path d="M-9 1 H9 L3 13 H-3 Z" fill="#f4f5f7" />
-        <circle cx="0" cy="14.5" r="2" fill="#f5b83d" />
+      {kind === "carretel" ? (
+        <g transform="translate(0,-104)">
+          <rect x="-15" y="-18" width="30" height="13" rx="2.5" fill="#d9dde6" />
+          <rect x="-11" y="-5" width="22" height="6" fill="#aab1bf" />
+          <path d="M-9 1 H9 L3 13 H-3 Z" fill="#f4f5f7" />
+          <circle cx="0" cy="14.5" r="2" fill="#f5b83d" />
+        </g>
+      ) : (
+        <path d="M-12 -118 H12 L0 -92 Z" fill="#f4f5f7" stroke="#0f1013" strokeWidth="2" strokeLinejoin="round" />
+      )}
+    </svg>
+  );
+}
+
+/** Pilhas de moedas, desenhadas como o cubo: só com a cor do curso. */
+function CoinStacks() {
+  const stacks = [{ x: -44, n: 4 }, { x: 0, n: 7 }, { x: 44, n: 10 }];
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      {stacks.map(({ x, n }) => Array.from({ length: n }, (_, k) => {
+        const y = 112 - k * 10;
+        return (
+          <g key={`${x}-${k}`}>
+            <path d={`M${x - 20} ${y} V${y + 6} A20 6 0 0 0 ${x + 20} ${y + 6} V${y}`} fill="currentColor" fillOpacity=".14" stroke="currentColor" strokeOpacity=".5" strokeWidth=".8" />
+            <ellipse cx={x} cy={y} rx="20" ry="6" fill="currentColor" fillOpacity={k === n - 1 ? ".22" : ".08"} stroke="currentColor" strokeOpacity=".6" strokeWidth=".8" />
+          </g>
+        );
+      }))}
+      <path d="M-70 -18 C-30 -4 10 -24 40 -30 L52 -32" fill="none" stroke="currentColor" strokeOpacity=".5" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M44 -38 L56 -32 L46 -23" fill="none" stroke="currentColor" strokeOpacity=".5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** Ampulheta, no mesmo traço do cubo. */
+function Hourglass() {
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      <rect x="-48" y="-30" width="96" height="10" rx="3" fill="currentColor" fillOpacity=".2" stroke="currentColor" strokeOpacity=".6" />
+      <rect x="-48" y="110" width="96" height="10" rx="3" fill="currentColor" fillOpacity=".2" stroke="currentColor" strokeOpacity=".6" />
+      <path d="M-38 -20 C-38 20 -6 30 -6 45 C-6 60 -38 70 -38 110 H38 C38 70 6 60 6 45 C6 30 38 20 38 -20Z" fill="currentColor" fillOpacity=".06" stroke="currentColor" strokeOpacity=".6" />
+      <path d="M-26 8 C-18 22 -4 30 0 42 C4 30 18 22 26 8Z" fill="currentColor" fillOpacity=".3" />
+      <path d="M0 45 V104" stroke="currentColor" strokeOpacity=".35" strokeDasharray="2 3" />
+      <path d="M-34 110 C-30 92 -12 84 0 82 C12 84 30 92 34 110Z" fill="currentColor" fillOpacity=".3" />
+    </svg>
+  );
+}
+
+/** Estojo aberto, com espelho e sombras, e um pincel ao lado, no mesmo traço do cubo. */
+function Compact() {
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      <circle cx="-26" cy="8" r="36" fill="currentColor" fillOpacity=".1" stroke="currentColor" strokeOpacity=".6" />
+      <circle cx="-26" cy="8" r="27" fill="currentColor" fillOpacity=".06" stroke="currentColor" strokeOpacity=".35" />
+      <path d="M-42 0 L-30 -12 M-40 12 L-18 -10" stroke="currentColor" strokeOpacity=".35" strokeWidth="2.4" strokeLinecap="round" />
+      <rect x="-36" y="44" width="20" height="8" rx="2" fill="currentColor" fillOpacity=".16" stroke="currentColor" strokeOpacity=".5" />
+      <circle cx="-26" cy="88" r="36" fill="currentColor" fillOpacity=".1" stroke="currentColor" strokeOpacity=".6" />
+      {[[-39, 75], [-13, 75], [-39, 101], [-13, 101]].map(([x, y], k) => <circle key={k} cx={x} cy={y} r="10" fill="currentColor" fillOpacity={0.12 + k * 0.08} stroke="currentColor" strokeOpacity=".45" />)}
+      <g transform="rotate(20 52 60)">
+        <rect x="46" y="44" width="12" height="74" rx="6" fill="currentColor" fillOpacity=".16" stroke="currentColor" strokeOpacity=".6" />
+        <rect x="45" y="28" width="14" height="17" rx="2" fill="currentColor" fillOpacity=".1" stroke="currentColor" strokeOpacity=".6" />
+        <path d="M45 28 C42 10 47 -4 52 -10 C57 -4 62 10 59 28Z" fill="currentColor" fillOpacity=".2" stroke="currentColor" strokeOpacity=".6" />
       </g>
+    </svg>
+  );
+}
+
+/** Fila de pedras de dominó encaixadas, no mesmo traço do cubo. */
+function DominoRow() {
+  const pips: Record<number, Array<[number, number]>> = { 1: [[0, 0]], 2: [[-6, -6], [6, 6]], 3: [[-6, -6], [0, 0], [6, 6]], 4: [[-6, -6], [6, -6], [-6, 6], [6, 6]], 5: [[-6, -6], [6, -6], [0, 0], [-6, 6], [6, 6]], 6: [[-6, -7], [6, -7], [-6, 0], [6, 0], [-6, 7], [6, 7]] };
+  const tiles: Array<[number, number]> = [[6, 3], [3, 5], [5, 1], [1, 4]];
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      {tiles.map(([a, b], k) => {
+        const x = -84 + k * 42, y = 20 + (k % 2) * 18;
+        return (
+          <g key={k} transform={`translate(${x} ${y})`}>
+            <rect width="40" height="22" rx="4" fill="currentColor" fillOpacity=".1" stroke="currentColor" strokeOpacity=".6" />
+            <line x1="20" y1="3" x2="20" y2="19" stroke="currentColor" strokeOpacity=".45" />
+            {pips[a].map(([px, py]) => <circle key={`a${px}${py}`} cx={10 + px * 0.9} cy={11 + py * 0.9} r="1.7" fill="currentColor" fillOpacity=".55" />)}
+            {pips[b].map(([px, py]) => <circle key={`b${px}${py}`} cx={30 + px * 0.9} cy={11 + py * 0.9} r="1.7" fill="currentColor" fillOpacity=".55" />)}
+          </g>
+        );
+      })}
+      <g transform="translate(-14 76)">
+        <rect width="28" height="50" rx="5" fill="currentColor" fillOpacity=".16" stroke="currentColor" strokeOpacity=".6" />
+        <line x1="4" y1="25" x2="24" y2="25" stroke="currentColor" strokeOpacity=".45" />
+        {pips[6].map(([px, py]) => <circle key={`t${px}${py}`} cx={14 + px} cy={12.5 + py * 0.9} r="2" fill="currentColor" fillOpacity=".55" />)}
+        {pips[6].map(([px, py]) => <circle key={`u${px}${py}`} cx={14 + px} cy={37.5 + py * 0.9} r="2" fill="currentColor" fillOpacity=".55" />)}
+      </g>
+    </svg>
+  );
+}
+
+/** Pilha de livros com um livro aberto em cima, no mesmo traço do cubo. */
+function Books() {
+  const stack = [{ y: 92, w: 140, x: -70 }, { y: 70, w: 124, x: -58 }, { y: 48, w: 132, x: -68 }];
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      {stack.map(({ y, w, x }, k) => (
+        <g key={y}>
+          <rect x={x} y={y} width={w} height="20" rx="3" fill="currentColor" fillOpacity={0.1 + k * 0.05} stroke="currentColor" strokeOpacity=".6" />
+          <path d={`M${x + 14} ${y} V${y + 20} M${x + w - 14} ${y} V${y + 20}`} stroke="currentColor" strokeOpacity=".35" />
+        </g>
+      ))}
+      <path d="M-3 -2 C-20 -14 -44 -14 -60 -6 V44 C-44 36 -20 36 -3 46Z M3 -2 C20 -14 44 -14 60 -6 V44 C44 36 20 36 3 46Z" fill="currentColor" fillOpacity=".1" stroke="currentColor" strokeOpacity=".6" />
+      <path d="M-50 4 C-38 -2 -22 -2 -12 4 M-50 14 C-38 8 -22 8 -12 14 M-50 24 C-38 18 -22 18 -12 24 M12 4 C22 -2 38 -2 50 4 M12 14 C22 8 38 8 50 14 M12 24 C22 18 38 18 50 24" fill="none" stroke="currentColor" strokeOpacity=".3" />
+    </svg>
+  );
+}
+
+/** Trave com rede e a bola entrando, no mesmo traço do cubo. */
+function Goal() {
+  const net = [];
+  for (let x = -66; x <= 66; x += 12) net.push(<path key={`v${x}`} d={`M${x} 6 V104`} />);
+  for (let y = 18; y <= 104; y += 12) net.push(<path key={`h${y}`} d={`M-70 ${y} H70`} />);
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      <g stroke="currentColor" strokeOpacity=".22" strokeWidth=".8">{net}</g>
+      <path d="M-74 112 V2 H74 V112" fill="none" stroke="currentColor" strokeOpacity=".65" strokeWidth="5" strokeLinejoin="round" />
+      <path d="M-86 112 H86" stroke="currentColor" strokeOpacity=".4" strokeWidth="1.5" />
+      <circle cx="26" cy="74" r="20" fill="currentColor" fillOpacity=".12" stroke="currentColor" strokeOpacity=".6" />
+      <polygon points={pentagon(7, 26, 74)} fill="currentColor" fillOpacity=".45" />
+      <path d="M-40 -26 C-10 -30 10 -10 18 40" fill="none" stroke="currentColor" strokeOpacity=".4" strokeWidth="1.6" strokeLinecap="round" strokeDasharray="3 4" />
+    </svg>
+  );
+}
+
+/** Controle de videogame com o "LEVEL UP" em cima, no mesmo traço do cubo. */
+function Gamepad() {
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      <text x="0" y="-6" textAnchor="middle" fontWeight="800" fontSize="20" fill="currentColor" fillOpacity=".45" letterSpacing="3">LEVEL UP</text>
+      <path d="M-48 22 C-70 22 -82 42 -84 70 C-86 96 -74 108 -62 108 C-50 108 -44 96 -36 86 H36 C44 96 50 108 62 108 C74 108 86 96 84 70 C82 42 70 22 48 22Z" fill="currentColor" fillOpacity=".1" stroke="currentColor" strokeOpacity=".6" />
+      <rect x="-58" y="54" width="26" height="9" rx="2" fill="currentColor" fillOpacity=".3" />
+      <rect x="-49.5" y="45.5" width="9" height="26" rx="2" fill="currentColor" fillOpacity=".3" />
+      {[[46, 46], [58, 58], [46, 70], [34, 58]].map(([x, y]) => <circle key={`${x}${y}`} cx={x} cy={y} r="5.5" fill="currentColor" fillOpacity=".3" stroke="currentColor" strokeOpacity=".5" />)}
+      <rect x="-13" y="44" width="10" height="4" rx="2" fill="currentColor" fillOpacity=".35" />
+      <rect x="3" y="44" width="10" height="4" rx="2" fill="currentColor" fillOpacity=".35" />
+      <circle cx="-20" cy="80" r="9" fill="currentColor" fillOpacity=".08" stroke="currentColor" strokeOpacity=".5" />
+      <circle cx="20" cy="80" r="9" fill="currentColor" fillOpacity=".08" stroke="currentColor" strokeOpacity=".5" />
+    </svg>
+  );
+}
+
+/** Escada subindo um degrau por vez, com a seta do "1% melhor", no mesmo traço do cubo. */
+function Steps() {
+  const steps = [0, 1, 2, 3, 4, 5];
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      {steps.map((k) => (
+        <rect key={k} x={-78 + k * 26} y={110 - (k + 1) * 18} width="26" height={(k + 1) * 18} fill="currentColor" fillOpacity={0.06 + k * 0.035} stroke="currentColor" strokeOpacity=".5" />
+      ))}
+      <path d="M-66 74 C-30 50 10 20 52 -14" fill="none" stroke="currentColor" strokeOpacity=".55" strokeWidth="1.8" strokeLinecap="round" strokeDasharray="3 4" />
+      <path d="M40 -16 L54 -16 L52 -2" fill="none" stroke="currentColor" strokeOpacity=".55" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <text x="-44" y="-8" textAnchor="middle" fontWeight="800" fontSize="26" fill="currentColor" fillOpacity=".45">+1%</text>
+    </svg>
+  );
+}
+
+/** Processador visto de cima, com os pinos em volta, no mesmo traço do cubo. */
+function Chip() {
+  const pins = [-36, -18, 0, 18, 36];
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      <g transform="translate(0 45)" stroke="currentColor" strokeOpacity=".5" strokeWidth="3" strokeLinecap="round">
+        {pins.map((p) => <path key={`t${p}`} d={`M${p} -62 V-50 M${p} 50 V62 M-62 ${p} H-50 M50 ${p} H62`} />)}
+      </g>
+      <rect x="-50" y="-5" width="100" height="100" rx="8" fill="currentColor" fillOpacity=".1" stroke="currentColor" strokeOpacity=".6" />
+      <rect x="-30" y="15" width="60" height="60" rx="4" fill="currentColor" fillOpacity=".18" stroke="currentColor" strokeOpacity=".45" />
+      <path d="M-40 5 L-34 5 L-40 11Z" fill="currentColor" fillOpacity=".5" />
+      <text x="0" y="46" textAnchor="middle" dominantBaseline="central" fontWeight="800" fontSize="18" fill="currentColor" fillOpacity=".55" letterSpacing="2">CPU</text>
+    </svg>
+  );
+}
+
+/** Tabuleiro em perspectiva com um cavalo, no mesmo traço do cubo. */
+function ChessBoard() {
+  const n = 6, size = 24;
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      <g transform="translate(-72 40)">
+        {Array.from({ length: n * n }, (_, k) => {
+          const x = k % n, y = Math.floor(k / n);
+          return <rect key={k} x={x * size} y={y * size * 0.5} width={size} height={size * 0.5} fill="currentColor" fillOpacity={(x + y) % 2 ? ".22" : ".06"} />;
+        })}
+        <rect width={n * size} height={n * size * 0.5} fill="none" stroke="currentColor" strokeOpacity=".6" />
+      </g>
+      <text x="0" y="34" textAnchor="middle" fontSize="92" fill="currentColor" fillOpacity=".55">{"♞︎"}</text>
+    </svg>
+  );
+}
+
+/** Maleta de primeiros socorros com a cruz, no mesmo traço do cubo. */
+function FirstAidKit() {
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      <path d="M-22 4 V-12 a8 8 0 0 1 8 -8 H14 a8 8 0 0 1 8 8 V4" fill="none" stroke="currentColor" strokeOpacity=".6" strokeWidth="5" strokeLinecap="round" />
+      <rect x="-76" y="4" width="152" height="108" rx="14" fill="currentColor" fillOpacity=".1" stroke="currentColor" strokeOpacity=".6" />
+      <path d="M-76 30 H76" stroke="currentColor" strokeOpacity=".3" />
+      <path d="M-10 42 H10 V60 H28 V80 H10 V98 H-10 V80 H-28 V60 H-10Z" fill="currentColor" fillOpacity=".22" stroke="currentColor" strokeOpacity=".6" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -123,7 +456,7 @@ function PrintedCube() {
   );
 }
 
-function Seal() {
+function Seal({ kind }: { kind: Theme["wheel"] }) {
   return (
     <svg viewBox="-60 -60 120 120" aria-hidden="true">
       <defs><path id="fq-seal-ring" d="M0,-41 A41,41 0 1,1 -0.01,-41" /></defs>
@@ -131,13 +464,60 @@ function Seal() {
       <circle r="51" fill="none" stroke="#06210f" strokeDasharray="2 3" />
       <circle r="31" fill="#0c1735" />
       <text fontSize="8.6" fontWeight="700" fill="#06210f" letterSpacing="1.2">
-        <textPath href="#fq-seal-ring" textLength="252" lengthAdjust="spacing">FUNDAÇÃO RANBANK · DESAFIO FINAL APROVADO ·</textPath>
+        <textPath href="#fq-seal-ring" textLength="252" lengthAdjust="spacing">FUNDAÇÃO RANBANK · PROVA FINAL APROVADA ·</textPath>
       </text>
-      <g fill="none" stroke="#8fb1ff" strokeWidth="1.6" strokeLinejoin="round">
-        <path d="M0 -15 L14 -7 L0 1 L-14 -7Z" />
-        <path d="M-14 -7 V9 L0 17 V1 M14 -7 V9 L0 17" />
-        <path d="M-14 -1 L0 7 L14 -1 M-14 4 L0 12 L14 4" strokeWidth=".9" opacity=".7" />
-      </g>
+      {kind === "carretel" ? (
+        <g fill="none" stroke="#8fb1ff" strokeWidth="1.6" strokeLinejoin="round">
+          <path d="M0 -15 L14 -7 L0 1 L-14 -7Z" />
+          <path d="M-14 -7 V9 L0 17 V1 M14 -7 V9 L0 17" />
+          <path d="M-14 -1 L0 7 L14 -1 M-14 4 L0 12 L14 4" strokeWidth=".9" opacity=".7" />
+        </g>
+      ) : kind === "moeda" ? (
+        <text textAnchor="middle" dominantBaseline="central" fontWeight="800" fontSize="20" fill="#8fb1ff">R$</text>
+      ) : kind === "kit" ? (
+        <path d="M-5 -16 H5 V-5 H16 V5 H5 V16 H-5 V5 H-16 V-5 H-5Z" fill="#8fb1ff" />
+      ) : kind === "relogio" ? (
+        <g fill="none" stroke="#8fb1ff" strokeWidth="2.4" strokeLinecap="round"><circle r="15" /><path d="M0 -9 V0 L7 5" /></g>
+      ) : kind === "tabuleiro" ? (
+        <text textAnchor="middle" dominantBaseline="central" y="1" fontSize="30" fill="#8fb1ff">{"♞︎"}</text>
+      ) : kind === "estojo" ? (
+        <g fill="none" stroke="#8fb1ff" strokeWidth="1.8" strokeLinejoin="round">
+          <rect x="-6" y="1" width="12" height="15" rx="1.5" />
+          <line x1="-6" y1="6" x2="6" y2="6" />
+          <path d="M-4 1 V-8 L4 -15 V1" />
+        </g>
+      ) : kind === "pedra" ? (
+        <g>
+          <rect x="-9" y="-16" width="18" height="32" rx="3" fill="none" stroke="#8fb1ff" strokeWidth="1.8" />
+          <line x1="-6" y1="0" x2="6" y2="0" stroke="#8fb1ff" strokeWidth="1.4" />
+          {[[-4, -11], [4, -5], [-4, 5], [4, 5], [0, 11]].map(([x, y]) => <circle key={`${x}${y}`} cx={x} cy={y} r="1.6" fill="#8fb1ff" />)}
+        </g>
+      ) : kind === "livro" ? (
+        <path d="M-1 -8 C-6 -12 -13 -12 -17 -9 V10 C-13 7 -6 7 -1 11Z M1 -8 C6 -12 13 -12 17 -9 V10 C13 7 6 7 1 11Z" fill="none" stroke="#8fb1ff" strokeWidth="1.8" strokeLinejoin="round" />
+      ) : kind === "bola" ? (
+        <g>
+          <circle r="15" fill="none" stroke="#8fb1ff" strokeWidth="1.8" />
+          <polygon points={pentagon(6)} fill="#8fb1ff" />
+          {Array.from({ length: 5 }, (_, k) => { const [x0, y0] = polar(6, k * 72), [x1, y1] = polar(15, k * 72); return <line key={k} x1={x0} y1={y0} x2={x1} y2={y1} stroke="#8fb1ff" strokeWidth="1.4" />; })}
+        </g>
+      ) : kind === "disco" ? (
+        <g fill="none" stroke="#8fb1ff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M-10 -7 C-16 -7 -19 -1 -19 5 C-19 11 -15 12 -12 9 L-8 5 H8 L12 9 C15 12 19 11 19 5 C19 -1 16 -7 10 -7Z" />
+          <path d="M-12 -1 V5 M-15 2 H-9" />
+          <circle cx="11" cy="0" r="1" fill="#8fb1ff" />
+          <circle cx="14" cy="3" r="1" fill="#8fb1ff" />
+        </g>
+      ) : kind === "um-por-cento" ? (
+        <text textAnchor="middle" dominantBaseline="central" fontWeight="800" fontSize="19" fill="#8fb1ff">1%</text>
+      ) : kind === "cooler" ? (
+        <g fill="none" stroke="#8fb1ff" strokeWidth="1.8" strokeLinecap="round">
+          <rect x="-11" y="-11" width="22" height="22" rx="2.5" />
+          <rect x="-5" y="-5" width="10" height="10" rx="1" fill="#8fb1ff" fillOpacity=".35" />
+          <path d="M-5 -11 V-16 M0 -11 V-16 M5 -11 V-16 M-5 11 V16 M0 11 V16 M5 11 V16 M-11 -5 H-16 M-11 0 H-16 M-11 5 H-16 M11 -5 H16 M11 0 H16 M11 5 H16" />
+        </g>
+      ) : (
+        <path d="M-12 1 L-3 10 L13 -9" fill="none" stroke="#8fb1ff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      )}
     </svg>
   );
 }
@@ -146,10 +526,11 @@ function Certificate({ course, modules, lessonsCount, name, hits, date, code, ve
   course: Course; modules: string[]; lessonsCount: number; name: string; hits: number; date: string; code: string; verified: boolean;
 }) {
   const when = new Date(date).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+  const kind = themeOf(course.id).wheel;
   return (
     <div className="fq-paper" role="img" aria-label={`Certificado de conclusão do curso ${course.title}${name ? `, em nome de ${name}` : ""}`}>
-      <div className="fq-p-cube"><PrintedCube /></div>
-      <div className="fq-p-seal"><Seal /></div>
+      {kind !== "roleta" && <div className="fq-p-cube">{kind === "moeda" ? <CoinStacks /> : kind === "kit" ? <FirstAidKit /> : kind === "tabuleiro" ? <ChessBoard /> : kind === "relogio" ? <Hourglass /> : kind === "cooler" ? <Chip /> : kind === "um-por-cento" ? <Steps /> : kind === "disco" ? <Gamepad /> : kind === "bola" ? <Goal /> : kind === "livro" ? <Books /> : kind === "pedra" ? <DominoRow /> : kind === "estojo" ? <Compact /> : <PrintedCube />}</div>}
+      <div className="fq-p-seal"><Seal kind={kind} /></div>
       <div className="fq-p-in">
         <div className="fq-p-top">
           <span className="fq-p-mark"><Mark /></span>
@@ -162,7 +543,7 @@ function Certificate({ course, modules, lessonsCount, name, hits, date, code, ve
           <div className="fq-p-lbl">concluiu o curso livre</div>
           <div className={`fq-p-course ${course.title.length > 18 ? "is-long" : ""}`}>{course.title}</div>
           <div className="fq-p-desc">
-            {lessonsCount} aulas em {modules.length} módulos: {modules.join(" · ")}. Aprovação no desafio final com <b>{hits} de {QUIZ_RULES.total}</b> acertos.
+            {lessonsCount} aulas em {modules.length} módulos: {modules.join(" · ")}. Aprovação na prova final com <b>{hits} de {QUIZ_RULES.total}</b> acertos.
           </div>
         </div>
         <div className="fq-p-foot">
@@ -213,6 +594,7 @@ export function FinalChallenge({ course, modules, questions, lessonsCount, resul
 
   const total = game?.seq.length ?? Math.min(QUIZ_RULES.total, questions.length);
   const color = (m: number) => MODULE_COLORS[m % MODULE_COLORS.length];
+  const theme = themeOf(course.id);
 
   // Foco: em cada tela nova, vai para o título ou para o botão principal.
   useEffect(() => {
@@ -377,9 +759,9 @@ export function FinalChallenge({ course, modules, questions, lessonsCount, resul
       <div className="fq">
         <div className="fq-intro">
           <div className="fq-intro-copy">
-            <p className="fc-lesson-eyebrow">Desafio final</p>
+            <p className="fc-lesson-eyebrow">Prova final</p>
             <h2 ref={headingRef} tabIndex={-1}>Mostre o que você aprendeu</h2>
-            <p className="fq-lead">Gire o carretel para sortear o módulo e responda à pergunta que cair. São {total} perguntas tiradas das {lessonsCount} aulas. Acerte {QUIZ_RULES.pass} para ganhar o certificado.</p>
+            <p className="fq-lead">Gire {theme.name} para sortear o módulo e responda à pergunta que cair. São {total} perguntas tiradas das {lessonsCount} aulas. Acerte {QUIZ_RULES.pass} para ganhar o certificado.</p>
             <ul className="fq-facts">
               <li><b>{total}</b> perguntas</li>
               <li><b>{QUIZ_RULES.pass}</b> acertos para passar</li>
@@ -392,14 +774,14 @@ export function FinalChallenge({ course, modules, questions, lessonsCount, resul
             </label>
             {result && result.tries > 0 && <p className="fq-record">Seu recorde: {result.best} de {QUIZ_RULES.total} em {result.tries} {result.tries === 1 ? "partida" : "partidas"}.</p>}
             <div className="fq-actions">
-              <button type="button" className="fc-btn fc-btn-light" onClick={start}>Começar o desafio</button>
+              <button type="button" className="fc-btn fc-btn-light" onClick={start}>Começar a prova</button>
               {result?.passed
                 ? <button type="button" className="fc-btn fc-btn-soft" onClick={() => setPhase("cert")}>Ver meu certificado</button>
                 : <button type="button" className="fc-btn fc-btn-soft" onClick={onBack}>Revisar as aulas</button>}
             </div>
           </div>
           <div className="fq-intro-art">
-            <Spool count={modules.length} rotation={0} />
+            <Spool count={modules.length} rotation={0} kind={theme.wheel} />
             <ul className="fq-legend">
               {modules.map((title, m) => <li key={title}><i style={{ background: color(m) }} />{m + 1}. {title}</li>)}
             </ul>
@@ -428,10 +810,10 @@ export function FinalChallenge({ course, modules, questions, lessonsCount, resul
 
         {phase === "spin" ? (
           <div className="fq-stage fq-spin">
-            <Spool count={modules.length} rotation={rotation} onStop={stopSpin} />
+            <Spool count={modules.length} rotation={rotation} onStop={stopSpin} kind={theme.wheel} />
             <div className="fq-drawn" aria-live="polite">
               <small>Pergunta {game.index + 1} de {total}</small>
-              <strong>{landed === null ? (spinning ? "Girando..." : "Gire o carretel") : modules[landed]}</strong>
+              <strong>{landed === null ? (spinning ? "Girando..." : `Gire ${theme.name}`) : modules[landed]}</strong>
             </div>
             <button type="button" ref={actionRef} className="fc-btn fc-btn-light" onClick={spin} disabled={spinning || landed !== null}>Girar</button>
           </div>
@@ -498,7 +880,7 @@ export function FinalChallenge({ course, modules, questions, lessonsCount, resul
               <div><b>{game.hits}</b><small>de {total}</small></div>
             </div>
             <div>
-              <span className={`fq-pill ${pass ? "is-ok" : "is-bad"}`}>{pass ? "Aprovado no desafio" : `Faltaram ${QUIZ_RULES.pass - game.hits}`}</span>
+              <span className={`fq-pill ${pass ? "is-ok" : "is-bad"}`}>{pass ? "Aprovado na prova" : `Faltaram ${QUIZ_RULES.pass - game.hits}`}</span>
               <h2 ref={headingRef} tabIndex={-1}>{pass ? "Mandou bem!" : "Quase lá. Revise e tente de novo."}</h2>
               <p className="fq-lead">
                 {pass

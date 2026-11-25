@@ -3,10 +3,19 @@
 // e mudam de mesa para mesa: o texto sempre lembra de combinar antes.
 
 import type { CourseContent } from "../foundation-lessons";
+import { PROVA_DOMINO } from "./domino-prova";
 
 export const DOMINO: CourseContent = {
   note: "As regras do dominó mudam de região para região. Este curso usa as regras descritas nas aulas; antes de cada partida, combine com a mesa quais valem.",
   closing: "Agora você conhece as peças, as regras, a contagem e o jogo em dupla. No dominó, quem observa e conta joga melhor, e isso só vem com prática. Junte a turma e bom jogo!",
+  quiz: PROVA_DOMINO,
+  stickers: [
+    { id: "encaixe-certo", name: "Encaixe certo", how: "Acertou 7 ou mais em \"Encaixa ou não?\"." },
+    { id: "mestre-do-modulo-1", name: "Historiador da mesa", how: "Acertou 8 ou mais no quiz do Módulo 1." },
+    { id: "mestre-do-modulo-2", name: "Dono das pedras", how: "Acertou 8 ou mais no quiz do Módulo 2." },
+    { id: "mestre-do-modulo-3", name: "Conta até sete", how: "Acertou 8 ou mais no quiz do Módulo 3." },
+    { id: "mestre-do-modulo-4", name: "Bom de mesa", how: "Acertou 8 ou mais no quiz do Módulo 4." },
+  ],
   modules: [
     {
       title: "Origem e história",
@@ -49,6 +58,21 @@ export const DOMINO: CourseContent = {
           recap: ["Os antepassados do dominó são jogos chineses ligados aos dados.", "O conjunto duplo-seis, com 28 peças, ficou popular na Europa no século XVIII.", "As regras variam por região, por isso se combina antes de jogar."],
         },
       ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-1", min: 8 },
+        questions: [
+          { question: "A que a aula liga os antepassados do dominó?", options: ["A jogos italianos de cartas do século XVIII.", "A jogos de tabuleiro trazidos da Inglaterra.", "A jogos chineses de peças ligadas aos dados.", "A peças usadas em festas religiosas europeias."], answer: 2, why: "Eram jogos chineses de peças que representavam os resultados de dois dados." },
+          { question: "Em que século o formato europeu do dominó ficou conhecido na Europa?", options: ["XV", "XVI", "XIX", "XVIII"], answer: 3, why: "O duplo-seis ficou conhecido na Europa no século XVIII." },
+          { question: "Qual país costuma ser apontado como um dos primeiros onde o dominó europeu se popularizou?", options: ["Itália", "Inglaterra", "Portugal", "França"], answer: 0, why: "A Itália costuma ser apontada como um dos primeiros lugares." },
+          { question: "Quantas peças tem o conjunto duplo-seis?", options: ["21", "28", "36", "49"], answer: 1, why: "Todas as combinações de dois valores entre zero e seis, sem repetir a combinação invertida." },
+          { question: "O que a aula diz sobre a origem do nome \"dominó\"?", options: ["Vem com certeza do chinês e quer dizer \"dado\".", "Há hipóteses, como o latim dominus, mas nenhuma certeza.", "Foi inventado no Brasil, nos clubes e praças do interior.", "Vem do sobrenome do italiano que criou o jogo."], answer: 1, why: "A explicação do dominus (\"senhor\") é muito repetida, mas é hipótese." },
+          { question: "Segundo a aula, por que o dominó se espalhou pelo mundo?", options: ["Era ensinado nas escolas de todos os países.", "Tinha regras únicas, iguais em todo lugar.", "Foi levado pelos campeonatos internacionais.", "É fácil de levar e simples de começar."], answer: 3, why: "Por isso atravessou fronteiras e ganhou costumes próprios em cada lugar." },
+          { question: "Quando o dominó chegou ao Brasil, segundo a aula?", options: ["Em 1863, com os ingleses.", "Não há uma data aceita por todos.", "No século XVIII, com os italianos.", "Em 1890, com os imigrantes."], answer: 1, why: "Não há uma data única aceita para a chegada dele ao país." },
+          { question: "Como a aula trata a passagem do jogo chinês para o dominó europeu?", options: ["Como possível influência, sem prova única.", "Como fato comprovado em documentos da época.", "Como lenda já desmentida pelos historiadores.", "Como invenção dos jogadores brasileiros."], answer: 0, why: "Por isso o mais correto é falar em antepassados e possíveis influências." },
+          { question: "Por que é importante combinar as regras antes de jogar?", options: ["Porque o dominó não tem regra nenhuma.", "Porque assim a partida dura bem menos tempo no total.", "Porque as regras mudam de mesa para mesa e de região para região.", "Porque só quem começa conhece as regras."], answer: 2, why: "Em cada lugar o jogo ganhou costumes, nomes e pontuações diferentes." },
+          { question: "Onde o dominó virou presença no Brasil, segundo a aula?", options: ["Só em campeonatos oficiais.", "Principalmente nas escolas.", "Só entre jogadores profissionais.", "Em casas, praças e clubes."], answer: 3, why: "É um jogo de espaços familiares e comunitários." },
+        ],
+      },
     },
     {
       title: "Fundamentos básicos",
@@ -70,7 +94,7 @@ export const DOMINO: CourseContent = {
             {
               title: "O que é uma bucha",
               body: [
-                "Bucha (ou peça dupla, ou carroça, dependendo da região) é a peça com o mesmo valor nas duas metades: branco e branco, um e um, quatro e quatro, seis e seis. São sete buchas no conjunto.",
+                "Bucha (ou peça dupla, ou dobrada, dependendo da região) é a peça com o mesmo valor nas duas metades: branco e branco, um e um, quatro e quatro, seis e seis. São sete buchas no conjunto.",
                 "Em muitas mesas, a bucha é colocada atravessada na linha de jogo, mas continua valendo o mesmo número dos dois lados.",
               ],
             },
@@ -84,6 +108,23 @@ export const DOMINO: CourseContent = {
                   "Se não tiver peça que encaixe, você passa a vez ou compra do monte, conforme a regra combinada.",
                 ], ordered: true },
                 { box: "exemplo", text: "As pontas são 3 e 5. Você tem o 5 e 2: encosta o 5 na ponta 5, e a nova ponta passa a ser 2. Agora as pontas são 3 e 2." },
+                {
+                  sort: {
+                    title: "Encaixa ou não? As pontas da mesa são 6 e 2.",
+                    labels: ["Encaixa", "Não encaixa"],
+                    items: [
+                      { text: "6 e 3", answer: 0, why: "Encosta o 6 na ponta 6, e o 3 vira a nova ponta." },
+                      { text: "4 e 5", answer: 1, why: "Nenhum dos dois valores é 6 ou 2." },
+                      { text: "2 e 2 (bucha)", answer: 0, why: "Encaixa na ponta 2, e a ponta continua 2." },
+                      { text: "Branco e 1", answer: 1, why: "Nem o branco nem o 1 aparecem nas pontas." },
+                      { text: "5 e 6", answer: 0, why: "Encosta o 6 na ponta 6, e o 5 vira a nova ponta." },
+                      { text: "3 e 3 (bucha)", answer: 1, why: "A bucha de 3 só encaixa numa ponta 3." },
+                      { text: "2 e branco", answer: 0, why: "Encosta o 2 na ponta 2, e o branco vira a nova ponta." },
+                      { text: "1 e 4", answer: 1, why: "Nenhum dos dois valores é 6 ou 2." },
+                    ],
+                    sticker: { id: "encaixe-certo", min: 7 },
+                  },
+                },
               ],
             },
             {
@@ -160,6 +201,21 @@ export const DOMINO: CourseContent = {
           recap: ["No jogo em dupla, você joga para a equipe, não só para você.", "Com duas ou três pessoas, o jogo pode ser sem compra ou com compra.", "Batida de bucha e nas duas pontas valem 2 pontos neste curso."],
         },
       ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-2", min: 8 },
+        questions: [
+          { question: "Como também é chamado o zero no dominó?", options: ["Bucha", "Branco", "Ponta", "Dobrada"], answer: 1, why: "Bucha e dobrada são nomes da peça com o mesmo valor nos dois lados." },
+          { question: "Em quantas peças do duplo-seis aparece cada valor?", options: ["Seis", "Oito", "Sete", "Quatro"], answer: 2, why: "O seis, por exemplo, está no 6-6, 6-5, 6-4, 6-3, 6-2, 6-1 e 6-branco." },
+          { question: "O que é uma bucha?", options: ["A peça com o branco de um lado.", "A última peça que sobra na mão.", "A peça que serve nas duas pontas ao mesmo tempo.", "A peça com o mesmo valor nas duas metades."], answer: 3, why: "Branco e branco, um e um, quatro e quatro, seis e seis." },
+          { question: "As pontas são 3 e 5. Você joga o 5 e 2. Quais passam a ser as pontas?", options: ["3 e 2", "5 e 2", "3 e 5", "2 e 2"], answer: 0, why: "Você encosta o 5 na ponta 5, e o 2 vira a nova ponta." },
+          { question: "Você não tem peça que encaixe em nenhuma ponta. O que acontece?", options: ["Joga qualquer peça atravessada.", "Passa a vez ou compra do monte, conforme a regra.", "Perde a rodada na hora e a outra dupla marca ponto.", "Troca uma peça com o parceiro."], answer: 1, why: "Depende da modalidade combinada: sem compra, passa; com compra, compra." },
+          { question: "Quantas pessoas podem jogar dominó, segundo a aula?", options: ["De uma a quatro.", "Só quatro, em duplas.", "De duas a seis.", "Duas, três ou quatro."], answer: 3, why: "Não dá para jogar sozinho: a partida depende da troca de jogadas." },
+          { question: "No jogo em dupla, como é a comunicação com o parceiro?", options: ["Só pelas jogadas permitidas.", "Por sinais combinados antes da partida.", "Falando baixo na vez dele.", "Mostrando uma peça por baixo da mesa."], answer: 0, why: "Sinais combinados e dicas escondidas não valem." },
+          { question: "No jogo de compra, o monte acabou e você não tem peça que encaixe. O que fazer?", options: ["Comprar uma peça do parceiro.", "Jogar uma bucha qualquer.", "Encerrar a rodada.", "Passar a vez."], answer: 3, why: "Compra-se até achar uma peça que sirva ou até o monte acabar; se acabar, passa." },
+          { question: "Pela regra do curso, quanto vale a batida de bucha?", options: ["1 ponto", "2 pontos", "3 pontos", "4 pontos"], answer: 1, why: "A batida simples vale 1; a de bucha e a nas duas pontas valem 2." },
+          { question: "A partida fechou: ninguém consegue jogar. O que o grupo pode decidir?", options: ["Que vence quem ainda tem mais buchas guardadas na mão.", "Que todos compram do monte de novo.", "Que vence quem tem menos pontos nas peças da mão.", "Que a dupla que começou vence."], answer: 2, why: "É uma das regras a combinar antes da partida." },
+        ],
+      },
     },
     {
       title: "Fundamentos avançados",
@@ -256,6 +312,21 @@ export const DOMINO: CourseContent = {
           recap: ["Fazer ponta é manter aberto um valor que a sua dupla acompanha.", "Quando a conta fecha em 7, ninguém mais tem aquele valor.", "No jogo em dupla, jogue a favor do parceiro."],
         },
       ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-3", min: 8 },
+        questions: [
+          { question: "Na contagem de um valor, peças na mão + peças já jogadas + peças não vistas dá quanto?", options: ["6", "14", "28", "7"], answer: 3, why: "Cada valor aparece em sete peças." },
+          { question: "Você tem três peças com o quatro e já saíram três. Quantas faltam aparecer?", options: ["Uma", "Três", "Quatro", "Nenhuma"], answer: 0, why: "3 + 3 = 6; falta uma." },
+          { question: "Você tem uma peça com o branco e já saíram seis. Alguém mais tem branco?", options: ["Sim, o parceiro tem uma.", "Talvez: uma pode estar no monte.", "Sim, duas delas estão com os adversários da mesa.", "Não: todas as peças com branco foram vistas."], answer: 3, why: "1 + 6 = 7." },
+          { question: "Em qual partida a contagem fica mais precisa?", options: ["Com duas pessoas e monte de compra.", "Com quatro pessoas e todas as peças distribuídas.", "Com três pessoas e a compra liberada até o fim do monte.", "Em qualquer partida, do mesmo jeito."], answer: 1, why: "Com todas as peças distribuídas, elas estão nas mãos ou na mesa." },
+          { question: "Quando você sabe exatamente onde está uma peça?", options: ["Quando o adversário passa a vez.", "Quando o parceiro repete o mesmo valor duas vezes.", "Quando ela já foi jogada ou está na sua mão.", "Sempre que a conta chega a seis."], answer: 2, why: "O resto é estimativa, feita com a contagem e com o que os outros jogam." },
+          { question: "O que é fazer ponta?", options: ["Colocar a bucha atravessada na linha.", "Bater com a última peça servindo nas duas pontas.", "Fechar o jogo para ninguém mais jogar.", "Manter aberto um valor que a dupla acompanha."], answer: 3, why: "Você continua jogando e os adversários ficam com menos opções." },
+          { question: "Para fazer ponta, o que a aula diz que é preciso?", options: ["Ter peças suficientes, você ou o parceiro.", "Ter só buchas na mão.", "Ser o primeiro a jogar.", "Estar jogando com compra."], answer: 0, why: "Fazer ponta não é só abrir um valor: é preciso sustentá-lo." },
+          { question: "A ponta está em 5. Você tem duas peças com o cinco e já saíram cinco. Os adversários podem acompanhar?", options: ["Sim, se comprarem do monte.", "Não: a conta fecha em 7.", "Sim, se tiverem a bucha de cinco.", "Só se o parceiro deles passar."], answer: 1, why: "2 + 5 = 7: só você tem peças com o cinco." },
+          { question: "Seu parceiro passou quando a ponta era 3. O que a aula sugere?", options: ["Abrir o 3 para ele comprar.", "Repetir o 3 até ele jogar.", "Evitar mudar a ponta para 3, salvo estratégia.", "Ignorar: uma jogada revela a mão toda."], answer: 2, why: "Ele mostrou que não tem esse valor." },
+          { question: "Qual é a \"regra de ouro\" da aula?", options: ["Jogue sempre as buchas primeiro.", "Feche o jogo o quanto antes.", "Bata sozinho, sem esperar o parceiro.", "Não basta contar: é preciso interpretar."], answer: 3, why: "A melhor jogada depende da posição, das peças, do parceiro, dos adversários e do objetivo." },
+        ],
+      },
     },
     {
       title: "Prática",
@@ -319,6 +390,21 @@ export const DOMINO: CourseContent = {
           recap: ["Combine as regras antes de cada partida.", "Treine contagem, ponta e parceria com desafios.", "Avalie as suas decisões, não só o resultado."],
         },
       ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-4", min: 8 },
+        questions: [
+          { question: "Qual é a primeira etapa do treino, segundo a aula?", options: ["Aquecimento com rodadas curtas para relembrar o jogo.", "Partidas com quatro pessoas.", "Preparação: separar as peças e combinar as regras.", "Conversa sobre erros e acertos."], answer: 2, why: "Depois vêm o aquecimento, as partidas e a conversa no fim." },
+          { question: "Para que serve o aquecimento do treino?", options: ["Alongar as mãos antes de embaralhar.", "Lembrar encaixe, buchas, pontas e pontuação.", "Sortear as duplas da partida.", "Conferir se o conjunto tem as 28 peças."], answer: 1, why: "São rodadas curtas para relembrar os fundamentos." },
+          { question: "No desafio de contagem, o que você faz?", options: ["Conta quantas rodadas cada jogador ganhou na partida.", "Soma os pontos de todas as peças.", "Conta quantas vezes cada um passou.", "Escolhe um valor e diz quantas peças dele já saíram."], answer: 3, why: "A qualquer momento da partida." },
+          { question: "No desafio \"Explique\", o que se faz?", options: ["Conta uma decisão que tomou e por quê.", "Explica as regras para quem chega.", "Explica a história do dominó.", "Ensina um iniciante a encaixar."], answer: 0, why: "É no fim da partida." },
+          { question: "Qual destas a aula não lista entre as coisas para observar no seu jogo?", options: ["Faz encaixes válidos.", "Acompanha a contagem de um valor.", "Respeita a vez e as regras.", "Quantas partidas venceu seguidas."], answer: 3, why: "Ganhar não é a única medida." },
+          { question: "Segundo a aula, onde aparece a evolução no dominó?", options: ["Só no número de vitórias.", "Na qualidade das decisões, não só no placar.", "Na rapidez para jogar cada peça sem pensar muito.", "Na quantidade de buchas na mão."], answer: 1, why: "A avaliação olha as decisões, não só o resultado." },
+          { question: "Qual destas é uma das regras para combinar antes de começar?", options: ["A cor da mesa.", "Quem guarda as peças no fim.", "Quanto vale cada batida.", "Quantas partidas por dia."], answer: 2, why: "Também: peças por jogador, compra, o que acontece se fechar e quem começa." },
+          { question: "No desafio de parceria, o que se prioriza?", options: ["As jogadas que ajudam o parceiro.", "Bater sozinho o mais rápido possível.", "Fechar o jogo logo no começo.", "Trocar de dupla a cada rodada."], answer: 0, why: "É jogar em dupla pensando na equipe." },
+          { question: "Na partida comentada, o que você acompanha durante o jogo?", options: ["O tempo de cada jogada.", "Quantas buchas cada um tem.", "Os pontos de cada adversário.", "A contagem de um valor."], answer: 3, why: "No fim, explica uma decisão e, se jogou em dupla, como ajudou o parceiro." },
+          { question: "Na conversa do fim do treino, o que se discute?", options: ["Quem ganhou mais vezes no dia.", "O que deu certo, o que deu errado e o que melhorar.", "As regras novas que vão valer no próximo treino da turma.", "Quem vai trazer o dominó na próxima vez."], answer: 1, why: "É a hora de avaliar as decisões." },
+        ],
+      },
     },
   ],
 };

@@ -56,15 +56,14 @@ export const COURSES: Course[] = [
     description: "Jeitos simples de planejar a semana, dar conta de estudo e trabalho e sobrar tempo para descansar." },
   { id: "primeiros-socorros", title: "Primeiros socorros", category: "vida", tags: ["Saúde", "Cuidado", "Dia a dia"],
     hook: "Os primeiros minutos fazem diferença. Saiba como agir.",
-    learn: ["Avaliar a cena e se proteger antes de ajudar", "Chamar o socorro certo e passar as informações", "Agir em engasgo, desmaio e sangramento", "Cuidar de queimaduras e torções até a ajuda chegar", "Saber o que não fazer para não piorar a situação"],
+    learn: ["Avaliar a cena e se proteger antes de ajudar", "Chamar o socorro certo e passar as informações", "Reconhecer sinais de AVC, infarto e parada cardíaca", "Agir em engasgo, desmaio, convulsão e sangramento", "Saber o que não fazer para não piorar a situação"],
     description: "O que fazer, e o que não fazer, nos primeiros minutos de uma emergência até a ajuda chegar." },
   {
     id: "hardware-so", title: "Hardware e sistema operacional", category: "tecnologia", tags: ["Computador", "Tecnologia", "Mão na massa", "Raciocínio"],
-    hook: "Abra o computador por dentro e entenda como tudo funciona.",
-    learn: ["Reconhecer as principais peças de um computador", "Entender o que cada peça faz e como elas conversam", "Instalar e configurar um sistema operacional", "Organizar arquivos, programas e atualizações", "Resolver problemas comuns e manter o computador saudável"],
-   
-    description: "Das peças do computador ao sistema que faz tudo funcionar: entender, cuidar e resolver problemas comuns.",
-    // Os módulos (Hardware e Software) e as aulas ficam em foundation-content/hardware-so.ts.
+    hook: "Do botão de ligar às peças de dentro: use o computador sem medo.",
+    learn: ["Usar o Windows, organizar arquivos e instalar programas com segurança", "Conectar pen drive, fones e impressora", "Pesquisar, usar o e-mail e reconhecer golpes", "Reconhecer as peças do computador e o que cada uma faz", "Resolver problemas comuns e manter o computador saudável"],
+    description: "Do botão de ligar à internet e das peças ao sistema: usar o computador sem medo, cuidar dele e resolver problemas comuns.",
+    // Os módulos (Informática básica e Hardware) e as aulas ficam em foundation-content/hardware-so.ts.
   },
   { id: "impressora-3d", title: "Impressora 3D", category: "tecnologia", tags: ["Tecnologia", "Criação", "Mão na massa"],
     hook: "Tire uma ideia da cabeça e segure ela na mão.",
@@ -79,8 +78,8 @@ export const COURSES: Course[] = [
     learn: ["Regras do dominó e das variações mais jogadas", "Contar pedras e prever o jogo do adversário", "Jogar em dupla com estratégia", "Saber a hora de fechar ou segurar o jogo"],
     description: "Regras, contagem de pedras e as jogadas que fazem diferença na mesa." },  { id: "jogos", title: "Jogos", category: "jogos", tags: ["Estratégia", "Diversão", "Criação", "Equipe"],
     hook: "Saia do controle e passe para a criação.",
-    learn: ["Conhecer gêneros, plataformas e a história dos games", "Entender o que torna um jogo divertido", "Saber como um jogo é criado e quem faz o quê", "Transformar regras em instruções de programação", "Planejar, testar e apresentar o seu próprio jogo"],
-    description: "Como os jogos são feitos, do design à programação básica, até criar o seu primeiro jogo." },
+    learn: ["Diferenciar jogos online e offline e saber onde se joga", "Reconhecer os tipos de jogos", "Identificar personagens, cenários, objetivos e regras", "Saber como um jogo é criado e quem faz o quê", "Entender atualizações, capas e trailers"],
+    description: "Jogos online e offline, tipos de jogos, os elementos de um jogo e como ele é criado, das etapas aos profissionais." },
   {
     id: "futebol", title: "Futebol", category: "esporte", tags: ["Esporte", "Equipe", "Saúde", "Estratégia"],
     hook: "Do campo à quadra e à areia: jogue melhor e em equipe.",

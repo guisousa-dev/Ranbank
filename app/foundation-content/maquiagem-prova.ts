@@ -1,0 +1,133 @@
+// Perguntas da prova final de Maquiagem. A roleta sorteia 10, equilibrando os módulos.
+// A primeira opção é sempre a certa; a ordem é embaralhada na hora de mostrar.
+
+import type { QuizQuestion } from "../foundation-lessons";
+
+export const PROVA_MAQUIAGEM: QuizQuestion[] = [
+  {
+    module: 0,
+    question: "No teste do lenço, saiu muito óleo em tudo. Qual é o tipo de pele?",
+    options: ["Oleosa.", "Mista.", "Seca.", "Normal."],
+    why: "Óleo só na zona T seria pele mista.",
+    ref: "Aula 1 · Preparar e cuidar da pele",
+  },
+  {
+    module: 0,
+    question: "Que acabamento de base a tabela indica para a pele seca?",
+    options: ["Iluminado.", "Matte.", "Aveludado.", "Opaco."],
+    why: "O acabamento matte é o indicado para a pele oleosa.",
+    ref: "Aula 1 · Preparar e cuidar da pele",
+  },
+  {
+    module: 0,
+    question: "Por que não dormir de maquiagem, segundo a aula?",
+    options: ["Entope os poros e pode causar espinhas.", "Mancha a fronha e o travesseiro para sempre.", "A maquiagem perde a validade mais rápido.", "Deixa a pele mais seca."],
+    why: "E também irrita os olhos.",
+    ref: "Aula 1 · Preparar e cuidar da pele",
+  },
+  {
+    module: 0,
+    question: "Que demaquilantes a aula cita?",
+    options: ["Água micelar, óleo ou leite de limpeza.", "Álcool, acetona ou água oxigenada.", "Só sabonete em barra e bastante água quente.", "Tônico, esfoliante ou argila."],
+    why: "Num algodão, sem esfregar com força.",
+    ref: "Aula 1 · Preparar e cuidar da pele",
+  },
+  {
+    module: 0,
+    question: "Segundo a aula, o que faz a maquiagem parecer melhor e durar mais?",
+    options: ["Uma pele bem cuidada.", "Muitas camadas de base.", "Produtos mais caros.", "Pó por cima de tudo."],
+    why: "Maquiagem bonita começa numa pele bem cuidada.",
+    ref: "Aula 1 · Preparar e cuidar da pele",
+  },
+  {
+    module: 1,
+    question: "Veias esverdeadas, e o dourado fica melhor em você. Qual é o subtom provável?",
+    options: ["Quente.", "Frio.", "Neutro.", "Escuro."],
+    why: "Escuro é tom, não subtom.",
+    ref: "Aula 2 · Base e corretivo no seu tom",
+  },
+  {
+    module: 1,
+    question: "E se as respostas dos testes de subtom se misturam?",
+    options: ["O subtom provavelmente é neutro.", "O teste precisa ser refeito no escuro.", "A pele é do tipo mista.", "O subtom é frio."],
+    why: "Neutro é um pouco dos dois.",
+    ref: "Aula 2 · Base e corretivo no seu tom",
+  },
+  {
+    module: 1,
+    question: "Para a olheira, qual tom de corretivo a aula indica?",
+    options: ["Um pouco mais claro que a base.", "O mesmo tom da base.", "Um pouco mais escuro que a base.", "Verde, por cima da base."],
+    why: "Para manchas e espinhas, o mesmo tom da pele.",
+    ref: "Aula 2 · Base e corretivo no seu tom",
+  },
+  {
+    module: 1,
+    question: "Em peles escuras, que cor a aula indica para neutralizar a olheira arroxeada?",
+    options: ["Laranja.", "Verde.", "Lilás.", "Amarelo."],
+    why: "Nas demais peles, salmão ou pêssego.",
+    ref: "Aula 2 · Base e corretivo no seu tom",
+  },
+  {
+    module: 1,
+    question: "Como preencher as falhas da sobrancelha na maquiagem do dia a dia?",
+    options: ["No tom dos fios, em traços curtos.", "Com lápis preto, num traço só e contínuo.", "Com base, para disfarçar as falhas.", "Com sombra bem mais escura que os fios."],
+    why: "Antes, penteie com uma escovinha.",
+    ref: "Aula 3 · Maquiagem rápida para o dia a dia",
+  },
+  {
+    module: 1,
+    question: "Que tom de produto se usa no contorno?",
+    options: ["Um pouco mais escuro que a pele.", "Bem mais claro que a pele, para iluminar.", "O mesmo tom da base.", "Um tom rosado, como o blush."],
+    why: "E bem esfumado, para não virar mancha.",
+    ref: "Aula 4 · Produção para ocasiões especiais",
+  },
+  {
+    module: 1,
+    question: "Como fazer o batom durar mais, segundo a aula?",
+    options: ["Lápis, batom, tirar o excesso e outra camada.", "Várias camadas de gloss, uma em cima da outra.", "Pó translúcido por cima do batom.", "Batom só no centro da boca."],
+    why: "O excesso sai com um lenço.",
+    ref: "Aula 4 · Produção para ocasiões especiais",
+  },
+  {
+    module: 1,
+    question: "O que a aula diz sobre cílios postiços?",
+    options: ["São opcionais e nunca se dorme com eles.", "São obrigatórios em produções de festa.", "Podem ficar até três dias se a cola for boa.", "Colam com qualquer cola."],
+    why: "Use cola própria para cílios.",
+    ref: "Aula 4 · Produção para ocasiões especiais",
+  },
+  {
+    module: 2,
+    question: "Quanto tempo duram batom e lápis depois de abertos?",
+    options: ["12 a 24 meses.", "3 a 6 meses.", "6 a 12 meses.", "Mais de 36 meses."],
+    why: "Rímel e delineador líquido são os que duram menos.",
+    ref: "Aula 5 · Pincéis, produtos e higiene",
+  },
+  {
+    module: 2,
+    question: "Como deixar o pincel secar?",
+    options: ["Deitado ou com as cerdas para baixo.", "Em pé num copo, com as cerdas para cima.", "No secador, com ar quente.", "Embrulhado na toalha úmida."],
+    why: "Água no cabo solta a cola das cerdas.",
+    ref: "Aula 5 · Pincéis, produtos e higiene",
+  },
+  {
+    module: 2,
+    question: "Com que frequência lavar os pincéis de base e corretivo?",
+    options: ["Toda semana.", "A cada duas semanas.", "Depois de cada uso.", "Uma vez por mês."],
+    why: "Depois de cada uso é a esponja.",
+    ref: "Aula 5 · Pincéis, produtos e higiene",
+  },
+  {
+    module: 2,
+    question: "Que dica a aula dá para saber quando um produto foi aberto?",
+    options: ["Escrever no fundo o mês em que foi aberto.", "Guardar a nota fiscal junto com o produto.", "Cheirar o produto toda semana para conferir.", "Olhar a data de fabricação."],
+    why: "Com caneta permanente.",
+    ref: "Aula 5 · Pincéis, produtos e higiene",
+  },
+  {
+    module: 2,
+    question: "Com que produto lavar os pincéis?",
+    options: ["Sabonete neutro ou xampu suave.", "Detergente de louça e água bem quente.", "Álcool puro.", "Demaquilante bifásico."],
+    why: "Esfregando as cerdas na palma da mão, em círculos.",
+    ref: "Aula 5 · Pincéis, produtos e higiene",
+  },
+];
