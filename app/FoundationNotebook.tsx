@@ -367,7 +367,7 @@ export function ModuleQuizCard({ quiz, moduleTitle }: { quiz: ModuleQuiz; module
   const band = hits >= 8 ? "Você domina o módulo." : hits >= 5 ? "Bom caminho. Releia as aulas indicadas nas questões que errou." : "Vale rever as três aulas antes de seguir.";
   return (
     <div className="nb-quiz" data-ruled>
-      <p>{total} perguntas sobre {moduleTitle.toLowerCase()}. A resposta e a explicação aparecem na hora.</p>
+      <p>{total} perguntas sobre o módulo “{moduleTitle}”. A resposta e a explicação aparecem na hora.</p>
       {quiz.questions.map((question, index) => {
         const chosen = picks[index];
         return (
