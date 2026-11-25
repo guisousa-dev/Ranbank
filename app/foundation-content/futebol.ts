@@ -379,7 +379,6 @@ export const FUTEBOL: CourseContent = {
                   ["1-2-1", "Um fixo atrás, dois alas pelos lados e um pivô na frente", "Equilíbrio entre defesa e ataque"],
                   ["4-0", "Os quatro de linha se movimentam e trocam de posição, sem pivô fixo", "Circulação de bola, movimentação constante e criação de espaços"],
                 ] } },
-                { image: "/images/fundacao/aulas/futebol/futsal-formacao-e-tatica.webp", alt: "Infográfico \"Futsal: formação e tática\". Formação básica: a mais usada é o 2-2, com goleiro, dois meias (armadores) e dois atacantes (pivô e alas). Táticas principais: posse de bola (trocar passes e manter o controle do jogo), movimento sem bola (se movimentar para criar espaços e receber o passe), pressão (marcar o adversário logo na saída de bola) e contra-ataque (aproveitar os espaços para atacar rápido após recuperar a bola). Outras formações: 3-1, mais defensiva, com um fixo; 1-2-1, equilíbrio entre defesa e ataque; 4-0, muito ofensiva, sem pivô. Detalhando o 2-2: os laterais ajudam no ataque e na defesa, os meias equilibram o time e o goleiro pode participar do jogo com passes. Dicas extras: marque forte, mas sem cometer faltas; use o pivô para fazer o time jogar; mantenha a calma e toque rápido; trabalhe o coletivo, não jogue sozinho. Resumo: no futsal, a formação mais comum é o 2-2, mas o importante é jogar junto, se movimentar bem e usar a tática certa para defender e atacar com eficiência." },
               ],
             },
             {
