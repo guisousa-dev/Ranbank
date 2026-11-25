@@ -150,7 +150,7 @@ html[data-site-theme="light"] .fc-lesson.nb-desk .fc-player-top small { color: #
   background-image:
     linear-gradient(to right, transparent 70px, var(--nb-margin) 70px, var(--nb-margin) 72px, transparent 72px),
     repeating-linear-gradient(to bottom, transparent 0 31px, var(--nb-rule) 31px 32px);
-  background-position: 0 0, 0 -6px;
+  background-position: 0 0, 0 -8px;
   box-shadow: 0 24px 50px rgba(0, 0, 0, 0.3), 6px 6px 0 -2px var(--nb-paper-edge), 12px 12px 0 -4px color-mix(in srgb, var(--nb-paper-edge) 70%, var(--nb-desk));
   color: var(--nb-text); font-size: 18px; line-height: var(--nb-line-h);
   transform-origin: left center; animation: nb-turn .5s cubic-bezier(.3, .7, .2, 1);
@@ -160,6 +160,12 @@ html[data-site-theme="light"] .fc-lesson.nb-desk .fc-player-top small { color: #
 /* Ritmo das linhas: tudo começa e termina numa linha */
 .nb-page [data-ruled] > * { margin: 0 0 var(--nb-line-h); }
 .nb-page p, .nb-page li { line-height: var(--nb-line-h); }
+/* Letra em cima da linha: a pauta passa logo abaixo da base do texto corrido. A letra de mão é maior e fica mais
+   baixa na mesma altura de linha, então sobe um pouco para assentar na mesma pauta. */
+.nb-page [data-ruled] > h3 { translate: 0 -4px; }
+.nb-page [data-ruled] > h2 { translate: 0 1px; }
+.nb-page [data-ruled] > .nb-eyebrow { translate: 0 2px; }
+.nb-page .nb-recap li { translate: 0 -2px; }
 .nb-page h2 {
   margin: 0; padding-top: 8px; font-family: var(--font-hand), "Segoe Print", cursive; font-size: clamp(40px, 5vw, 52px); font-weight: 700;
   line-height: 56px; letter-spacing: 0; color: var(--nb-text);
@@ -403,7 +409,7 @@ html[data-site-theme="light"] .nb-page .fc-box.is-atencao { --box: #9a6408; }
     background-image:
       linear-gradient(to right, transparent 14px, var(--nb-margin) 14px, var(--nb-margin) 15px, transparent 15px),
       repeating-linear-gradient(to bottom, transparent 0 31px, var(--nb-rule) 31px 32px);
-    background-position: 0 0, 0 -14px;
+    background-position: 0 0, 0 -16px;
   }
   .nb-pasted, .nb-page .fc-box, .nb-page .fc-table, .nb-page .fc-tool { padding: 18px 14px 16px; margin-left: -10px; margin-right: -6px; }
   .nb-lessons { margin-top: 0; }

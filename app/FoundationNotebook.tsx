@@ -113,22 +113,26 @@ export function useRuledPaper(ref: RefObject<HTMLElement | null>, key: string) {
   useEffect(() => {
     const root = ref.current;
     if (!root || typeof ResizeObserver === "undefined") return;
-    const snap = (element: HTMLElement) => {
-      const height = Math.round(element.getBoundingClientRect().height);
+    // A altura vem do ResizeObserver, que mede o bloco sem a animação de virar a página (getBoundingClientRect
+    // pegava a folha ainda girada e errava a sobra). As frações ficam: arredondar empurrava o texto para fora da linha.
+    const snap = (element: HTMLElement, height: number) => {
       const extra = (LINE - (height % LINE)) % LINE;
       const gap = element.dataset.tight !== undefined ? 0 : LINE;
-      const margin = `${gap + extra}px`;
+      const margin = `${Math.round((gap + (extra > 0.01 && extra < LINE - 0.01 ? extra : 0)) * 100) / 100}px`;
       if (element.style.marginBottom !== margin) element.style.marginBottom = margin;
     };
     // As medidas mudam junto com a margem: o ajuste espera o próximo quadro para não entrar em ciclo.
-    const pending = new Set<HTMLElement>();
+    const pending = new Map<HTMLElement, number>();
     let frame = 0;
     const observer = new ResizeObserver((entries) => {
-      entries.forEach((entry) => pending.add(entry.target as HTMLElement));
+      entries.forEach((entry) => {
+        const box = entry.borderBoxSize?.[0];
+        pending.set(entry.target as HTMLElement, box ? box.blockSize : (entry.target as HTMLElement).offsetHeight);
+      });
       if (frame) return;
       frame = window.requestAnimationFrame(() => {
         frame = 0;
-        pending.forEach(snap);
+        pending.forEach((height, element) => snap(element, height));
         pending.clear();
       });
     });
