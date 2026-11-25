@@ -19,6 +19,8 @@ export const EDUCACAO_FINANCEIRA: CourseContent = {
     { id: "mestre-do-modulo-2", name: "Orçamento na mão", how: "Acertou 8 ou mais no quiz do Módulo 2." },
     { id: "parcela-que-cabe", name: "Parcela que cabe", how: "Testou uma compra nova sem passar de 20% da renda em nenhum mês." },
     { id: "mestre-do-modulo-3", name: "Crédito sob controle", how: "Acertou 8 ou mais no quiz do Módulo 3." },
+    { id: "etiqueta-decifrada", name: "Etiqueta decifrada", how: "Comparou duas ou mais opções pelo preço por unidade." },
+    { id: "mestre-do-modulo-4", name: "Consumidor atento", how: "Acertou 8 ou mais no quiz do Módulo 4." },
   ],
   modules: [
     {
@@ -949,7 +951,267 @@ export const EDUCACAO_FINANCEIRA: CourseContent = {
         ],
       },
     },
-    { title: "Consumo consciente", lessons: [] },
+    {
+      title: "Consumo consciente",
+      lessons: [
+        {
+          id: "comprar-com-consciencia",
+          title: "Comprar com consciência",
+          summary: "Olhar além da etiqueta: custo por uso, custo de ter e os cuidados antes de uma compra grande.",
+          goals: ["Calcular o custo por uso de uma compra", "Somar o custo total de ter um produto", "Checar a loja e o produto antes de comprar"],
+          sections: [
+            {
+              title: "O preço da etiqueta não é o preço da compra",
+              body: [
+                "No Módulo 1 você viu como as emoções e as promoções puxam a compra por impulso. Aqui o foco é outro: quando a compra é planejada, como saber se ela vale o que custa?",
+                "Uma boa conta é o custo por uso: o preço dividido pelo número de vezes que você vai usar. Ela mostra que o mais barato na etiqueta nem sempre é o mais barato na vida.",
+                {
+                  table: {
+                    caption: "Os tênis da Carla",
+                    head: ["Tênis", "Preço", "Usos até gastar", "Custo por uso"],
+                    rows: [
+                      ["Mais barato", "R$ 120", "cerca de 80", "R$ 1,50"],
+                      ["Mais resistente", "R$ 300", "cerca de 300", "R$ 1,00"],
+                    ],
+                  },
+                },
+                "O mesmo vale ao contrário: uma blusa de R$ 80 \"com 50% de desconto\" que Carla usaria só 4 vezes custa R$ 20 por uso. O desconto não muda o fato de que ela quase não seria usada.",
+                {
+                  check: {
+                    question: "Uma furadeira de R$ 250 seria usada umas 5 vezes por ano. Um vizinho aluga uma por R$ 20 o dia. Pelo custo por uso, o que faz mais sentido no primeiro ano?",
+                    options: ["Comprar, porque a furadeira fica para sempre.", "Alugar: 5 dias custam R$ 100, menos da metade do preço.", "Comprar, porque R$ 250 é um valor baixo para uma ferramenta."],
+                    answer: 1,
+                    why: "Comprando, o primeiro ano sai a R$ 50 por uso. Alugando, R$ 20 por uso, e o dinheiro fica livre. Comprar passa a valer a pena se o uso aumentar bastante.",
+                  },
+                },
+              ],
+            },
+            {
+              title: "O custo de ter",
+              body: [
+                "Muitos produtos continuam custando depois da compra: acessórios, manutenção, assinatura, energia, seguro. Antes de decidir, some tudo o que vem junto.",
+                { box: "exemplo", title: "O videogame do Nando", text: "O console custa R$ 2.500. Nando compra uns 4 jogos por ano, a R$ 250 cada, e precisa da assinatura online de R$ 40 por mês para jogar com os amigos. No primeiro ano, o videogame custa R$ 2.500 + R$ 1.000 + R$ 480 = R$ 3.980, e a partir do segundo, R$ 1.480 por ano." },
+                "Com carro é ainda mais forte: além da parcela, entram combustível, seguro, IPVA, licenciamento, manutenção e estacionamento. Quem olha só a parcela costuma ver o orçamento estourar nos meses seguintes.",
+              ],
+            },
+            {
+              title: "Antes de uma compra grande",
+              body: [
+                {
+                  list: [
+                    "Compare pelo menos três lojas, contando o frete.",
+                    "Leia avaliações de quem já comprou e veja como a loja responde às reclamações em sites como o consumidor.gov.br.",
+                    "Confira se a loja tem CNPJ, endereço e canais de atendimento. Desconfie de preço muito abaixo de todas as outras.",
+                    "Veja a garantia e quem dá assistência técnica na sua cidade.",
+                    "Pague por meios que permitem contestar, como cartão ou boleto de empresa conhecida. Pix para pessoa física desconhecida é difícil de recuperar.",
+                  ],
+                },
+                { box: "atencao", title: "Loja falsa", text: "Golpistas criam sites e perfis bonitos com preços bem abaixo do mercado, quase sempre pedindo Pix e com \"últimas unidades\". Se o preço parece bom demais e a loja não tem CNPJ nem histórico, não compre." },
+              ],
+            },
+          ],
+          activity: {
+            title: "O custo de verdade",
+            steps: ["Escolha uma compra que você fez ou quer fazer e faça as contas."],
+            fields: [
+              "O produto e o preço:",
+              "Quantas vezes vou usar (ou usei) e o custo por uso:",
+              "Os custos que vêm depois da compra:",
+              "Depois das contas, essa compra vale a pena? Por quê?",
+            ],
+            answer: "Não existe resposta certa única: o objetivo é decidir com os números na mão. Um custo por uso alto não proíbe a compra, mas mostra que ela é um desejo, e desejos entram na parte dos 30% do orçamento, não no lugar das metas.",
+          },
+          recap: [
+            "Custo por uso é o preço dividido pelas vezes que você vai usar.",
+            "Some o custo de ter: acessórios, manutenção, assinaturas e taxas.",
+            "Antes de uma compra grande, compare lojas, cheque a loja e prefira meios de pagamento contestáveis.",
+          ],
+        },
+        {
+          id: "comparar-precos",
+          title: "Comparando preços e promoções",
+          summary: "Preço por unidade, frete, à vista ou parcelado e as promoções que não são promoção.",
+          goals: ["Comparar produtos pelo preço por quilo, litro ou unidade", "Incluir frete e taxas na comparação", "Decidir entre à vista e parcelado e reconhecer descontos falsos"],
+          sections: [
+            {
+              title: "O preço por unidade",
+              body: [
+                "Embalagens diferentes escondem o preço real. O jeito de comparar é dividir o preço pela quantidade: quanto sai o quilo, o litro ou a unidade. Nos supermercados, a etiqueta da prateleira costuma mostrar esse valor em letras pequenas.",
+                {
+                  table: {
+                    caption: "O sabão da Patrícia",
+                    head: ["Embalagem", "Preço", "Preço por litro"],
+                    rows: [
+                      ["1 litro", "R$ 12,00", "R$ 12,00"],
+                      ["3 litros", "R$ 30,00", "R$ 10,00"],
+                    ],
+                  },
+                },
+                "A embalagem maior só compensa se você vai usar tudo antes de estragar ou vencer. O mesmo vale para o \"leve 3, pague 2\": é um bom desconto para o que você já ia comprar, e um gasto a mais para o que não ia.",
+                { box: "atencao", title: "A embalagem que encolhe", text: "Às vezes o preço fica igual e a quantidade diminui. Um biscoito que tinha 200 g passa a ter 160 g pelos mesmos R$ 5: o preço a cada 100 g sobe de R$ 2,50 para cerca de R$ 3,13, uma alta de 25%. Olhe o peso, não só o preço." },
+              ],
+            },
+            {
+              title: "Frete, taxas e o preço final",
+              body: [
+                "Na internet, compare sempre o preço final, com frete e taxas. O produto mais barato pode sair mais caro quando chega na sua casa.",
+                {
+                  table: {
+                    caption: "O fone do Renato",
+                    head: ["Loja", "Produto", "Frete", "Total"],
+                    rows: [
+                      ["A", "R$ 189", "R$ 35", "R$ 224"],
+                      ["B", "R$ 209", "Grátis", "R$ 209"],
+                      ["C", "R$ 199", "R$ 15", "R$ 214"],
+                    ],
+                  },
+                },
+                "Teste no comparador abaixo. Ele faz a conta do preço por quilo, litro ou unidade, já com o frete.",
+                { tool: "comparador" },
+              ],
+            },
+            {
+              title: "À vista ou parcelado?",
+              body: [
+                "\"Em 10 vezes sem juros\" parece de graça. Mas, se a loja dá desconto para quem paga à vista, o parcelado custa mais: a diferença é o juro escondido.",
+                { box: "exemplo", title: "A geladeira da Vitória", text: "A geladeira custa R$ 3.000 em 10 × R$ 300 ou R$ 2.700 à vista. Parcelando, Vitória paga R$ 300 a mais. Ela já tinha guardado o dinheiro para essa compra, separado da reserva de emergência, então pagar à vista foi o melhor negócio." },
+                "Se não há desconto à vista e as parcelas cabem no orçamento, parcelar sem juros pode fazer sentido. E se a pessoa não tem o dinheiro, juntar antes de comprar costuma sair mais barato que parcelar com juros.",
+              ],
+            },
+            {
+              title: "Promoções que não são promoção",
+              body: [
+                "Em datas como a Black Friday, algumas lojas aumentam o preço semanas antes para depois anunciar um \"desconto\". O preço \"de\" é inventado, e o \"por\" é o mesmo de sempre.",
+                {
+                  list: [
+                    "Acompanhe o preço com antecedência: sites e aplicativos comparadores mostram o histórico.",
+                    "Faça a lista do que você precisa antes da data, para não comprar só porque está barato.",
+                    "Desconfie de contagem regressiva e de \"últimas unidades\": é pressão, como você viu no Módulo 1.",
+                  ],
+                },
+                {
+                  check: {
+                    question: "Um produto custava R$ 150 em outubro. Na Black Friday, aparece \"de R$ 250 por R$ 150\". Qual é o desconto real?",
+                    options: ["40%, como mostra o anúncio.", "Nenhum: o preço é o mesmo de outubro.", "R$ 100, a diferença entre o \"de\" e o \"por\"."],
+                    answer: 1,
+                    why: "O que vale é comparar com o preço de antes. Se em outubro já custava R$ 150, o \"de R$ 250\" foi inflado para parecer desconto.",
+                  },
+                },
+              ],
+            },
+          ],
+          activity: {
+            title: "Detetive de preços",
+            steps: ["Na próxima ida ao mercado ou numa compra pela internet, compare um produto em pelo menos duas embalagens ou lojas."],
+            fields: [
+              "O produto e as opções que comparei (preço e quantidade de cada uma):",
+              "O preço por quilo, litro ou unidade de cada uma, com o frete se tiver:",
+              "Qual saiu mais barato e quanto economizei:",
+            ],
+            answer: "Pegue o preço final (com frete e taxas) e divida pela quantidade. Se uma opção é maior, confira se você vai usar tudo antes de vencer. Muitas vezes a diferença por compra é pequena, mas repetida todo mês ela vira uma boa economia no ano.",
+          },
+          recap: [
+            "Compare pelo preço por quilo, litro ou unidade, e olhe o peso da embalagem.",
+            "Na internet, o que vale é o preço final, com frete e taxas.",
+            "Com desconto à vista, o parcelado \"sem juros\" custa mais; e desconfie do preço \"de\" inflado.",
+          ],
+        },
+        {
+          id: "direitos-e-sustentabilidade",
+          title: "Seus direitos e o consumo sustentável",
+          summary: "O que o Código de Defesa do Consumidor garante e como gastar menos gastando melhor.",
+          goals: ["Conhecer o direito de arrependimento e a garantia legal", "Saber onde reclamar", "Usar o consumo sustentável a favor do bolso"],
+          sections: [
+            {
+              title: "O que a lei garante",
+              body: [
+                "O Código de Defesa do Consumidor protege quem compra. Conhecer os pontos principais evita prejuízo e discussão no balcão.",
+                {
+                  table: {
+                    caption: "Situações comuns",
+                    head: ["Situação", "O que a lei diz"],
+                    rows: [
+                      ["Compra pela internet, telefone ou fora da loja", "Você tem 7 dias para desistir, sem precisar explicar, contados do recebimento. O dinheiro volta todo, com o frete."],
+                      ["Produto com defeito", "Você tem 30 dias (não duráveis, como alimentos) ou 90 dias (duráveis, como eletrodomésticos) para reclamar. Se o conserto não sair em 30 dias, você escolhe: troca, dinheiro de volta ou desconto no preço."],
+                      ["Troca por tamanho, cor ou gosto, em loja física", "A lei não obriga. Vale o que a loja prometeu, então pergunte antes e peça por escrito."],
+                      ["Preço da etiqueta diferente do caixa", "Você paga o menor preço."],
+                    ],
+                  },
+                },
+                {
+                  check: {
+                    question: "Vitória comprou um fone pela internet, recebeu no dia 10 e, no dia 15, desistiu. Ele não tem defeito. O que ela pode fazer?",
+                    options: ["Nada: sem defeito, não há devolução.", "Devolver, mas pagando o frete de volta.", "Devolver e receber tudo de volta, inclusive o frete."],
+                    answer: 2,
+                    why: "Compras fora da loja têm 7 dias de arrependimento a partir do recebimento. Do dia 10 ao 15 são 5 dias, e o valor volta inteiro, com o frete.",
+                  },
+                },
+              ],
+            },
+            {
+              title: "Onde reclamar",
+              body: [
+                {
+                  ordered: true,
+                  list: [
+                    "Primeiro, o atendimento da própria loja. Anote o número do protocolo, a data e o nome de quem atendeu.",
+                    "Se não resolver, registre a reclamação no consumidor.gov.br, o site oficial em que a empresa precisa responder.",
+                    "Ainda sem solução, procure o Procon da sua cidade. Em casos maiores, o Juizado Especial Cível atende sem advogado para valores de até 20 salários mínimos.",
+                  ],
+                },
+                "Guarde sempre a nota fiscal, o comprovante de pagamento e as conversas com a loja. Sem prova, fica difícil exigir o direito.",
+              ],
+            },
+            {
+              title: "Consumo sustentável também economiza",
+              body: [
+                "Consumir de forma consciente é pensar no bolso e também no impacto da compra. Na maior parte das vezes, as duas coisas andam juntas.",
+                {
+                  cards: [
+                    { title: "Consertar", text: "Trocar a bateria de um celular que funciona bem custa bem menos que um aparelho novo e evita lixo eletrônico." },
+                    { title: "Comprar usado", text: "Roupas, livros, móveis e eletrônicos seminovos de lojas confiáveis custam uma fração do novo." },
+                    { title: "Emprestar ou alugar", text: "O que se usa pouco, como a furadeira da Aula 1, pode ser dividido com vizinhos ou alugado." },
+                    { title: "Não desperdiçar", text: "Planejar as refeições e comprar com lista evita jogar comida, e dinheiro, no lixo." },
+                    { title: "Descartar certo", text: "Pilhas, baterias e eletrônicos vão para pontos de coleta, que muitas lojas e supermercados têm." },
+                  ],
+                },
+                { box: "chave", title: "Ponto-chave", text: "O produto que dura mais costuma ser o mais barato por uso e o que gera menos lixo. Durabilidade é economia e sustentabilidade ao mesmo tempo." },
+              ],
+            },
+          ],
+          activity: {
+            title: "Meu jeito de consumir",
+            steps: ["Responda pensando no último mês."],
+            fields: [
+              "Algo que eu poderia ter consertado, comprado usado ou pegado emprestado:",
+              "Um direito do consumidor que eu não conhecia e quando ele me seria útil:",
+              "Uma mudança no meu consumo que ajuda o bolso e o ambiente:",
+            ],
+            answer: "Boas mudanças são pequenas e concretas: \"vou levar lista ao mercado\", \"antes de trocar o celular, vou ver quanto custa o conserto\", \"vou guardar as notas fiscais das compras grandes\". Escolha uma e teste por um mês.",
+          },
+          recap: [
+            "Compra fora da loja tem 7 dias de arrependimento; defeito tem 30 ou 90 dias para reclamar.",
+            "Reclame na loja, depois no consumidor.gov.br e no Procon, sempre com as provas guardadas.",
+            "Consertar, comprar usado e não desperdiçar economiza e gera menos lixo.",
+          ],
+        },
+      ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-4", min: 8 },
+        questions: [
+          { question: "Carla viu uma blusa \"de R$ 160 por R$ 80\" que usaria umas 4 vezes, e uma calça de R$ 160 que usaria umas 80 vezes. Pelo custo por uso, como as duas se comparam?", options: ["As duas saem iguais, porque a blusa está com 50% de desconto.", "Blusa: R$ 20 por uso; calça: R$ 2 por uso.", "A blusa é melhor, porque custa a metade da calça.", "Blusa: R$ 2 por uso; calça: R$ 20 por uso."], answer: 1, why: "Custo por uso é o preço dividido pelas vezes que se usa: R$ 80 ÷ 4 = R$ 20 e R$ 160 ÷ 80 = R$ 2. O desconto não muda o fato de que a blusa quase não seria usada." },
+          { question: "O console de Nando custa R$ 2.500. Ele compra 4 jogos por ano a R$ 250 e paga uma assinatura online de R$ 40 por mês. Quanto o videogame custa no primeiro ano?", options: ["R$ 2.500", "R$ 3.500", "R$ 2.980", "R$ 3.980"], answer: 3, why: "R$ 2.500 do console + R$ 1.000 em jogos + R$ 480 de assinatura (12 × R$ 40) = R$ 3.980. Olhar só a etiqueta esconde o custo de ter o produto." },
+          { question: "O celular de Patrícia tem 2 anos, funciona bem, mas a bateria está fraca. Um novo custa R$ 1.800; trocar a bateria custa R$ 250 e dá mais uns 2 anos de uso. Qual atitude o módulo indica?", options: ["Trocar a bateria: gasta bem menos e gera menos lixo eletrônico.", "Comprar o novo, porque consertar aparelho antigo é dinheiro perdido.", "Comprar o novo parcelado, já que as parcelas cabem no orçamento.", "Esperar a bateria parar de vez e só então decidir o que fazer."], answer: 0, why: "Consertar o que ainda funciona bem custa uma fração do novo e evita lixo eletrônico. Parcelas que cabem não mudam o fato de que o gasto não era necessário agora." },
+          { question: "Um biscoito tinha 200 g e passou a ter 160 g, pelos mesmos R$ 5. O que aconteceu com o preço?", options: ["Não mudou, porque o pacote continua custando R$ 5.", "Subiu 20%, a mesma redução que teve o peso.", "Subiu 25%: de R$ 2,50 para cerca de R$ 3,13 a cada 100 g.", "Caiu, porque o pacote menor custa menos para fabricar."], answer: 2, why: "R$ 5 ÷ 2 = R$ 2,50 a cada 100 g antes; R$ 5 ÷ 1,6 ≈ R$ 3,13 depois. O peso caiu 20%, mas o preço por grama subiu 25%. Por isso vale olhar o peso, não só o preço." },
+          { question: "Renato vai comprar um fone. Loja A: R$ 189 + R$ 35 de frete. Loja B: R$ 209 com frete grátis. Loja C: R$ 199 + R$ 15 de frete. Onde sai mais barato?", options: ["Na loja A, que tem o menor preço do produto.", "Na loja B, que sai R$ 209 no total.", "Na loja C, que sai R$ 199 no total.", "Tanto faz, porque o frete é cobrado à parte."], answer: 1, why: "Os totais são R$ 224 (A), R$ 209 (B) e R$ 214 (C). O que vale é o preço final, com frete. Na C, o total é R$ 214, não R$ 199." },
+          { question: "A geladeira custa R$ 3.000 em 10 × R$ 300 sem juros, ou R$ 2.700 à vista. Vitória já tem os R$ 2.700 guardados, fora da reserva. Qual é a melhor escolha?", options: ["Parcelar, porque sem juros o preço final é o mesmo.", "Parcelar e deixar os R$ 2.700 rendendo para cobrir a diferença.", "Pagar à vista: o parcelado custa R$ 300 a mais.", "Tanto faz, já que as parcelas caberiam no orçamento dela."], answer: 2, why: "Com desconto à vista, o \"sem juros\" tem juros escondidos: R$ 300. Deixar o dinheiro rendendo não cobre isso, porque o saldo cai R$ 300 a cada mês e rende bem menos que 10% no período." },
+          { question: "Um produto custava R$ 150 em outubro. Na Black Friday, aparece \"de R$ 250 por R$ 150, só hoje\". O que isso mostra?", options: ["Um desconto de 40%, como diz o anúncio.", "Um desconto de R$ 100, que só vale aproveitar no dia.", "Um desconto real, porque a loja não pode inventar o preço \"de\".", "Não há desconto: o preço é o mesmo de outubro."], answer: 3, why: "O desconto real se mede pelo preço de antes. Se já custava R$ 150, o \"de R$ 250\" foi inflado, e o \"só hoje\" é pressão para decidir rápido." },
+          { question: "Vitória comprou um fone pela internet, recebeu no dia 10 e, no dia 15, desistiu da compra. O fone não tem defeito. O que diz a lei?", options: ["Ela pode desistir e receber tudo de volta, inclusive o frete.", "Ela só pode devolver se o fone tiver algum defeito.", "Ela pode devolver, mas o frete de volta fica por conta dela.", "Ela perdeu o prazo, que conta a partir do dia da compra."], answer: 0, why: "Compra fora da loja tem 7 dias de arrependimento, contados do recebimento: do dia 10 ao 15 são 5 dias. O valor volta inteiro, com o frete." },
+          { question: "A máquina de lavar de Sílvio parou com 2 meses de uso. Ele mandou para a assistência há 30 dias e ainda não consertaram. O que ele pode fazer?", options: ["Esperar o conserto, porque a lei não define prazo.", "Nada, porque a garantia legal é de só 30 dias.", "Escolher entre troca, dinheiro de volta ou desconto no preço.", "Pedir só um novo conserto, já que a troca não é prevista."], answer: 2, why: "Máquina de lavar é durável: são 90 dias para reclamar do defeito. Se o conserto não sai em 30 dias, o consumidor escolhe entre troca, dinheiro de volta ou abatimento." },
+          { question: "Caio comprou uma camiseta numa loja física. Ela não tem defeito, mas ele não gostou da cor. O que diz a lei?", options: ["Ele tem 7 dias para trocar, como em qualquer compra.", "A troca não é obrigatória: vale o que a loja prometeu.", "Ele tem 30 dias para trocar, por ser um produto não durável.", "A loja é obrigada a trocar se ele apresentar a nota fiscal."], answer: 1, why: "Os 7 dias valem para compras fora da loja, e os 30 ou 90 dias, para defeitos. Troca por gosto em loja física depende do que a loja prometeu, por isso vale perguntar antes." },
+        ],
+      },
+    },
     { title: "Poupança e investimentos", lessons: [] },
   ],
 };

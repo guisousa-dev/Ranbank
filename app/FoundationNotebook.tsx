@@ -843,6 +843,98 @@ function Installments() {
   );
 }
 
+/* Comparador de preços (Módulo 4) ----------------------------------------- */
+
+type Offer = { what?: string; price?: string; qty?: string; freight?: string };
+type Measure = "peso" | "unidade";
+const MEASURES: Array<{ id: Measure; label: string; qty: string; per: string }> = [
+  { id: "peso", label: "Peso ou volume", qty: "Quantidade (g ou ml)", per: "por kg ou litro" },
+  { id: "unidade", label: "Unidades", qty: "Quantidade (unidades)", per: "por unidade" },
+];
+/** O arroz do exemplo: o pacote de 5 kg da internet é o mais barato na etiqueta, mas o frete muda tudo. */
+const RICE: { measure: Measure; offers: Offer[] } = { measure: "peso", offers: [
+  { what: "Arroz 1 kg (mercado)", price: "6,50", qty: "1000", freight: "" },
+  { what: "Arroz 5 kg (mercado)", price: "29,90", qty: "5000", freight: "" },
+  { what: "Arroz 5 kg (internet)", price: "26,90", qty: "5000", freight: "9,90" },
+] };
+
+const offerCost = (offer: Offer | undefined, measure: Measure) => {
+  const total = toNumber(offer?.price ?? "") + toNumber(offer?.freight ?? "");
+  const qty = toNumber(offer?.qty ?? "");
+  if (!total || !qty) return null;
+  return { total, unit: Math.round((total / qty) * (measure === "peso" ? 1000 : 1) * 100) / 100 };
+};
+
+function PriceCompare() {
+  const { data, update, setAnswer, earn } = useNotebook();
+  const baseId = useId();
+  const key = "ferramenta:comparador";
+  type Saved = { measure?: Measure; offers?: Offer[] };
+  const saved = (data.answers[key] as Saved | undefined) ?? {};
+  const measure = saved.measure ?? "peso";
+  const info = MEASURES.find((item) => item.id === measure) ?? MEASURES[0];
+  const offers = [0, 1, 2].map((index) => saved.offers?.[index]);
+  const costs = offers.map((offer) => offerCost(offer, measure));
+  const valid = costs.flatMap((cost, index) => (cost ? [{ ...cost, index }] : []));
+  const best = valid.length >= 2 ? valid.reduce((low, item) => (item.unit < low.unit ? item : low)) : null;
+  const worst = valid.length >= 2 ? valid.reduce((high, item) => (item.unit > high.unit ? item : high)) : null;
+  /** A que parecia mais barata antes de somar o frete. */
+  const withoutFreight = (index: number) => offerCost({ ...offers[index], freight: "" }, measure)?.unit ?? Infinity;
+  const cheapestTag = valid.length >= 2 ? valid.reduce((low, item) => (withoutFreight(item.index) < withoutFreight(low.index) ? item : low)) : null;
+  const check = (next: Saved) => {
+    const count = [0, 1, 2].filter((index) => offerCost(next.offers?.[index], next.measure ?? "peso")).length;
+    if (count >= 2) earn("etiqueta-decifrada");
+  };
+  const setMeasure = (value: Measure) => update<Saved>(key, (previous) => ({ ...previous, measure: value }));
+  const setOffer = (index: number, field: keyof Offer, text: string) => check(update<Saved>(key, (previous) => {
+    const next = [...(previous?.offers ?? [])];
+    next[index] = { ...next[index], [field]: text };
+    return { ...previous, offers: next };
+  }));
+  const name = (index: number) => offers[index]?.what?.trim() || `Opção ${LETTERS[index]}`;
+  return (
+    <div className="nb-pasted nb-tool nb-budget">
+      <p className="nb-tag">Qual sai mais barato?</p>
+      <div className="nb-segment" role="group" aria-label="Como medir">
+        {MEASURES.map((item) => <button key={item.id} type="button" aria-pressed={measure === item.id} onClick={() => setMeasure(item.id)}>{item.label}</button>)}
+      </div>
+      {offers.map((offer, index) => (
+        <fieldset key={index} className="nb-budget-group">
+          <legend>Opção {LETTERS[index]}</legend>
+          <div className="nb-fields is-four">
+            <label htmlFor={`${baseId}-${index}-what`}>O que é<input id={`${baseId}-${index}-what`} value={offer?.what ?? ""} placeholder={["Sabão 1 L", "Sabão 3 L", "Sabão 3 L (internet)"][index]} onChange={(event) => setOffer(index, "what", event.target.value)} /></label>
+            <label htmlFor={`${baseId}-${index}-price`}>Preço (R$)<input id={`${baseId}-${index}-price`} inputMode="decimal" value={offer?.price ?? ""} placeholder="0" onChange={(event) => setOffer(index, "price", event.target.value)} /></label>
+            <label htmlFor={`${baseId}-${index}-qty`}>{info.qty}<input id={`${baseId}-${index}-qty`} inputMode="decimal" value={offer?.qty ?? ""} placeholder="0" onChange={(event) => setOffer(index, "qty", event.target.value)} /></label>
+            <label htmlFor={`${baseId}-${index}-freight`}>Frete (R$)<input id={`${baseId}-${index}-freight`} inputMode="decimal" value={offer?.freight ?? ""} placeholder="0" onChange={(event) => setOffer(index, "freight", event.target.value)} /></label>
+          </div>
+        </fieldset>
+      ))}
+      <div aria-live="polite">
+        {!best || !worst ? <p className="nb-muted">Preencha o preço e a quantidade de pelo menos duas opções.</p> : (
+          <div className="nb-result">
+            <table className="nb-ledger is-compare">
+              <caption>Preço final e {info.per}</caption>
+              <thead><tr><th scope="col">Opção</th><th scope="col">Preço final</th><th scope="col">{info.per[0].toUpperCase() + info.per.slice(1)}</th></tr></thead>
+              <tbody>
+                {valid.map((item) => (
+                  <tr key={item.index} className={item.index === best.index ? "is-best" : ""}><th scope="row">{name(item.index)}</th><td>{brl(item.total)}</td><td>{brl(item.unit)}{item.index === best.index ? " · mais barato" : ""}</td></tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="nb-result-total">
+              <strong>{name(best.index)}</strong> · {best.unit === worst.unit ? "todas saem pelo mesmo preço." : `${Math.round((1 - best.unit / worst.unit) * 100)}% mais barato que ${name(worst.index)}.`}
+            </p>
+            {cheapestTag && cheapestTag.index !== best.index && <p>Repare: sem o frete, {name(cheapestTag.index)} sairia a {brl(withoutFreight(cheapestTag.index))} {info.per} e seria a mais barata. O frete mudou a conta.</p>}
+            {valid.some((item) => toNumber(offers[item.index]?.freight ?? "") > 0) && <p className="nb-muted">O frete já está somado no preço final.</p>}
+            <p className="nb-muted">A opção maior só compensa se você usar tudo antes de vencer ou estragar.</p>
+          </div>
+        )}
+      </div>
+      <button type="button" className="nb-btn is-soft" onClick={() => setAnswer(key, { measure: RICE.measure, offers: RICE.offers.map((offer) => ({ ...offer })) })}>Ver o exemplo do arroz</button>
+    </div>
+  );
+}
+
 export const NOTEBOOK_TOOLS = {
   "diagnostico-financeiro": Diagnostic,
   "gasto-formiga": AntSpending,
@@ -850,4 +942,5 @@ export const NOTEBOOK_TOOLS = {
   "simulacao-lia": TemptationMonth,
   orcamento: Budget,
   parcelas: Installments,
+  comparador: PriceCompare,
 } as const;
