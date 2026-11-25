@@ -542,6 +542,13 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   }
   for (const question of football.quiz) assert.ok(question.options.length === 4 && question.ref.startsWith("Aula "), question.question);
   assert.match(await readFile(new URL("../app/foundation-content/futebol.ts", import.meta.url), "utf8"), /sticker: \{ id: "ataque-ou-defesa", min: 8 \}/);
+  // Impressora 3D: 3 módulos com quiz, desafio final com todos os módulos e "Precisa de suporte?".
+  const printing = Object.values(await import(new URL("../app/foundation-content/impressora-3d.ts", import.meta.url).href))[0];
+  for (let index = 0; index < printing.modules.length; index++) {
+    assert.equal(printing.modules[index].quiz?.questions.length, 10, printing.modules[index].title);
+    assert.ok(printing.quiz.filter((question) => question.module === index).length >= 2, `desafio de impressora 3D: módulo ${index + 1}`);
+  }
+  assert.match(await readFile(new URL("../app/foundation-content/impressora-3d.ts", import.meta.url), "utf8"), /sticker: \{ id: "regra-dos-45", min: 7 \}/);
   // Maquiagem: 3 módulos com quiz, prova com todos os módulos e "Pode usar ou descarte?".
   const makeup = Object.values(await import(new URL("../app/foundation-content/maquiagem.ts", import.meta.url).href))[0];
   assert.deepEqual(makeup.modules.map((module) => module.lessons.length), [1, 3, 1]);
