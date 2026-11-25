@@ -37,6 +37,7 @@ export const PRIMEIROS_SOCORROS: CourseContent = {
                 "Primeiros socorros são os cuidados iniciais prestados a uma pessoa que sofreu um acidente ou teve um problema de saúde de repente. Eles acontecem enquanto se espera a equipe especializada, ou até a pessoa receber o atendimento adequado.",
                 "Uma emergência pode acontecer em casa, na escola, no trabalho ou na rua, muitas vezes quando menos esperamos. Não é preciso ser profissional da saúde para ajudar: o primeiro passo é reconhecer o risco, manter a segurança e não piorar a situação.",
                 { box: "exemplo", text: "Uma pessoa caminha na rua e, de repente, passa mal e cai. Quem está por perto pode ver se o local é seguro, ligar para o serviço de emergência e seguir as orientações do atendente. Isso já é prestar primeiros socorros." },
+                { video: { youtubeId: "1MtKw-uP1NM", title: "noções básicas de primeiros socorros", minutes: 13 } },
               ],
             },
             {
@@ -414,6 +415,7 @@ export const PRIMEIROS_SOCORROS: CourseContent = {
                 },
                 "Se ela não acordar em cerca de 1 minuto, ligue para o 192.",
                 { box: "atencao", title: "Não faça", text: "Não dê tapas, não jogue água no rosto, não dê comida, bebida ou remédio enquanto a pessoa estiver desacordada e não tente colocá-la de pé à força." },
+                { video: { youtubeId: "fYZpdFpF_bQ", title: "primeiros socorros no desmaio", minutes: 10 } },
               ],
             },
             {
@@ -660,6 +662,8 @@ export const PRIMEIROS_SOCORROS: CourseContent = {
                 { box: "chave", text: "Começar logo é mais importante do que fazer perfeito. Se houver outra pessoa, troquem a cada 2 minutos: cansado, ninguém comprime bem. E, sempre que puder, faça um curso prático: a técnica se aprende com as mãos." },
                 "Treine o ritmo abaixo. Aperte o botão (ou a barra de espaço) como se fossem as compressões. Se quiser, ligue o som para ouvir o ritmo certo.",
                 { tool: "ritmo-rcp" },
+                { video: { youtubeId: "jtEDnhcR23w", title: "RCP no adulto, aula prática", minutes: 13 } },
+                { video: { youtubeId: "uRxmiksNtN8", title: "RCP no bebê, aula prática", minutes: 10 } },
               ],
             },
             {
@@ -795,6 +799,7 @@ export const PRIMEIROS_SOCORROS: CourseContent = {
                   ],
                 },
                 { box: "atencao", title: "Nunca faça", text: "Não coloque nada na boca (nem colher, nem pano, nem dedo) e não tente segurar os movimentos. Ninguém \"engole a língua\" durante a convulsão." },
+                { video: { youtubeId: "8fk2-liGO0A", title: "o que fazer numa convulsão", minutes: 9 } },
               ],
             },
             {
@@ -828,6 +833,7 @@ export const PRIMEIROS_SOCORROS: CourseContent = {
               body: [
                 "Ligue para o 192 na hora e informe os sinais e o horário em que começaram. Deixe a pessoa em repouso, num lugar seguro. Não dê comida, bebida ou remédio.",
                 { box: "chave", text: "Não espere os sinais passarem: mesmo que melhorem, a avaliação urgente continua necessária. E não leve a pessoa dirigindo se dá para chamar o SAMU." },
+                { video: { youtubeId: "uHkpYIhSWb4", title: "primeiros socorros no AVC", minutes: 10 } },
               ],
             },
           ],

@@ -434,7 +434,7 @@ test("Foundation lessons follow one standard and open over the catalog", async (
   assert.match(catalog, /aria-labelledby="fc-lesson-title"/);
   assert.match(catalog, /addEventListener\("popstate"/);
   assert.match(catalog, /<summary>Ver resposta<\/summary>/);
-  assert.match(catalog, /youtube-nocookie\.com\/embed\/\$\{lesson\.video\.youtubeId\}\?cc_load_policy=1/);
+  assert.match(catalog, /youtube-nocookie\.com\/embed\/\$\{video\.youtubeId\}\?cc_load_policy=1/);
   // Extras da aula: título da aba, ouvir só com voz do aparelho, aviso de erro sem dados pessoais e tabela em cartões.
   const extras = await readFile(new URL("../app/FoundationLessonExtras.tsx", import.meta.url), "utf8");
   const api = await readFile(new URL("../app/api/[...path]/fundacao.ts", import.meta.url), "utf8");

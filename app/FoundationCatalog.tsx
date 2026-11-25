@@ -6,8 +6,8 @@ import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { CATEGORIES, COURSES, PHOTO_CREDITS, STARTER_PATH, categoryOf, courseById, courseImage, hasLessons, hasLongWord, partsOf, sharedTags, similarCourses } from "./foundation-courses";
 import type { CategoryId, Course } from "./foundation-courses";
-import { BOX_LABEL, COURSE_CONTENT, QUIZ_RULES, lessonMinutes, lessonsOf } from "./foundation-lessons";
-import type { Block, QuizResult } from "./foundation-lessons";
+import { BOX_LABEL, COURSE_CONTENT, QUIZ_RULES, lessonMinutes, lessonVideos, lessonsOf } from "./foundation-lessons";
+import type { Block, LessonVideo, QuizResult } from "./foundation-lessons";
 import { FinalChallenge } from "./FoundationQuiz";
 import { LessonListen, LessonReport } from "./FoundationLessonExtras";
 import { CheckCard, ModuleQuizCard, NOTEBOOK_TOOLS, NotebookCover, NotebookDesk, NotebookProvider, PostIts, SortCard, WriteField, useRuledPaper } from "./FoundationNotebook";
@@ -364,7 +364,7 @@ function CourseDialog({ course, actions, onClose }: { course: Course; actions: A
                             <small>{item.lesson.summary}</small>
                             {state.pct > 0 && state.pct < 100 && <span className="fc-part-bar" aria-hidden="true"><i style={{ width: `${state.pct}%` }} /></span>}
                           </span>
-                          <span className="fc-part-time" aria-hidden="true">{item.lesson.video ? "Vídeo e texto" : "Texto"} · {lessonMinutes(item.lesson)} min</span>
+                          <span className="fc-part-time" aria-hidden="true">{lessonVideos(item.lesson).length ? "Vídeo e texto" : "Texto"} · {lessonMinutes(item.lesson)} min</span>
                           <span className="fc-part-state" aria-hidden="true">{state.label || <PlayGlyph size={16} />}</span>
                         </button>
                       </li>
@@ -480,6 +480,20 @@ function PrintCostCalculator() {
   );
 }
 
+/** Vídeo do YouTube sem cookies de rastreio, com legenda ligada quando o vídeo tiver. */
+function LessonVideoFrame({ video, title, caption }: { video: LessonVideo; title: string; caption: string }) {
+  return (
+    <figure className="fc-lesson-video nb-pasted">
+      <iframe
+        src={`https://www.youtube-nocookie.com/embed/${video.youtubeId}?cc_load_policy=1&rel=0`}
+        title={title} loading="lazy"
+        allow="encrypted-media; picture-in-picture; fullscreen" referrerPolicy="strict-origin-when-cross-origin"
+      />
+      <figcaption>{caption}</figcaption>
+    </figure>
+  );
+}
+
 function LessonBlock({ block }: { block: Block }) {
   if (typeof block === "string") return <p>{block}</p>;
   if ("tool" in block) {
@@ -504,6 +518,7 @@ function LessonBlock({ block }: { block: Block }) {
       </aside>
     );
   }
+  if ("video" in block) return <LessonVideoFrame video={block.video} title={`Vídeo: ${block.video.title}`} caption={`Vídeo: ${block.video.title} (${block.video.minutes} min).`} />;
   if ("image" in block) {
     return (
       <figure className="fc-lesson-figure">
@@ -783,16 +798,7 @@ function LessonView({ course, start, progress, studentName, onSave, onNavigate, 
                           <ul>{lesson.goals.map((goal) => <li key={goal}>{goal}</li>)}</ul>
                         </section>
 
-                        {lesson.video && (
-                          <figure className="fc-lesson-video nb-pasted">
-                            <iframe
-                              src={`https://www.youtube-nocookie.com/embed/${lesson.video.youtubeId}?cc_load_policy=1&rel=0`}
-                              title={`Vídeo da aula: ${lesson.title}`} loading="lazy"
-                              allow="encrypted-media; picture-in-picture; fullscreen" referrerPolicy="strict-origin-when-cross-origin"
-                            />
-                            <figcaption>Vídeo com legenda ({lesson.video.minutes} min). O mesmo conteúdo está em texto logo abaixo.</figcaption>
-                          </figure>
-                        )}
+                        {lesson.video && <LessonVideoFrame video={lesson.video} title={`Vídeo da aula: ${lesson.title}`} caption={`Vídeo com legenda (${lesson.video.minutes} min). O mesmo conteúdo está em texto logo abaixo.`} />}
 
                         {lesson.sections.map((section, sectionIndex) => (
                           <section key={section.title} className="nb-section" data-ruled>

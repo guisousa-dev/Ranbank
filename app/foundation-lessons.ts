@@ -31,6 +31,7 @@ export const BOX_LABEL: Record<BoxKind, string> = { exemplo: "Exemplo", pratica:
  * Um pedaço do texto da aula: parágrafo, lista, quadro de destaque, tabela ou imagem.
  * Imagem: fica em public/images/fundacao/aulas/<id do curso>/. O `alt` descreve o que a imagem mostra
  * (e repete o texto escrito nela), para quem usa leitor de tela. Nunca mostrar nome de quem fez o curso.
+ * Vídeo: um vídeo do YouTube no meio do tópico, sobre o assunto daquele tópico (o texto continua completo sem ele).
  * Ferramenta: um exercício interativo dentro da aula. Cada uma tem o seu componente em FoundationCatalog.tsx.
  */
 export type Block =
@@ -39,11 +40,15 @@ export type Block =
   | { box: BoxKind; text: string; title?: string }
   | { table: { caption: string; head: string[]; rows: string[][] } }
   | { image: string; alt: string }
+  | { video: LessonVideo & { title: string } }
   | { tool: LessonTool }
   | { check: Check }
   | { sort: Sort }
   | { write: string }
   | { cards: Array<{ title: string; text: string; tag?: string }> };
+
+/** Vídeo do YouTube. `minutes` entra no tempo da aula. */
+export type LessonVideo = { youtubeId: string; minutes: number };
 
 /** Ferramentas interativas das aulas. Calculam tudo no navegador e não enviam nada. */
 export type LessonTool = "custo-impressao-3d" | "diagnostico-financeiro" | "gasto-formiga" | "prioridades" | "simulacao-lia" | "orcamento" | "parcelas" | "comparador" | "juros-compostos" | "ritmo-rcp" | "regra-do-quadrado" | "matriz-eisenhower" | "caca-ao-golpe" | "respiracao" | "estante";
@@ -80,7 +85,7 @@ export type Lesson = {
   /** "Nesta aula você vai": de 2 a 4 itens. */
   goals: string[];
   /** Vídeo no YouTube (não listado). Toda aula com vídeo tem o mesmo conteúdo em texto logo abaixo. */
-  video?: { youtubeId: string; minutes: number };
+  video?: LessonVideo;
   /** De 3 a 5 tópicos curtos. */
   sections: Array<{ title: string; body: Block[] }>;
   /** Atividade para fazer no fim. A resposta fica escondida até a pessoa pedir. */
@@ -177,7 +182,7 @@ const blockText = (block: Block): string => {
   if (typeof block === "string") return block;
   if ("list" in block) return block.list.join(" ");
   if ("box" in block) return [block.title ?? "", block.text].join(" ");
-  if ("image" in block || "tool" in block) return "";
+  if ("image" in block || "tool" in block || "video" in block) return "";
   if ("check" in block) return [block.check.question, ...block.check.options].join(" ");
   if ("sort" in block) return [block.sort.title, ...block.sort.items.map((item) => item.text)].join(" ");
   if ("write" in block) return block.write;
@@ -197,7 +202,13 @@ export function lessonSpeech(lesson: Lesson) {
   ].filter((text) => text.trim());
 }
 
-/** Tempo da aula em minutos: leitura (cerca de 150 palavras por minuto, com calma) mais o vídeo. */
+/** Todos os vídeos da aula: o do começo e os que estão dentro dos tópicos. */
+export function lessonVideos(lesson: Lesson): LessonVideo[] {
+  const inside = lesson.sections.flatMap((section) => section.body.flatMap((block) => (typeof block === "object" && "video" in block ? [block.video] : [])));
+  return lesson.video ? [lesson.video, ...inside] : inside;
+}
+
+/** Tempo da aula em minutos: leitura (cerca de 150 palavras por minuto, com calma) mais os vídeos. */
 export function lessonMinutes(lesson: Lesson) {
   const text = [
     ...lesson.goals,
@@ -206,5 +217,5 @@ export function lessonMinutes(lesson: Lesson) {
     lesson.activity.answer ?? "",
     ...lesson.recap,
   ].join(" ");
-  return Math.max(3, Math.round(words(text) / 150) + 2) + (lesson.video?.minutes ?? 0);
+  return Math.max(3, Math.round(words(text) / 150) + 2) + lessonVideos(lesson).reduce((total, video) => total + video.minutes, 0);
 }
