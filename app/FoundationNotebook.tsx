@@ -935,6 +935,89 @@ function PriceCompare() {
   );
 }
 
+/* Simulador de juros compostos (Módulo 5) --------------------------------- */
+
+type Growth = { monthly?: string; years?: string; rate?: string; inflation?: string };
+/** O exemplo da aula: R$ 200 por mês, 10 anos, 10% ao ano, inflação de 4% ao ano. */
+const LESSON_GROWTH: Growth = { monthly: "200", years: "10", rate: "10", inflation: "4" };
+
+/** Saldo ao fim de cada ano, com depósito no fim de cada mês e juros compostos mensais. */
+const growthOf = (saved: Growth) => {
+  const monthly = toNumber(saved.monthly ?? "");
+  const years = Math.min(Math.round(toNumber(saved.years ?? "")), 40);
+  const rate = Math.min(toNumber(saved.rate ?? ""), 50) / 100;
+  const inflation = Math.min(toNumber(saved.inflation ?? ""), 50) / 100;
+  const perMonth = (1 + rate) ** (1 / 12) - 1;
+  const balances: number[] = [];
+  for (let month = 1; month <= years * 12; month += 1) {
+    const before = balances.length ? balances[balances.length - 1] : 0;
+    balances.push(before * (1 + perMonth) + monthly);
+  }
+  const byYear = Array.from({ length: years }, (_, year) => ({ deposited: monthly * 12 * (year + 1), balance: balances[(year + 1) * 12 - 1] }));
+  const final = byYear.length ? byYear[byYear.length - 1].balance : 0;
+  const deposited = monthly * 12 * years;
+  return { monthly, years, rate, inflation, byYear, final, deposited, interest: final - deposited, today: final / (1 + inflation) ** years };
+};
+
+function CompoundGrowth() {
+  const { data, update, setAnswer, earn } = useNotebook();
+  const baseId = useId();
+  const key = "ferramenta:juros-compostos";
+  const saved = (data.answers[key] as Growth | undefined) ?? {};
+  const result = growthOf(saved);
+  const ready = result.monthly > 0 && result.years > 0;
+  const round = (value: number) => brl(Math.round(value));
+  const set = (field: keyof Growth, text: string) => {
+    const next = growthOf(update<Growth>(key, (previous) => ({ ...previous, [field]: text })));
+    if (next.monthly > 0 && next.years > 0 && next.rate > 0) earn("juros-a-favor");
+  };
+  const scale = Math.max(result.final, 1);
+  const fields: Array<{ field: keyof Growth; label: string; placeholder: string; mode: "decimal" | "numeric" }> = [
+    { field: "monthly", label: "Quanto por mês (R$)", placeholder: "200", mode: "decimal" },
+    { field: "years", label: "Por quantos anos", placeholder: "10", mode: "numeric" },
+    { field: "rate", label: "Rendimento ao ano (%)", placeholder: "10", mode: "decimal" },
+    { field: "inflation", label: "Inflação ao ano (%)", placeholder: "4", mode: "decimal" },
+  ];
+  return (
+    <div className="nb-pasted nb-tool nb-budget">
+      <p className="nb-tag">Simulador de juros compostos</p>
+      <div className="nb-budget-lines">
+        {fields.map((item) => (
+          <label key={item.field} htmlFor={`${baseId}-${item.field}`}>{item.label}<input id={`${baseId}-${item.field}`} inputMode={item.mode} value={saved[item.field] ?? ""} placeholder={item.placeholder} onChange={(event) => set(item.field, event.target.value)} /></label>
+        ))}
+      </div>
+      <div aria-live="polite">
+        {!ready ? <p className="nb-muted">Preencha quanto guardar por mês e por quantos anos.</p> : (
+          <div className="nb-result">
+            <dl className="nb-sums">
+              <div><dt>Você deposita</dt><dd>{round(result.deposited)}</dd></div>
+              <div><dt>Juros ganhos</dt><dd>{round(result.interest)}</dd></div>
+              <div className="is-total"><dt>Valor no fim de {result.years === 1 ? "1 ano" : `${result.years} anos`}</dt><dd>{round(result.final)}</dd></div>
+              {result.inflation > 0 && <div><dt>Em dinheiro de hoje (descontada a inflação)</dt><dd>{round(result.today)}</dd></div>}
+            </dl>
+            <div className="nb-growth" role="img" aria-label={`Saldo ao fim de cada ano: ${result.byYear.map((item, year) => `ano ${year + 1}, ${round(item.balance)}, dos quais ${round(item.deposited)} depositados`).join("; ")}.`}>
+              <div className="nb-growth-plot" style={{ gridTemplateColumns: `repeat(${result.years}, 1fr)` }}>
+                {result.byYear.map((item, year) => (
+                  <span key={year} className="nb-installments-bar">
+                    <i className="is-new" style={{ height: `${(Math.max(item.balance - item.deposited, 0) / scale) * 100}%` }} />
+                    <i style={{ height: `${(item.deposited / scale) * 100}%` }} />
+                  </span>
+                ))}
+              </div>
+              <div className="nb-growth-axis" aria-hidden="true"><small>ano 1</small><small>ano {result.years}</small></div>
+            </div>
+            <p className="nb-installments-legend" aria-hidden="true"><span><i /> Depositado</span><span><i className="is-new" /> Juros</span></p>
+            {result.final > 0 && <p>{result.interest > 0 ? `Os juros são ${Math.round((result.interest / result.final) * 100)}% do valor final. Quanto mais tempo, maior essa parte.` : "Sem rendimento, o valor final é só o que você depositou."}</p>}
+            {result.inflation > 0 && result.today < result.deposited && <p>Descontada a inflação, o valor final compra menos do que tudo o que você depositou: o rendimento ficou abaixo da inflação.</p>}
+            <p className="nb-muted">Simulação com rendimento e inflação constantes, sem Imposto de Renda nem taxas. Na vida real os dois variam.</p>
+          </div>
+        )}
+      </div>
+      <button type="button" className="nb-btn is-soft" onClick={() => setAnswer(key, { ...LESSON_GROWTH })}>Ver o exemplo da aula</button>
+    </div>
+  );
+}
+
 export const NOTEBOOK_TOOLS = {
   "diagnostico-financeiro": Diagnostic,
   "gasto-formiga": AntSpending,
@@ -943,4 +1026,5 @@ export const NOTEBOOK_TOOLS = {
   orcamento: Budget,
   parcelas: Installments,
   comparador: PriceCompare,
+  "juros-compostos": CompoundGrowth,
 } as const;

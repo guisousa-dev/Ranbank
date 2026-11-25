@@ -346,6 +346,10 @@ html[data-site-theme="light"] .nb-page .fc-box.is-atencao { --box: #9a6408; }
 .nb-budget > .nb-btn { margin-top: 14px; }
 .nb-installment-group { display: grid; gap: 10px; }
 .nb-fields.is-four { grid-template-columns: 2fr 1fr 1.3fr 1fr; }
+.nb-growth { display: grid; gap: 6px; margin-top: 6px; }
+.nb-growth-plot { display: grid; align-items: end; gap: 3px; height: 170px; border-bottom: 1.5px solid var(--nb-card-line); }
+.nb-growth-axis { display: flex; justify-content: space-between; color: var(--nb-muted); font-size: 13px; }
+.nb-growth .is-new { background: repeating-linear-gradient(135deg, var(--nb-accent) 0 4px, color-mix(in srgb, var(--nb-accent) 35%, transparent) 4px 8px); }
 .nb-budget > .nb-segment { margin-top: 4px; }
 .nb-ledger .is-best th, .nb-ledger .is-best td { color: var(--nb-right); font-weight: 700; }
 .nb-installments { display: grid; gap: 6px; }

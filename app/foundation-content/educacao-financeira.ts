@@ -1,5 +1,5 @@
 // Curso: Educação financeira pessoal. 5 módulos com 3 aulas cada.
-// Módulo 1 pronto; os outros entram assim que forem revisados.
+// Os 5 módulos estão prontos, cada um com uma interação e um quiz de 10 perguntas.
 // Segue o padrão de app/foundation-lessons.ts.
 
 import type { CourseContent } from "../foundation-lessons";
@@ -21,6 +21,8 @@ export const EDUCACAO_FINANCEIRA: CourseContent = {
     { id: "mestre-do-modulo-3", name: "Crédito sob controle", how: "Acertou 8 ou mais no quiz do Módulo 3." },
     { id: "etiqueta-decifrada", name: "Etiqueta decifrada", how: "Comparou duas ou mais opções pelo preço por unidade." },
     { id: "mestre-do-modulo-4", name: "Consumidor atento", how: "Acertou 8 ou mais no quiz do Módulo 4." },
+    { id: "juros-a-favor", name: "Juros a favor", how: "Simulou um investimento com os seus próprios números." },
+    { id: "mestre-do-modulo-5", name: "Futuro planejado", how: "Acertou 8 ou mais no quiz do Módulo 5." },
   ],
   modules: [
     {
@@ -1212,6 +1214,257 @@ export const EDUCACAO_FINANCEIRA: CourseContent = {
         ],
       },
     },
-    { title: "Poupança e investimentos", lessons: [] },
+    {
+      title: "Poupança e investimentos",
+      lessons: [
+        {
+          id: "reserva-de-emergencia",
+          title: "Reserva de emergência",
+          summary: "O que é uma emergência, quanto guardar e onde deixar esse dinheiro.",
+          goals: ["Separar emergência de gasto previsível", "Calcular o tamanho da sua reserva", "Saber o que procurar num lugar para guardar a reserva"],
+          sections: [
+            {
+              title: "O que é uma emergência",
+              body: [
+                "Emergência é um gasto necessário que você não tinha como prever: a moto de trabalho que quebrou, um remédio urgente, a renda que parou por um tempo. A reserva existe para isso não virar dívida no cartão ou no cheque especial.",
+                "Promoção não é emergência. E gasto que se repete todo ano também não: IPVA, material escolar e presentes de fim de ano são despesas esporádicas, que entram no orçamento divididas por mês, como você viu no Módulo 2.",
+                {
+                  sort: {
+                    title: "Emergência ou não?",
+                    labels: ["É emergência", "Não é emergência"],
+                    items: [
+                      { text: "A geladeira parou e a comida vai estragar.", answer: 0, why: "Necessário e inesperado: é para isso que a reserva existe." },
+                      { text: "O IPVA que vence em janeiro.", answer: 1, why: "Ele vem todo ano. É despesa esporádica: entra no orçamento dividida por mês." },
+                      { text: "Uma TV pela metade do preço na Black Friday.", answer: 1, why: "Uma oportunidade não é uma emergência. Se a TV é uma meta, ela tem a própria poupança." },
+                      { text: "Ficar dois meses sem salário depois de uma demissão.", answer: 0, why: "Cobrir as despesas essenciais enquanto a renda não volta é um dos usos mais importantes da reserva." },
+                      { text: "Um conserto urgente no encanamento que vazou.", answer: 0, why: "Necessário e sem aviso. Adiar costuma deixar o problema mais caro." },
+                      { text: "A viagem com os amigos, marcada para daqui a três meses.", answer: 1, why: "Com data marcada, é uma meta: dá para dividir o valor pelos meses que faltam." },
+                    ],
+                  },
+                },
+              ],
+            },
+            {
+              title: "Quanto guardar",
+              body: [
+                "A referência mais usada é ter de 3 a 6 meses das suas despesas essenciais. Quem tem renda variável, trabalha por conta própria ou sustenta outras pessoas deve mirar mais perto de 6 meses, ou até mais.",
+                { box: "exemplo", title: "A reserva do Diego", text: "No orçamento do Módulo 2, as despesas essenciais de Diego (moradia, contas, mercado e transporte) somam R$ 1.640. A reserva dele fica entre R$ 4.920 (3 meses) e R$ 9.840 (6 meses). A conta usa as despesas essenciais, não o salário." },
+                "Parece muito, e é. Por isso vale começar com um primeiro degrau: R$ 500, R$ 1.000 ou um mês de despesas. Guardando R$ 150 por mês, Diego chega a um mês de despesas em 11 meses, e cada degrau já evita uma dívida.",
+                { box: "pratica", title: "Usou, reponha", text: "Usar a reserva numa emergência é exatamente o que ela deve fazer. Depois, volte a guardar até chegar ao valor de antes." },
+              ],
+            },
+            {
+              title: "Onde guardar",
+              body: [
+                "A reserva precisa de duas coisas antes do rendimento:",
+                {
+                  cards: [
+                    { title: "Segurança", text: "O risco de perder dinheiro deve ser muito baixo. Nada de ações, criptomoedas ou aplicações que você não entende." },
+                    { title: "Liquidez", text: "Você precisa conseguir resgatar rápido, no mesmo dia ou no seguinte, sem multa e sem perder rendimento." },
+                  ],
+                },
+                "Opções comuns são a poupança, CDBs ou contas remuneradas com liquidez diária de bancos cobertos pelo FGC, e o Tesouro Selic. Elas rendem diferente, mas todas atendem às duas regras. Deixe a reserva separada da conta do dia a dia, para não gastar sem perceber.",
+                {
+                  check: {
+                    question: "Para a reserva de emergência, o que pesa mais na escolha de onde guardar?",
+                    options: ["O maior rendimento possível, mesmo com risco.", "Segurança e resgate rápido, mesmo rendendo menos.", "Um prazo longo de resgate, que costuma render mais."],
+                    answer: 1,
+                    why: "A reserva precisa estar lá, inteira, no dia do imprevisto. Rendimento alto com risco ou dinheiro preso por anos não servem para isso.",
+                  },
+                },
+              ],
+            },
+          ],
+          activity: {
+            title: "O tamanho da minha reserva",
+            steps: ["Use as despesas essenciais do seu orçamento do Módulo 2. Se não tiver, use as do Diego."],
+            fields: [
+              "Minhas despesas essenciais por mês (R$):",
+              "Minha reserva de 3 meses e de 6 meses (R$):",
+              "Meu primeiro degrau e quanto vou guardar por mês para chegar nele:",
+              "Onde vou guardar e por quê:",
+            ],
+            answer: "Multiplique as despesas essenciais por 3 e por 6. Para o primeiro degrau, divida o valor pelo que dá para guardar por mês: R$ 1.000 com R$ 100 por mês levam 10 meses. O lugar precisa ser seguro e permitir resgate rápido.",
+          },
+          recap: [
+            "Emergência é gasto necessário e imprevisto; despesa que se repete todo ano vai no orçamento.",
+            "A reserva vai de 3 a 6 meses das despesas essenciais; comece por um primeiro degrau.",
+            "Guarde em algo seguro e com resgate rápido, separado da conta do dia a dia.",
+          ],
+        },
+        {
+          id: "poupar-e-investir",
+          title: "Poupar, investir e a inflação",
+          summary: "Por que dinheiro parado perde valor, como os juros compostos ajudam e o que olhar antes de investir.",
+          goals: ["Entender a inflação e o rendimento real", "Ver os juros compostos trabalhando a seu favor", "Avaliar rentabilidade, liquidez e risco e reconhecer golpes"],
+          sections: [
+            {
+              title: "A inflação come o dinheiro parado",
+              body: [
+                "Inflação é o aumento geral dos preços. Com inflação de 5% ao ano, o que custa R$ 100 hoje passa a custar R$ 105. Quem guarda R$ 1.000 na gaveta continua com R$ 1.000, mas eles compram o que antes custava cerca de R$ 952.",
+                "Poupar é separar dinheiro. Investir é aplicar esse dinheiro para ele render, aceitando regras, prazos e algum risco. Poupar vem primeiro; investir faz o dinheiro poupado não perder para a inflação.",
+                { box: "chave", title: "Rendimento real", text: "O que importa é quanto o investimento rende acima da inflação. Se ele rendeu 6% no ano e a inflação foi de 5%, o ganho real foi de cerca de 1%. Se rendeu 4%, você perdeu poder de compra, mesmo com o saldo maior." },
+              ],
+            },
+            {
+              title: "Juros compostos a seu favor",
+              body: [
+                "No Módulo 3, os juros sobre juros faziam a dívida crescer. Investindo, a mesma força trabalha para você: o rendimento de cada mês também passa a render.",
+                { box: "exemplo", title: "R$ 200 por mês durante 10 anos", text: "Guardando R$ 200 por mês, a pessoa deposita R$ 24.000 em 10 anos. Com rendimento de 10% ao ano, chega a cerca de R$ 40.000: uns R$ 16.000 vieram dos juros. Com inflação de 4% ao ano, esses R$ 40.000 valem uns R$ 27.000 em dinheiro de hoje, ainda bem acima do que foi depositado." },
+                "O que mais pesa é o tempo. Teste no simulador: mude os anos e veja quanto dos juros aparece no fim.",
+                { tool: "juros-compostos" },
+              ],
+            },
+            {
+              title: "Rentabilidade, liquidez e risco",
+              body: [
+                {
+                  cards: [
+                    { title: "Rentabilidade", text: "Quanto o investimento rende. Olhe o rendimento depois de taxas e Imposto de Renda." },
+                    { title: "Liquidez", text: "Em quanto tempo o dinheiro volta para a sua conta quando você resgata." },
+                    { title: "Risco", text: "A chance de o resultado ser diferente do esperado, inclusive com perda." },
+                  ],
+                },
+                "Nenhum investimento tem o máximo dos três. Em geral, quem quer mais rendimento aceita mais risco ou menos liquidez. Por isso a escolha depende do objetivo e do prazo.",
+                {
+                  table: {
+                    caption: "Alguns investimentos comuns",
+                    head: ["Investimento", "Como funciona", "Proteção e risco"],
+                    rows: [
+                      ["Poupança", "Rende menos que boa parte da renda fixa; isenta de Imposto de Renda", "Coberta pelo FGC"],
+                      ["CDB", "Você empresta ao banco; há opções com liquidez diária", "Coberto pelo FGC até R$ 250 mil por CPF em cada instituição"],
+                      ["Tesouro Selic", "Você empresta ao governo federal; resgate rápido", "Garantido pelo Tesouro Nacional, risco muito baixo"],
+                      ["Ações e fundos de ações", "Você vira sócio de empresas; o valor sobe e desce", "Sem garantia: risco alto, para prazos longos"],
+                    ],
+                  },
+                },
+              ],
+            },
+            {
+              title: "Promessa boa demais",
+              body: [
+                {
+                  list: [
+                    "Rendimento garantido muito acima do mercado, como \"1% ao dia\" ou \"dobre em 3 meses\".",
+                    "Pressão para decidir rápido e pedido de Pix para pessoa física.",
+                    "Ganho que depende de trazer mais gente: é pirâmide, e os primeiros a receber pagam com o dinheiro dos novos.",
+                  ],
+                },
+                { box: "atencao", title: "Antes de investir", text: "Confira se a empresa é autorizada pelo Banco Central ou pela CVM, nos sites oficiais de cada um. Pirâmides costumam pagar direitinho no começo, e é assim que convencem mais gente. Não invista em nada que você não consegue explicar." },
+                {
+                  check: {
+                    question: "Uma empresa paga 5% ao mês a quem investe e dá um bônus para cada pessoa nova que você trouxer. O que isso indica?",
+                    options: ["Um investimento de risco alto, mas legítimo.", "Um bom negócio, enquanto continuar pagando.", "Uma pirâmide: o dinheiro dos novos paga os antigos."],
+                    answer: 2,
+                    why: "Quando o ganho depende de trazer gente, quem paga os rendimentos são os que entram depois. Quando param de entrar pessoas, a pirâmide desaba e a maioria perde.",
+                  },
+                },
+              ],
+            },
+          ],
+          activity: {
+            title: "Meu dinheiro e a inflação",
+            steps: ["Responda com os seus números ou com um exemplo."],
+            fields: [
+              "Onde está o dinheiro que eu guardo hoje (ou onde eu guardaria):",
+              "Ele rende mais ou menos que a inflação?",
+              "Um objetivo de longo prazo e quanto eu teria, pelo simulador, guardando um valor por mês:",
+            ],
+            answer: "Dinheiro na gaveta ou na conta-corrente comum perde para a inflação. Para a reserva, o foco é segurança e liquidez; para objetivos de longo prazo, dá para buscar mais rendimento, sempre entendendo o risco. Confira o índice de inflação do último ano em fontes oficiais, como o IBGE.",
+          },
+          recap: [
+            "A inflação tira poder de compra; o que importa é o rendimento acima dela.",
+            "Juros compostos fazem o rendimento render, e o tempo é o que mais pesa.",
+            "Equilibre rentabilidade, liquidez e risco, e desconfie de ganho garantido alto.",
+          ],
+        },
+        {
+          id: "meu-plano-financeiro",
+          title: "Meu plano financeiro",
+          summary: "Juntar tudo o que você aprendeu num plano possível e fácil de acompanhar.",
+          goals: ["Colocar as prioridades em ordem", "Transformar um objetivo em meta com valor e prazo", "Criar uma rotina para acompanhar o plano"],
+          sections: [
+            {
+              title: "Conheça a sua realidade",
+              body: [
+                "Todo plano começa com números verdadeiros: quanto entra, quanto sai, quanto você deve e o que você quer. Você já tem esses pedaços: o diagnóstico do Módulo 1, o orçamento do Módulo 2 e a lista de dívidas do Módulo 3. Não precisa mostrar seus números para ninguém.",
+              ],
+            },
+            {
+              title: "A ordem das prioridades",
+              body: [
+                {
+                  ordered: true,
+                  list: [
+                    "Orçamento no azul: as despesas cabem na renda (Módulo 2).",
+                    "Um primeiro degrau da reserva, para o próximo imprevisto não virar dívida.",
+                    "Sair das dívidas caras, como rotativo e cheque especial (Módulo 3).",
+                    "Completar a reserva de emergência.",
+                    "Investir para as metas, de acordo com o prazo de cada uma.",
+                  ],
+                },
+                "Investir antes de quitar uma dívida cara não compensa: o rotativo cobra mais de 10% ao mês, e nenhum investimento seguro rende perto disso.",
+                {
+                  check: {
+                    question: "Marcos tem o orçamento no azul, nenhuma dívida e nenhuma reserva. Recebeu R$ 1.000 a mais este mês. Pela ordem da aula, o que vem primeiro?",
+                    options: ["Investir em ações, pensando na aposentadoria.", "Começar a reserva de emergência.", "Antecipar a troca do celular, já que sobrou."],
+                    answer: 1,
+                    why: "Sem dívidas, o passo seguinte ao orçamento no azul é a reserva. Investir para metas longas vem depois que ela estiver pronta.",
+                  },
+                },
+              ],
+            },
+            {
+              title: "Metas e acompanhamento",
+              body: [
+                "Para cada objetivo, use a regra do Módulo 2: o quê, quanto e até quando. Divida o valor pelos meses para saber quanto guardar. Se não couber no orçamento, ajuste o prazo ou o valor, mas mantenha a meta.",
+                "Para metas de até um ano, segurança e liquidez pesam mais. Para metas de muitos anos, como a aposentadoria, o tempo deixa os juros compostos trabalharem e permite buscar mais rendimento.",
+                {
+                  cards: [
+                    { title: "Toda semana", tag: "5 minutos", text: "Anote os gastos e confira o saldo." },
+                    { title: "Todo mês", tag: "15 minutos", text: "Compare o planejado com o realizado e transfira o valor das metas logo que o dinheiro entrar." },
+                    { title: "Todo ano", tag: "1 hora", text: "Revise as metas, a reserva e as dívidas. A vida muda, e o plano muda junto." },
+                  ],
+                },
+                { box: "chave", title: "Ponto-chave", text: "Um bom plano não precisa ser perfeito: precisa ser realista e ser seguido. Comece com uma atitude possível e ajuste no caminho." },
+              ],
+            },
+          ],
+          activity: {
+            title: "Meu plano financeiro pessoal",
+            steps: ["Preencha com os seus dados ou com valores de exemplo. É a sua ficha do curso: dá para voltar e atualizar quando quiser."],
+            fields: [
+              "Meu objetivo financeiro:",
+              "Quanto preciso juntar (R$):",
+              "Até quando quero chegar lá:",
+              "Quanto posso separar por semana ou por mês (R$):",
+              "Quais gastos posso planejar melhor:",
+              "Como e quando vou acompanhar o meu progresso:",
+            ],
+            answer: "Confira se a conta fecha: o valor por mês multiplicado pelo número de meses precisa chegar ao total. Se não fechar, aumente o prazo, diminua a meta ou encontre um gasto para ajustar. E deixe a transferência marcada para o dia em que o dinheiro entra.",
+          },
+          recap: [
+            "O plano parte dos seus números de verdade: renda, gastos, dívidas e objetivos.",
+            "A ordem é orçamento no azul, primeiro degrau da reserva, dívidas caras, reserva completa e investimentos.",
+            "Acompanhe toda semana, todo mês e todo ano, e ajuste quando a vida mudar.",
+          ],
+        },
+      ],
+      quiz: {
+        sticker: { id: "mestre-do-modulo-5", min: 8 },
+        questions: [
+          { question: "Qual destes gastos é um bom motivo para usar a reserva de emergência?", options: ["O IPVA que vence em janeiro.", "Uma TV pela metade do preço na Black Friday.", "O conserto da moto que Rafa usa para trabalhar.", "O presente de aniversário da mãe, no mês que vem."], answer: 2, why: "A reserva é para gastos necessários e imprevistos. O IPVA e o presente são previsíveis e entram no orçamento; a TV é uma oportunidade, não uma emergência." },
+          { question: "Diego ganha R$ 2.200 e tem R$ 1.640 de despesas essenciais. Ele tem carteira assinada e não sustenta outras pessoas. Qual é a faixa de reserva indicada?", options: ["Entre R$ 4.920 e R$ 9.840.", "Entre R$ 6.600 e R$ 13.200.", "R$ 1.640, um mês de despesas.", "R$ 26.400, um ano de salário."], answer: 0, why: "São de 3 a 6 meses das despesas essenciais: 3 × R$ 1.640 e 6 × R$ 1.640. A faixa de R$ 6.600 a R$ 13.200 usa o salário, e não as despesas." },
+          { question: "Lia vai começar a reserva de emergência. Qual destas opções atende ao que a aula pede para a reserva?", options: ["Um CDB que só pode ser resgatado daqui a 3 anos, porque rende mais.", "Ações de empresas grandes, que costumam se recuperar das quedas.", "Criptomoedas, que podem ser vendidas a qualquer hora do dia.", "Um CDB com liquidez diária, de um banco coberto pelo FGC."], answer: 3, why: "A reserva pede segurança e resgate rápido. O CDB de 3 anos prende o dinheiro; ações e criptomoedas podem estar em queda justo no dia do imprevisto." },
+          { question: "Rafa guardou R$ 1.000 em casa durante um ano em que a inflação foi de 5%. O que aconteceu com esse dinheiro?", options: ["Continua comprando o mesmo, já que o valor não mudou.", "Compra o que antes custava cerca de R$ 952.", "Passou a valer R$ 1.050, porque os preços subiram.", "Só perderia valor se estivesse no banco."], answer: 1, why: "Os preços subiram 5%, e os R$ 1.000 continuaram R$ 1.000: compram cerca de R$ 1.000 ÷ 1,05 ≈ R$ 952 do que compravam antes. Guardado em casa ou parado na conta, perde do mesmo jeito." },
+          { question: "Um investimento rendeu 6% no ano, e a inflação foi de 5%. Qual foi o ganho real, aproximadamente?", options: ["11%", "6%", "Cerca de 1%", "Houve perda de 1%"], answer: 2, why: "O ganho real é o que sobra acima da inflação: cerca de 6% − 5% = 1%. O saldo subiu 6%, mas os preços subiram 5%." },
+          { question: "Ana guardou R$ 200 por mês durante 10 anos, com rendimento de 10% ao ano, e terminou com cerca de R$ 40.000. Quanto ela depositou e quanto veio dos juros?", options: ["Depositou R$ 24.000; cerca de R$ 16.000 são juros.", "Depositou R$ 2.400; o resto veio dos juros.", "Depositou R$ 24.000; os juros foram R$ 2.400, 10% do total.", "Depositou R$ 20.000; os juros foram outros R$ 20.000."], answer: 0, why: "R$ 200 × 120 meses = R$ 24.000. Os outros R$ 16.000 vieram dos juros compostos: o rendimento de cada mês também passou a render." },
+          { question: "Um conhecido oferece um investimento com rendimento garantido alto, resgate quando quiser e \"risco zero\". O que fazer?", options: ["Investir pouco para testar e aumentar se pagar certo.", "Aceitar se a empresa tiver um site bonito e muitos seguidores.", "Aceitar se um amigo já recebeu os rendimentos.", "Desconfiar: nenhum investimento reúne as três coisas."], answer: 3, why: "Alta rentabilidade, liquidez total e risco zero não existem juntos. Pirâmides pagam os primeiros para atrair os próximos, então testar com pouco e o amigo que recebeu são justamente a isca." },
+          { question: "Paulo tinha R$ 20 mil num CDB de um banco que quebrou. O que acontece com esse dinheiro?", options: ["Ele perde tudo, porque CDB é um investimento de risco.", "Ele recebe de volta pelo FGC, que cobre até R$ 250 mil por CPF em cada instituição.", "Ele só recebe de volta o que tivesse na poupança, não no CDB.", "Ele recebe de volta pelo Tesouro Nacional, que garante os bancos."], answer: 1, why: "O FGC protege poupança e CDB até R$ 250 mil por CPF em cada instituição. O Tesouro Nacional garante os títulos do Tesouro Direto, não os bancos." },
+          { question: "Sol guarda R$ 300 por mês numa gaveta para uma viagem daqui a 2 anos. Como a aula descreve o que ela está fazendo?", options: ["Está poupando, mas não investindo: o dinheiro perde para a inflação.", "Está investindo, porque guarda todo mês com disciplina.", "Está investindo, porque o objetivo é de longo prazo.", "Não está poupando, porque poupar é usar a caderneta de poupança."], answer: 0, why: "Poupar é separar o dinheiro; investir é aplicá-lo para render. Parado na gaveta, ele perde poder de compra para a inflação." },
+          { question: "Tati tem R$ 1.000 no rotativo, já tem um pequeno degrau de reserva e juntou mais R$ 800. Ela quer começar a investir a cerca de 1% ao mês. O que o plano da aula indica?", options: ["Investir os R$ 800 e continuar pagando o mínimo do cartão.", "Dividir: R$ 400 no investimento e R$ 400 no cartão.", "Usar os R$ 800 para abater o rotativo antes de investir.", "Investir tudo e quitar o cartão com o rendimento."], answer: 2, why: "O rotativo custa mais de 10% ao mês, e o investimento rende cerca de 1%. Abater a dívida cara vale muito mais. Na ordem do plano, ela vem antes dos investimentos." },
+        ],
+      },
+    },
   ],
 };
