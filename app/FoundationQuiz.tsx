@@ -12,7 +12,7 @@ import { Mark } from "./FoundationBadge";
  * A roleta é dividida pelos módulos do curso e tem o tema do curso (veja THEMES): na Impressora 3D é um
  * carretel de filamento com o bico da impressora; na Educação financeira, uma moeda; em Primeiros socorros,
  * um kit com a cruz verde (a cruz vermelha é um emblema protegido e não pode ser usada); no Xadrez,
- * um tabuleiro com o cavalo no meio; em Gestão de tempo, um relógio; em Hardware e sistema operacional, um cooler; em Autodesenvolvimento, a roleta do 1%; em Jogos, um disco de jogo.
+ * um tabuleiro com o cavalo no meio; em Gestão de tempo, um relógio; em Hardware e sistema operacional, um cooler; em Autodesenvolvimento, a roleta do 1%; em Jogos, um disco de jogo; em Futebol, uma bola.
  * Cada partida sorteia QUIZ_RULES.total perguntas, equilibradas entre os módulos.
  * Quem acerta QUIZ_RULES.pass ganha o certificado, que fica salvo junto com o progresso do curso.
  * O certificado mostra só o nome de quem fez o curso, nunca o de quem preparou as aulas.
@@ -21,7 +21,7 @@ import { Mark } from "./FoundationBadge";
 const MODULE_COLORS = ["#8fb1ff", "#3ddc84", "#f5b83d", "#f2a7d8", "#c9a7ff", "#7fe0e0"];
 
 /** Tema da roleta e do certificado. `wheel` é o desenho; `name` completa a frase "Gire ...". */
-type Theme = { wheel: "carretel" | "moeda" | "kit" | "tabuleiro" | "relogio" | "cooler" | "um-por-cento" | "disco" | "roleta"; name: string };
+type Theme = { wheel: "carretel" | "moeda" | "kit" | "tabuleiro" | "relogio" | "cooler" | "um-por-cento" | "disco" | "bola" | "roleta"; name: string };
 const THEMES: Record<string, Theme> = {
   "impressora-3d": { wheel: "carretel", name: "o carretel" },
   "educacao-financeira": { wheel: "moeda", name: "a moeda" },
@@ -31,6 +31,7 @@ const THEMES: Record<string, Theme> = {
   "hardware-so": { wheel: "cooler", name: "o cooler" },
   autodesenvolvimento: { wheel: "um-por-cento", name: "a roleta do 1%" },
   jogos: { wheel: "disco", name: "o disco" },
+  futebol: { wheel: "bola", name: "a bola" },
 };
 const DEFAULT_THEME: Theme = { wheel: "roleta", name: "a roleta" };
 const themeOf = (courseId: string) => THEMES[courseId] ?? DEFAULT_THEME;
@@ -79,6 +80,10 @@ function polar(r: number, deg: number) {
   const a = ((deg - 90) * Math.PI) / 180;
   return [r * Math.cos(a), r * Math.sin(a)] as const;
 }
+/** Pentágono de bola de futebol com centro em (cx, cy). */
+function pentagon(r: number, cx = 0, cy = 0, turn = 0) {
+  return Array.from({ length: 5 }, (_, k) => { const [x, y] = polar(r, turn + k * 72); return `${cx + x},${cy + y}`; }).join(" ");
+}
 function sector(r0: number, r1: number, a0: number, a1: number) {
   const [x0, y0] = polar(r1, a0), [x1, y1] = polar(r1, a1), [x2, y2] = polar(r0, a1), [x3, y3] = polar(r0, a0);
   const large = a1 - a0 > 180 ? 1 : 0;
@@ -95,6 +100,7 @@ function Spool({ count, rotation, onStop, kind = "carretel" }: { count: number; 
   const clock = kind === "relogio";
   const fan = kind === "cooler";
   const disc = kind === "disco";
+  const ball = kind === "bola";
   return (
     <svg className="fq-spool" viewBox="-104 -122 208 228" aria-hidden="true">
       {fan && (
@@ -104,12 +110,13 @@ function Spool({ count, rotation, onStop, kind = "carretel" }: { count: number; 
         </g>
       )}
       <g className="fq-rotor" style={{ transform: `rotate(${rotation}deg)` }} onTransitionEnd={onStop}>
-        <circle r="98" fill={coin ? "#c9973a" : kit || clock ? "#f4f5f7" : fan ? "#14161c" : disc ? "#cfd3dc" : "#1b1e26"} stroke={coin ? "#8a6420" : kit ? "#1a8f4c" : clock ? "#2a2d36" : disc ? "#9aa0ad" : "rgba(255,255,255,.12)"} strokeWidth={kit || clock ? 3 : 1.2} />
+        <circle r="98" fill={coin ? "#c9973a" : kit || clock ? "#f4f5f7" : fan ? "#14161c" : disc ? "#cfd3dc" : ball ? "#f4f5f7" : "#1b1e26"} stroke={coin ? "#8a6420" : kit ? "#1a8f4c" : clock ? "#2a2d36" : disc ? "#9aa0ad" : ball ? "#2a2d36" : "rgba(255,255,255,.12)"} strokeWidth={kit || clock || ball ? 3 : 1.2} />
         {coin && Array.from({ length: 90 }, (_, k) => {
           const [x0, y0] = polar(91, k * 4), [x1, y1] = polar(97.5, k * 4);
           return <line key={k} x1={x0} y1={y0} x2={x1} y2={y1} stroke="#8a6420" strokeWidth="1.4" />;
         })}
         {coin && <circle r="89" fill="#e8bb5a" />}
+        {ball && Array.from({ length: 8 }, (_, k) => { const [x, y] = polar(93, k * 45 + 22.5); return <polygon key={k} points={pentagon(4.5, x, y, k * 45 + 22.5)} fill="#1b1e26" />; })}
         {disc && [91, 94].map((r) => <circle key={r} r={r} fill="none" stroke="#f4f5f7" strokeOpacity=".75" strokeWidth=".8" />)}
         {clock && Array.from({ length: 60 }, (_, k) => {
           const [x0, y0] = polar(k % 5 ? 93 : 90, k * 6), [x1, y1] = polar(97, k * 6);
@@ -146,6 +153,15 @@ function Spool({ count, rotation, onStop, kind = "carretel" }: { count: number; 
             <line x1="0" y1="0" x2="0" y2="-26" stroke="#2a2d36" strokeWidth="3.2" strokeLinecap="round" />
             <line x1="0" y1="0" x2="16" y2="9" stroke="#2a2d36" strokeWidth="3.2" strokeLinecap="round" />
             <circle r="3.5" fill="#e0533d" />
+          </>
+        ) : ball ? (
+          <>
+            <circle r="40" fill="#f4f5f7" stroke="#2a2d36" strokeWidth="2" />
+            <polygon points={pentagon(13)} fill="#1b1e26" />
+            {Array.from({ length: 5 }, (_, k) => {
+              const [x0, y0] = polar(13, k * 72), [x1, y1] = polar(26, k * 72);
+              return <g key={k}><line x1={x0} y1={y0} x2={x1} y2={y1} stroke="#1b1e26" strokeWidth="1.6" /><polygon points={pentagon(7, ...polar(33, k * 72), k * 72 + 36)} fill="#1b1e26" /></g>;
+            })}
           </>
         ) : disc ? (
           <>
@@ -228,6 +244,23 @@ function Hourglass() {
       <path d="M-26 8 C-18 22 -4 30 0 42 C4 30 18 22 26 8Z" fill="currentColor" fillOpacity=".3" />
       <path d="M0 45 V104" stroke="currentColor" strokeOpacity=".35" strokeDasharray="2 3" />
       <path d="M-34 110 C-30 92 -12 84 0 82 C12 84 30 92 34 110Z" fill="currentColor" fillOpacity=".3" />
+    </svg>
+  );
+}
+
+/** Trave com rede e a bola entrando, no mesmo traço do cubo. */
+function Goal() {
+  const net = [];
+  for (let x = -66; x <= 66; x += 12) net.push(<path key={`v${x}`} d={`M${x} 6 V104`} />);
+  for (let y = 18; y <= 104; y += 12) net.push(<path key={`h${y}`} d={`M-70 ${y} H70`} />);
+  return (
+    <svg viewBox="-90 -40 180 170" aria-hidden="true">
+      <g stroke="currentColor" strokeOpacity=".22" strokeWidth=".8">{net}</g>
+      <path d="M-74 112 V2 H74 V112" fill="none" stroke="currentColor" strokeOpacity=".65" strokeWidth="5" strokeLinejoin="round" />
+      <path d="M-86 112 H86" stroke="currentColor" strokeOpacity=".4" strokeWidth="1.5" />
+      <circle cx="26" cy="74" r="20" fill="currentColor" fillOpacity=".12" stroke="currentColor" strokeOpacity=".6" />
+      <polygon points={pentagon(7, 26, 74)} fill="currentColor" fillOpacity=".45" />
+      <path d="M-40 -26 C-10 -30 10 -10 18 40" fill="none" stroke="currentColor" strokeOpacity=".4" strokeWidth="1.6" strokeLinecap="round" strokeDasharray="3 4" />
     </svg>
   );
 }
@@ -356,6 +389,12 @@ function Seal({ kind }: { kind: Theme["wheel"] }) {
         <g fill="none" stroke="#8fb1ff" strokeWidth="2.4" strokeLinecap="round"><circle r="15" /><path d="M0 -9 V0 L7 5" /></g>
       ) : kind === "tabuleiro" ? (
         <text textAnchor="middle" dominantBaseline="central" y="1" fontSize="30" fill="#8fb1ff">{"♞︎"}</text>
+      ) : kind === "bola" ? (
+        <g>
+          <circle r="15" fill="none" stroke="#8fb1ff" strokeWidth="1.8" />
+          <polygon points={pentagon(6)} fill="#8fb1ff" />
+          {Array.from({ length: 5 }, (_, k) => { const [x0, y0] = polar(6, k * 72), [x1, y1] = polar(15, k * 72); return <line key={k} x1={x0} y1={y0} x2={x1} y2={y1} stroke="#8fb1ff" strokeWidth="1.4" />; })}
+        </g>
       ) : kind === "disco" ? (
         <g fill="none" stroke="#8fb1ff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M-10 -7 C-16 -7 -19 -1 -19 5 C-19 11 -15 12 -12 9 L-8 5 H8 L12 9 C15 12 19 11 19 5 C19 -1 16 -7 10 -7Z" />
@@ -385,7 +424,7 @@ function Certificate({ course, modules, lessonsCount, name, hits, date, code, ve
   const kind = themeOf(course.id).wheel;
   return (
     <div className="fq-paper" role="img" aria-label={`Certificado de conclusão do curso ${course.title}${name ? `, em nome de ${name}` : ""}`}>
-      {kind !== "roleta" && <div className="fq-p-cube">{kind === "moeda" ? <CoinStacks /> : kind === "kit" ? <FirstAidKit /> : kind === "tabuleiro" ? <ChessBoard /> : kind === "relogio" ? <Hourglass /> : kind === "cooler" ? <Chip /> : kind === "um-por-cento" ? <Steps /> : kind === "disco" ? <Gamepad /> : <PrintedCube />}</div>}
+      {kind !== "roleta" && <div className="fq-p-cube">{kind === "moeda" ? <CoinStacks /> : kind === "kit" ? <FirstAidKit /> : kind === "tabuleiro" ? <ChessBoard /> : kind === "relogio" ? <Hourglass /> : kind === "cooler" ? <Chip /> : kind === "um-por-cento" ? <Steps /> : kind === "disco" ? <Gamepad /> : kind === "bola" ? <Goal /> : <PrintedCube />}</div>}
       <div className="fq-p-seal"><Seal kind={kind} /></div>
       <div className="fq-p-in">
         <div className="fq-p-top">
